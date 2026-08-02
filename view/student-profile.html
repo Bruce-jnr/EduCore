@@ -1,0 +1,962 @@
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <style>
+      @layer base {
+        html,
+        body {
+          margin: 0;
+          padding: 0;
+        }
+        body {
+          overscroll-behavior: none;
+        }
+        main > :first-child {
+          margin-top: 0 !important;
+        }
+        main > :last-child {
+          margin-bottom: 0 !important;
+        }
+      }
+      ::-webkit-scrollbar {
+        display: none;
+      }
+    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script id="tailwind-config">
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              'inverse-surface': '#213145',
+              'on-secondary': '#ffffff',
+              outline: '#737686',
+              'on-tertiary-fixed-variant': '#653e00',
+              'inverse-primary': '#b4c5ff',
+              'surface-container-highest': '#d3e4fe',
+              'on-background': '#0b1c30',
+              'on-tertiary': '#ffffff',
+              'primary-container': '#2563eb',
+              background: '#f8f9ff',
+              'on-error': '#ffffff',
+              'primary-fixed-dim': '#b4c5ff',
+              'on-surface-variant': '#434655',
+              'error-container': '#ffdad6',
+              error: '#ba1a1a',
+              'surface-container-lowest': '#ffffff',
+              'on-primary-container': '#eeefff',
+              'on-error-container': '#93000a',
+              'secondary-container': '#6cf8bb',
+              'on-tertiary-container': '#ffeedd',
+              'on-primary-fixed': '#00174b',
+              'secondary-fixed': '#6ffbbe',
+              'tertiary-fixed-dim': '#ffb95f',
+              'surface-container': '#e5eeff',
+              secondary: '#006c49',
+              'tertiary-fixed': '#ffddb8',
+              surface: '#f8f9ff',
+              'on-primary-fixed-variant': '#003ea8',
+              'surface-dim': '#cbdbf5',
+              'outline-variant': '#c3c6d7',
+              'surface-tint': '#0053db',
+              'surface-bright': '#f8f9ff',
+              'on-secondary-container': '#00714d',
+              'on-tertiary-fixed': '#2a1700',
+              primary: '#004ac6',
+              'surface-container-high': '#dce9ff',
+              tertiary: '#784b00',
+              'on-primary': '#ffffff',
+              'surface-container-low': '#eff4ff',
+              'primary-fixed': '#dbe1ff',
+              'surface-variant': '#d3e4fe',
+              'on-secondary-fixed': '#002113',
+              'inverse-on-surface': '#eaf1ff',
+              'on-secondary-fixed-variant': '#005236',
+              'tertiary-container': '#996100',
+              'on-surface': '#0b1c30',
+              'secondary-fixed-dim': '#4edea3',
+            },
+            borderRadius: {
+              DEFAULT: '0.25rem',
+              lg: '0.5rem',
+              xl: '0.75rem',
+              full: '9999px',
+            },
+            spacing: {
+              'container-padding': '24px',
+              unit: '4px',
+              'stack-sm': '8px',
+              'stack-lg': '32px',
+              'stack-md': '16px',
+              gutter: '16px',
+            },
+            fontFamily: {
+              'display-lg': ['Inter'],
+              'headline-md': ['Inter'],
+              'body-sm': ['Inter'],
+              'title-sm': ['Inter'],
+              'display-lg-mobile': ['Inter'],
+              'label-caps': ['Inter'],
+              'body-md': ['Inter'],
+            },
+            fontSize: {
+              'display-lg': [
+                '36px',
+                {
+                  lineHeight: '44px',
+                  letterSpacing: '-0.02em',
+                  fontWeight: '700',
+                },
+              ],
+              'headline-md': [
+                '24px',
+                {
+                  lineHeight: '32px',
+                  letterSpacing: '-0.01em',
+                  fontWeight: '600',
+                },
+              ],
+              'body-sm': ['14px', { lineHeight: '20px', fontWeight: '400' }],
+              'title-sm': ['18px', { lineHeight: '28px', fontWeight: '600' }],
+              'display-lg-mobile': [
+                '28px',
+                {
+                  lineHeight: '34px',
+                  letterSpacing: '-0.02em',
+                  fontWeight: '700',
+                },
+              ],
+              'label-caps': [
+                '12px',
+                {
+                  lineHeight: '16px',
+                  letterSpacing: '0.05em',
+                  fontWeight: '600',
+                },
+              ],
+              'body-md': ['16px', { lineHeight: '24px', fontWeight: '400' }],
+            },
+          },
+        },
+      };
+    </script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-surface font-body-md text-on-surface">
+    <aside
+      class="fixed left-0 top-0 h-full w-72 bg-surface-container-lowest z-50 flex flex-col border-r border-outline-variant transition-all duration-300 shadow-[2px_0_8px_rgba(0,0,0,0.02)] scrollbar-hide overflow-y-auto"
+    >
+      <div class="p-6 flex items-center gap-3 border-b border-outline-variant">
+        <img
+          alt="EduCore Logo"
+          class="h-10 w-10 object-contain"
+          src="https://lh3.googleusercontent.com/aida-public/AB6AXuB28veOhWe3QssO5Ukk0dq-b5-4dhiqjGuVrtL9L4mSekBVbr_-lk97gY_dSR-APbjDjb3jKwZoFLM1uX7AQpB_3e6wsU4Jfa-9UcvbKRn1F-rq5ssDnHhpYU3kGVj-FJCyqB8drsa8Z3_Y9Y12AU63j1TOi8q43gIirNtW1nIzUWqdtQaplo09dTu-gSfUT2uracJdFAZYxrtZlX5sVdxhYcH0OJCujBtVA_JNxmfT1RLPIMzo6MVwAA"
+        />
+        <div class="flex flex-col">
+          <span class="font-title-sm text-primary leading-tight">EduCore</span
+          ><span
+            class="text-[10px] font-label-caps text-on-surface-variant uppercase tracking-wider"
+            >St. Andrews Excellence</span
+          >
+        </div>
+      </div>
+      <nav
+        class="flex-1 px-4 py-6 space-y-6"
+        data-active-classes="bg-primary-container text-on-primary-container font-semibold"
+      >
+        <section>
+          <p
+            class="px-4 mb-2 text-[11px] font-label-caps text-outline uppercase"
+          >
+            Main
+          </p>
+          <a
+            class="flex items-center px-4 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all group"
+            data-path="overview"
+            href="#"
+            ><span
+              class="material-symbols-outlined mr-3 text-xl opacity-70 group-hover:opacity-100"
+              >dashboard</span
+            ><span class="text-body-sm font-medium">Dashboard</span></a
+          >
+        </section>
+        <section>
+          <p
+            class="px-4 mb-2 text-[11px] font-label-caps text-outline uppercase"
+          >
+            Students
+          </p>
+          <div class="space-y-1">
+            <a
+              aria-current="page"
+              class="flex items-center px-4 py-2.5 rounded-lg transition-all group bg-primary-container text-on-primary-container font-semibold"
+              data-path="students"
+              href="#"
+              ><span class="material-symbols-outlined mr-3 text-xl opacity-70"
+                >group</span
+              ><span class="text-body-sm font-medium">All Students</span></a
+            ><a
+              class="flex items-center px-4 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container transition-all"
+              data-path="admissions"
+              href="#"
+              ><span class="material-symbols-outlined mr-3 text-xl opacity-70"
+                >person_add</span
+              ><span class="text-body-sm font-medium">Admissions</span></a
+            ><a
+              class="flex items-center px-4 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container transition-all"
+              data-path="attendance"
+              href="#"
+              ><span class="material-symbols-outlined mr-3 text-xl opacity-70"
+                >calendar_today</span
+              ><span class="text-body-sm font-medium">Attendance</span></a
+            ><a
+              class="flex items-center px-4 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container transition-all"
+              data-path="promotion"
+              href="#"
+              ><span class="material-symbols-outlined mr-3 text-xl opacity-70"
+                >trending_up</span
+              ><span class="text-body-sm font-medium">Promotion</span></a
+            >
+          </div>
+        </section>
+        <section>
+          <p
+            class="px-4 mb-2 text-[11px] font-label-caps text-outline uppercase"
+          >
+            Academics
+          </p>
+          <div class="space-y-1">
+            <a
+              class="flex items-center px-4 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container transition-all"
+              data-path="classes"
+              href="#"
+              ><span class="material-symbols-outlined mr-3 text-xl opacity-70"
+                >school</span
+              ><span class="text-body-sm font-medium">Classes</span></a
+            ><a
+              class="flex items-center px-4 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container transition-all"
+              data-path="subjects"
+              href="#"
+              ><span class="material-symbols-outlined mr-3 text-xl opacity-70"
+                >book</span
+              ><span class="text-body-sm font-medium">Subjects</span></a
+            ><a
+              class="flex items-center px-4 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container transition-all"
+              data-path="timetable"
+              href="#"
+              ><span class="material-symbols-outlined mr-3 text-xl opacity-70"
+                >schedule</span
+              ><span class="text-body-sm font-medium">Timetable</span></a
+            ><a
+              class="flex items-center px-4 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container transition-all"
+              data-path="assessments"
+              href="#"
+              ><span class="material-symbols-outlined mr-3 text-xl opacity-70"
+                >assignment</span
+              ><span class="text-body-sm font-medium">Assessments</span></a
+            >
+          </div>
+        </section>
+        <section>
+          <p
+            class="px-4 mb-2 text-[11px] font-label-caps text-outline uppercase"
+          >
+            Finance
+          </p>
+          <div class="space-y-1">
+            <a
+              class="flex items-center px-4 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container transition-all"
+              data-path="fees"
+              href="#"
+              ><span class="material-symbols-outlined mr-3 text-xl opacity-70"
+                >payments</span
+              ><span class="text-body-sm font-medium">Fees</span></a
+            ><a
+              class="flex items-center px-4 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container transition-all"
+              data-path="invoices"
+              href="#"
+              ><span class="material-symbols-outlined mr-3 text-xl opacity-70"
+                >receipt_long</span
+              ><span class="text-body-sm font-medium">Invoices</span></a
+            >
+          </div>
+        </section>
+        <section>
+          <p
+            class="px-4 mb-2 text-[11px] font-label-caps text-outline uppercase"
+          >
+            People
+          </p>
+          <div class="space-y-1">
+            <a
+              class="flex items-center px-4 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container transition-all"
+              data-path="staff"
+              href="#"
+              ><span class="material-symbols-outlined mr-3 text-xl opacity-70"
+                >badge</span
+              ><span class="text-body-sm font-medium">Staff Directory</span></a
+            ><a
+              class="flex items-center px-4 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container transition-all"
+              data-path="parents"
+              href="#"
+              ><span class="material-symbols-outlined mr-3 text-xl opacity-70"
+                >family_restroom</span
+              ><span class="text-body-sm font-medium">Parents</span></a
+            >
+          </div>
+        </section>
+      </nav>
+    </aside>
+    <div class="pl-72 min-h-screen flex flex-col transition-all duration-300">
+      <header
+        class="fixed top-0 left-72 right-0 h-16 bg-surface/90 backdrop-blur-md z-40 border-b border-outline-variant flex items-center justify-between px-6"
+      >
+        <div class="flex items-center gap-6 flex-1">
+          <button
+            class="p-2 hover:bg-surface-container rounded-full text-on-surface-variant"
+          >
+            <span class="material-symbols-outlined">menu</span>
+          </button>
+          <div class="relative max-w-md w-full group">
+            <span
+              class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary"
+              >search</span
+            ><input
+              class="w-full bg-surface-container-low border border-outline-variant rounded-full py-2 pl-10 pr-4 text-body-sm focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10 transition-all"
+              placeholder="Search students, staff, or records..."
+              type="text"
+            />
+          </div>
+        </div>
+        <div class="flex items-center gap-4">
+          <div
+            class="hidden lg:flex items-center gap-2 border-r border-outline-variant pr-4 mr-2"
+          >
+            <div class="flex flex-col text-right">
+              <span class="text-[10px] font-label-caps text-outline uppercase"
+                >Academic Year</span
+              ><span class="text-body-sm font-semibold text-on-surface"
+                >2026/2027</span
+              >
+            </div>
+            <span class="material-symbols-outlined text-outline text-lg"
+              >expand_more</span
+            >
+          </div>
+          <div
+            class="hidden lg:flex items-center gap-2 border-r border-outline-variant pr-4 mr-2"
+          >
+            <div class="flex flex-col text-right">
+              <span class="text-[10px] font-label-caps text-outline uppercase"
+                >Term</span
+              ><span class="text-body-sm font-semibold text-on-surface"
+                >Semester 1</span
+              >
+            </div>
+            <span class="material-symbols-outlined text-outline text-lg"
+              >expand_more</span
+            >
+          </div>
+          <div class="flex items-center gap-1">
+            <button
+              class="p-2 hover:bg-surface-container rounded-full text-on-surface-variant relative"
+            >
+              <span class="material-symbols-outlined">notifications</span
+              ><span
+                class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"
+              ></span></button
+            ><button
+              class="p-2 hover:bg-surface-container rounded-full text-on-surface-variant"
+            >
+              <span class="material-symbols-outlined">help</span>
+            </button>
+          </div>
+          <div
+            class="flex items-center gap-3 pl-4 border-l border-outline-variant hover:bg-surface-container-low p-1.5 rounded-lg cursor-pointer transition-colors"
+          >
+            <div class="flex flex-col text-right hidden sm:flex">
+              <span class="text-body-sm font-semibold text-on-surface"
+                >Admin</span
+              ><span
+                class="text-[10px] text-on-surface-variant uppercase font-medium"
+                >Super Admin</span
+              >
+            </div>
+            <img
+              alt="Profile"
+              class="w-9 h-9 rounded-full object-cover ring-2 ring-surface-container"
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuAamdBaeWV9QKngwu_nsIVvUkIeOa_OO9TtnzSlGfzagZzaa5UAC-UoMB4yd0rJ5gcVP6jLn2o2GrzPhbgyAKnZkIydzNnalyEONuG5M0pCa4VwOVyt6XqGUq3ndbmx9T1bUHsiuFxZWqEq-SwkcaPCk32AjfJjDmi2TagIg_BQhx2WouSHd7z2xY01ZMwuR1WUtvuOWAqlMdGEHvelqK19PWANY3qFwdxWtAABxl98nxzYFhQRUSdHDw"
+            />
+          </div>
+        </div>
+      </header>
+      <main class="flex-1 pt-16 bg-surface p-container-padding">
+        <div class="flex flex-col w-full">
+          <!-- Header Section with Negative Margin for Overlap Look -->
+          <div class="relative mb-stack-lg">
+            <div
+              class="bg-primary-container rounded-2xl p-8 flex flex-col md:flex-row items-start md:items-end gap-6 shadow-xl relative overflow-hidden"
+            >
+              <!-- Decorative Background Element -->
+              <div
+                class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-20 -mt-20 blur-3xl"
+              ></div>
+              <!-- Student Avatar -->
+              <div class="relative z-10 group">
+                <div
+                  class="w-32 h-32 md:w-40 md:h-40 rounded-2xl overflow-hidden shadow-2xl ring-4 ring-white/20 transition-transform group-hover:scale-[1.02] duration-300"
+                >
+                  <img
+                    class="w-full h-full object-cover"
+                    data-alt="A professional, high-quality portrait of a young boy named Kofi Mensah, approximately 10 years old, wearing a neat school uniform with a subtle blue crest. He is smiling confidently against a soft-focus background of a clean, modern school library. Natural, bright daylight illuminates his face."
+                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuBBwkW-jWOpGjzS1_cL5vv9t34lmm6glPC15UVzwIjiVJPIjjPDlN4TKAZxbgAiCSQuUqW3BTcTovzHAvtxrvqmCz1ErlEQMs7wqOQyn97APBBZTBfrm0QgtNTzDuU-D6h9LZql6QgsefUQreJ8mOc9hAdAlf4ZsaYM-70FWXdj6isk6Ngj-T5jgxYw01w7qIVJimtlZTl-Gvj34j99-QWnd2UV6r7a2SVv7DSuXecGVkv3qL9xd1bdEQ"
+                  />
+                </div>
+                <button
+                  class="absolute -bottom-2 -right-2 bg-white text-primary p-2 rounded-lg shadow-lg hover:bg-surface-container transition-colors"
+                >
+                  <span class="material-symbols-outlined text-xl"
+                    >photo_camera</span
+                  >
+                </button>
+              </div>
+              <!-- Student Identity -->
+              <div class="flex-1 z-10 pb-2">
+                <div class="flex flex-wrap items-center gap-3 mb-2">
+                  <h1
+                    class="font-display-lg text-on-primary-container tracking-tight"
+                  >
+                    Kofi Mensah
+                  </h1>
+                  <span
+                    class="px-3 py-1 rounded-full bg-secondary-container text-on-secondary-container font-label-caps text-[10px] tracking-widest uppercase"
+                    >Active</span
+                  >
+                </div>
+                <div
+                  class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-on-primary-container/80"
+                >
+                  <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-lg opacity-70"
+                      >fingerprint</span
+                    >
+                    <span class="font-body-sm font-medium">EDU-2024-042</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-lg opacity-70"
+                      >school</span
+                    >
+                    <span class="font-body-sm font-medium">Primary 5A</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-lg opacity-70"
+                      >location_on</span
+                    >
+                    <span class="font-body-sm font-medium">Accra, Ghana</span>
+                  </div>
+                </div>
+              </div>
+              <!-- Quick Actions -->
+              <div class="flex flex-wrap gap-3 z-10 pb-2">
+                <button
+                  class="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-on-primary-container px-4 py-2.5 rounded-lg font-title-sm transition-all backdrop-blur-sm"
+                >
+                  <span class="material-symbols-outlined text-xl">edit</span>
+                  <span>Edit Profile</span>
+                </button>
+                <button
+                  class="flex items-center gap-2 bg-white text-primary hover:bg-surface-container-low px-6 py-2.5 rounded-lg font-title-sm shadow-lg transition-all transform hover:-translate-y-0.5"
+                >
+                  <span class="material-symbols-outlined text-xl"
+                    >description</span
+                  >
+                  <span>Generate Report Card</span>
+                </button>
+                <button
+                  class="p-2.5 bg-white/10 text-on-primary-container rounded-lg hover:bg-white/20 transition-all"
+                >
+                  <span class="material-symbols-outlined">more_vert</span>
+                </button>
+              </div>
+            </div>
+          </div>
+          <!-- Navigation Tabs -->
+          <div
+            class="flex items-center gap-1 border-b border-outline-variant mb-stack-lg overflow-x-auto scrollbar-hide"
+          >
+            <button
+              class="px-6 py-4 font-title-sm text-primary border-b-2 border-primary whitespace-nowrap"
+            >
+              Overview
+            </button>
+            <button
+              class="px-6 py-4 font-title-sm text-on-surface-variant hover:text-primary transition-colors whitespace-nowrap"
+            >
+              Academics
+            </button>
+            <button
+              class="px-6 py-4 font-title-sm text-on-surface-variant hover:text-primary transition-colors whitespace-nowrap"
+            >
+              Attendance
+            </button>
+            <button
+              class="px-6 py-4 font-title-sm text-on-surface-variant hover:text-primary transition-colors whitespace-nowrap flex items-center gap-2"
+            >
+              Results
+              <span
+                class="bg-error text-on-error text-[10px] px-1.5 py-0.5 rounded-full"
+                >2</span
+              >
+            </button>
+            <button
+              class="px-6 py-4 font-title-sm text-on-surface-variant hover:text-primary transition-colors whitespace-nowrap"
+            >
+              Fees
+            </button>
+            <button
+              class="px-6 py-4 font-title-sm text-on-surface-variant hover:text-primary transition-colors whitespace-nowrap"
+            >
+              Documents
+            </button>
+            <button
+              class="px-6 py-4 font-title-sm text-on-surface-variant hover:text-primary transition-colors whitespace-nowrap"
+            >
+              Activity
+            </button>
+          </div>
+          <!-- Main Content Grid -->
+          <div class="grid grid-cols-12 gap-gutter">
+            <!-- Left Column: Primary Details -->
+            <div class="col-span-12 lg:col-span-8 space-y-stack-lg">
+              <!-- Personal Information Card -->
+              <div
+                class="bg-white rounded-xl shadow-sm border border-outline-variant overflow-hidden"
+              >
+                <div
+                  class="p-6 border-b border-outline-variant flex justify-between items-center bg-surface-container-lowest"
+                >
+                  <h2 class="font-headline-md text-on-surface">
+                    Personal Information
+                  </h2>
+                  <span class="font-label-caps text-outline uppercase"
+                    >Details Verified</span
+                  >
+                </div>
+                <div
+                  class="p-6 grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8"
+                >
+                  <div class="space-y-1">
+                    <p
+                      class="text-[11px] font-label-caps text-outline uppercase tracking-wider"
+                    >
+                      Date of Birth
+                    </p>
+                    <p class="font-title-sm text-on-surface">
+                      May 14, 2014 (10 years)
+                    </p>
+                  </div>
+                  <div class="space-y-1">
+                    <p
+                      class="text-[11px] font-label-caps text-outline uppercase tracking-wider"
+                    >
+                      Gender
+                    </p>
+                    <p class="font-title-sm text-on-surface">Male</p>
+                  </div>
+                  <div class="space-y-1">
+                    <p
+                      class="text-[11px] font-label-caps text-outline uppercase tracking-wider"
+                    >
+                      Nationality
+                    </p>
+                    <div class="flex items-center gap-2">
+                      <span
+                        class="material-symbols-outlined text-primary text-lg"
+                        >flag</span
+                      >
+                      <p class="font-title-sm text-on-surface">Ghanaian</p>
+                    </div>
+                  </div>
+                  <div class="space-y-1">
+                    <p
+                      class="text-[11px] font-label-caps text-outline uppercase tracking-wider"
+                    >
+                      Blood Group
+                    </p>
+                    <p class="font-title-sm text-on-surface">O Positive</p>
+                  </div>
+                  <div class="md:col-span-2 space-y-1">
+                    <p
+                      class="text-[11px] font-label-caps text-outline uppercase tracking-wider"
+                    >
+                      Residential Address
+                    </p>
+                    <p class="font-body-md text-on-surface leading-relaxed">
+                      No. 24 Hibiscus Street, East Legon Residential Area,
+                      Accra, GA-182-3921
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <!-- Guardian Information Card -->
+              <div
+                class="bg-white rounded-xl shadow-sm border border-outline-variant"
+              >
+                <div
+                  class="p-6 border-b border-outline-variant flex justify-between items-center"
+                >
+                  <h2 class="font-headline-md text-on-surface">
+                    Guardian Details
+                  </h2>
+                  <button
+                    class="text-primary font-label-caps uppercase hover:underline"
+                  >
+                    Update Contacts
+                  </button>
+                </div>
+                <div class="p-6 space-y-6">
+                  <div
+                    class="flex items-center gap-4 p-4 rounded-lg bg-surface-container-low border border-outline-variant/50"
+                  >
+                    <div
+                      class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary"
+                    >
+                      <span class="material-symbols-outlined">person</span>
+                    </div>
+                    <div class="flex-1">
+                      <p class="font-title-sm text-on-surface">
+                        Dr. Samuel Mensah
+                      </p>
+                      <p class="text-body-sm text-on-surface-variant">
+                        Father • Primary Guardian
+                      </p>
+                    </div>
+                    <div class="flex gap-2">
+                      <button
+                        class="p-2 hover:bg-surface-container rounded-full text-primary transition-colors"
+                      >
+                        <span class="material-symbols-outlined">call</span>
+                      </button>
+                      <button
+                        class="p-2 hover:bg-surface-container rounded-full text-primary transition-colors"
+                      >
+                        <span class="material-symbols-outlined">mail</span>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-2">
+                    <div class="space-y-1">
+                      <p
+                        class="text-[11px] font-label-caps text-outline uppercase tracking-wider"
+                      >
+                        Primary Contact
+                      </p>
+                      <p class="font-body-md text-on-surface font-medium">
+                        +233 24 555 0192
+                      </p>
+                    </div>
+                    <div class="space-y-1">
+                      <p
+                        class="text-[11px] font-label-caps text-outline uppercase tracking-wider"
+                      >
+                        Emergency Contact
+                      </p>
+                      <div class="flex items-center gap-2">
+                        <span
+                          class="w-2 h-2 bg-error rounded-full animate-pulse"
+                        ></span>
+                        <p class="font-body-md text-error font-semibold">
+                          +233 20 111 9845
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- Academic History (Horizontal Layout) -->
+              <div
+                class="bg-white rounded-xl shadow-sm border border-outline-variant"
+              >
+                <div class="p-6 border-b border-outline-variant">
+                  <h2 class="font-headline-md text-on-surface">
+                    Academic Trajectory
+                  </h2>
+                </div>
+                <div class="p-6">
+                  <div class="relative">
+                    <div
+                      class="absolute left-4 top-0 bottom-0 w-0.5 bg-outline-variant"
+                    ></div>
+                    <div class="space-y-8 relative">
+                      <div class="flex items-start gap-6">
+                        <div
+                          class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white ring-4 ring-primary/10 z-10 shrink-0"
+                        >
+                          <span class="material-symbols-outlined text-sm"
+                            >check</span
+                          >
+                        </div>
+                        <div>
+                          <p class="font-title-sm text-on-surface">
+                            Enrolled at EduCore St. Andrews
+                          </p>
+                          <p class="text-body-sm text-on-surface-variant">
+                            September 2, 2024 • Grade 5 Entry
+                          </p>
+                        </div>
+                      </div>
+                      <div class="flex items-start gap-6">
+                        <div
+                          class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant z-10 shrink-0 border border-outline-variant"
+                        >
+                          <span class="material-symbols-outlined text-sm"
+                            >history</span
+                          >
+                        </div>
+                        <div>
+                          <p class="font-title-sm text-on-surface">
+                            Lincoln International Community School
+                          </p>
+                          <p class="text-body-sm text-on-surface-variant">
+                            2020 - 2024 • Grades 1 - 4
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Right Column: Contextual Data -->
+            <div class="col-span-12 lg:col-span-4 space-y-stack-lg">
+              <!-- Performance Snapshot Card -->
+              <div
+                class="bg-inverse-surface rounded-xl p-6 text-on-primary shadow-xl relative overflow-hidden"
+              >
+                <div
+                  class="absolute -bottom-8 -right-8 w-32 h-32 bg-primary/20 rounded-full blur-2xl"
+                ></div>
+                <h3 class="font-title-sm mb-6 flex items-center gap-2">
+                  <span class="material-symbols-outlined text-secondary-fixed"
+                    >analytics</span
+                  >
+                  Performance Index
+                </h3>
+                <div class="flex flex-col items-center justify-center py-4">
+                  <div
+                    class="relative w-32 h-32 flex items-center justify-center"
+                  >
+                    <svg class="w-full h-full transform -rotate-90">
+                      <circle
+                        class="text-white/10"
+                        cx="64"
+                        cy="64"
+                        fill="transparent"
+                        r="58"
+                        stroke="currentColor"
+                        stroke-width="8"
+                      ></circle>
+                      <circle
+                        class="text-secondary-fixed transition-all duration-1000"
+                        cx="64"
+                        cy="64"
+                        fill="transparent"
+                        r="58"
+                        stroke="currentColor"
+                        stroke-dasharray="364.4"
+                        stroke-dashoffset="36.4"
+                        stroke-width="8"
+                      ></circle>
+                    </svg>
+                    <div
+                      class="absolute inset-0 flex flex-col items-center justify-center"
+                    >
+                      <span class="text-3xl font-display-lg">90%</span>
+                      <span class="text-[10px] font-label-caps opacity-70"
+                        >AVG GRADE</span
+                      >
+                    </div>
+                  </div>
+                  <div class="mt-6 w-full space-y-3">
+                    <div class="flex justify-between items-center text-body-sm">
+                      <span class="opacity-70">Class Rank</span>
+                      <span class="font-semibold">3rd of 28</span>
+                    </div>
+                    <div
+                      class="w-full bg-white/10 h-1 rounded-full overflow-hidden"
+                    >
+                      <div class="bg-secondary-fixed h-full w-[92%]"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- Recent Activity Feed -->
+              <div
+                class="bg-white rounded-xl shadow-sm border border-outline-variant overflow-hidden"
+              >
+                <div
+                  class="p-6 border-b border-outline-variant flex justify-between items-center"
+                >
+                  <h2 class="font-title-sm text-on-surface">Recent Activity</h2>
+                  <span
+                    class="material-symbols-outlined text-outline cursor-pointer hover:text-primary transition-colors"
+                    >history</span
+                  >
+                </div>
+                <div class="divide-y divide-outline-variant">
+                  <!-- Item 1 -->
+                  <div
+                    class="p-4 flex gap-4 hover:bg-surface-container-low transition-colors group"
+                  >
+                    <div
+                      class="w-10 h-10 rounded-lg bg-secondary-container/30 flex items-center justify-center text-secondary shrink-0 group-hover:scale-110 transition-transform"
+                    >
+                      <span class="material-symbols-outlined text-xl"
+                        >event_available</span
+                      >
+                    </div>
+                    <div>
+                      <p class="text-body-sm text-on-surface leading-snug">
+                        <span class="font-semibold">Attendance:</span> Marked
+                        Present
+                      </p>
+                      <p class="text-[11px] text-on-surface-variant mt-1">
+                        Today • 08:15 AM
+                      </p>
+                    </div>
+                  </div>
+                  <!-- Item 2 -->
+                  <div
+                    class="p-4 flex gap-4 hover:bg-surface-container-low transition-colors group"
+                  >
+                    <div
+                      class="w-10 h-10 rounded-lg bg-primary-container/20 flex items-center justify-center text-primary shrink-0 group-hover:scale-110 transition-transform"
+                    >
+                      <span class="material-symbols-outlined text-xl"
+                        >assignment_turned_in</span
+                      >
+                    </div>
+                    <div>
+                      <p class="text-body-sm text-on-surface leading-snug">
+                        <span class="font-semibold">Mathematics:</span> Unit
+                        Test 2 submitted
+                      </p>
+                      <p class="text-[11px] text-on-surface-variant mt-1">
+                        Yesterday • 02:45 PM
+                      </p>
+                    </div>
+                  </div>
+                  <!-- Item 3 -->
+                  <div
+                    class="p-4 flex gap-4 hover:bg-surface-container-low transition-colors group"
+                  >
+                    <div
+                      class="w-10 h-10 rounded-lg bg-error-container/30 flex items-center justify-center text-error shrink-0 group-hover:scale-110 transition-transform"
+                    >
+                      <span class="material-symbols-outlined text-xl"
+                        >payments</span
+                      >
+                    </div>
+                    <div>
+                      <p class="text-body-sm text-on-surface leading-snug">
+                        <span class="font-semibold">Finance:</span> Term 1 Fees
+                        Paid (Partial)
+                      </p>
+                      <p class="text-[11px] text-on-surface-variant mt-1">
+                        Oct 24, 2026 • 11:30 AM
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <button
+                  class="w-full p-4 text-center text-body-sm text-primary font-medium border-t border-outline-variant hover:bg-surface-container transition-colors"
+                >
+                  View Full Timeline
+                </button>
+              </div>
+              <!-- Quick Notes -->
+              <div class="bg-surface-container-high rounded-xl p-6">
+                <div class="flex items-center justify-between mb-4">
+                  <h3 class="font-title-sm text-on-surface">Internal Notes</h3>
+                  <span
+                    class="material-symbols-outlined text-primary cursor-pointer"
+                    >add_circle</span
+                  >
+                </div>
+                <div
+                  class="bg-white/60 p-4 rounded-lg border border-white/80 shadow-sm italic text-body-sm text-on-surface-variant"
+                >
+                  "Kofi shows exceptional aptitude in Mathematics but needs
+                  occasional encouragement in group-based Humanities projects."
+                  <div
+                    class="mt-4 flex items-center justify-between not-italic"
+                  >
+                    <span
+                      class="text-[10px] font-label-caps text-outline uppercase"
+                      >— Mrs. Araba Smith</span
+                    >
+                    <span class="text-[10px] text-outline">Oct 12</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Float Action for Mobile Only (Visible on small screens) -->
+          <div class="fixed bottom-6 right-6 lg:hidden flex flex-col gap-3">
+            <button
+              class="w-14 h-14 bg-primary text-on-primary rounded-full shadow-2xl flex items-center justify-center"
+            >
+              <span class="material-symbols-outlined">edit</span>
+            </button>
+          </div>
+        </div>
+        <script>
+          // Simple hover animation interaction for the radial chart
+          document.addEventListener('DOMContentLoaded', () => {
+            const observer = new IntersectionObserver(
+              (entries) => {
+                entries.forEach((entry) => {
+                  if (entry.isIntersecting) {
+                    const circle = entry.target.querySelector(
+                      'circle:nth-child(2)',
+                    );
+                    if (circle) {
+                      // Force reflow and set dashoffset to animate
+                      circle.style.strokeDashoffset = '36.4';
+                    }
+                  }
+                });
+              },
+              { threshold: 0.5 },
+            );
+
+            const indexCard = document.querySelector('.bg-inverse-surface');
+            if (indexCard) observer.observe(indexCard);
+          });
+        </script>
+        <style>
+          /* Extra smoothness for interactions */
+          .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+          }
+          .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+          }
+        </style>
+      </main>
+    </div>
+  </body>
+</html>

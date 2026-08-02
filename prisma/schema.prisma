@@ -1,0 +1,292 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum SchoolType {
+  PRIMARY
+  SECONDARY
+  COLLEGE
+  COMBINED
+}
+
+enum RecordStatus {
+  ACTIVE
+  INACTIVE
+  ARCHIVED
+}
+
+enum UserStatus {
+  INVITED
+  ACTIVE
+  SUSPENDED
+  DISABLED
+}
+
+enum PeriodType {
+  TERM
+  SEMESTER
+}
+
+enum StudentStatus {
+  ACTIVE
+  INACTIVE
+  TRANSFERRED
+  WITHDRAWN
+  GRADUATED
+  SUSPENDED
+  ARCHIVED
+}
+
+enum EmploymentType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  TEMPORARY
+}
+
+model Tenant {
+  id              String   @id @default(cuid())
+  name            String
+  slug            String   @unique
+  schoolCode      String   @unique
+  schoolType      SchoolType
+  email           String?
+  phone           String?
+  address         String?
+  city            String?
+  country         String   @default("Ghana")
+  currency        String   @default("GHS")
+  timezone        String   @default("Africa/Accra")
+  logoUrl         String?
+  primaryColor    String?
+  secondaryColor  String?
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  settings        TenantSettings?
+  users           User[]
+  roles           Role[]
+  academicYears   AcademicYear[]
+  academicPeriods AcademicPeriod[]
+  classes         Class[]
+  subjects        Subject[]
+  staff           Staff[]
+  students        Student[]
+  auditLogs       AuditLog[]
+}
+
+model TenantSettings {
+  id               String   @id @default(cuid())
+  tenantId         String   @unique
+  studentIdPrefix  String   @default("STD")
+  staffIdPrefix    String   @default("STF")
+  academicConfig   Json?
+  featureFlags     Json?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  tenant           Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id              String     @id @default(cuid())
+  tenantId        String?
+  firstName       String
+  lastName        String
+  email           String
+  phone           String?
+  passwordHash    String
+  status          UserStatus @default(INVITED)
+  isPlatformUser  Boolean    @default(false)
+  lastLoginAt     DateTime?
+  emailVerifiedAt DateTime?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  deletedAt       DateTime?
+  tenant          Tenant?    @relation(fields: [tenantId], references: [id])
+  userRoles       UserRole[]
+  auditLogs       AuditLog[]
+  @@unique([tenantId, email])
+  @@index([tenantId, status])
+}
+
+model Role {
+  id          String           @id @default(cuid())
+  tenantId    String?
+  name        String
+  description String?
+  isSystem    Boolean          @default(false)
+  tenant      Tenant?          @relation(fields: [tenantId], references: [id])
+  permissions RolePermission[]
+  users       UserRole[]
+  @@unique([tenantId, name])
+}
+
+model Permission {
+  id          String           @id @default(cuid())
+  key         String           @unique
+  description String?
+  roles       RolePermission[]
+}
+
+model RolePermission {
+  roleId       String
+  permissionId String
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  @@id([roleId, permissionId])
+}
+
+model UserRole {
+  userId String
+  roleId String
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role   Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  @@id([userId, roleId])
+}
+
+model AcademicYear {
+  id        String       @id @default(cuid())
+  tenantId  String
+  name      String
+  startDate DateTime
+  endDate   DateTime
+  isCurrent Boolean      @default(false)
+  status    RecordStatus @default(ACTIVE)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  tenant    Tenant       @relation(fields: [tenantId], references: [id])
+  periods   AcademicPeriod[]
+  classes   Class[]
+  enrollments StudentEnrollment[]
+  @@unique([tenantId, name])
+  @@index([tenantId, isCurrent])
+}
+
+model AcademicPeriod {
+  id             String       @id @default(cuid())
+  tenantId       String
+  academicYearId String
+  name           String
+  type           PeriodType
+  startDate      DateTime
+  endDate        DateTime
+  isCurrent      Boolean      @default(false)
+  status         RecordStatus @default(ACTIVE)
+  tenant         Tenant       @relation(fields: [tenantId], references: [id])
+  academicYear   AcademicYear @relation(fields: [academicYearId], references: [id])
+  enrollments    StudentEnrollment[]
+  @@unique([tenantId, academicYearId, name])
+  @@index([tenantId, isCurrent])
+}
+
+model Class {
+  id             String       @id @default(cuid())
+  tenantId       String
+  academicYearId String
+  name           String
+  section        String?
+  levelOrder     Int?
+  status         RecordStatus @default(ACTIVE)
+  tenant         Tenant       @relation(fields: [tenantId], references: [id])
+  academicYear   AcademicYear @relation(fields: [academicYearId], references: [id])
+  enrollments    StudentEnrollment[]
+  @@unique([tenantId, academicYearId, name, section])
+  @@index([tenantId, status])
+}
+
+model Subject {
+  id          String       @id @default(cuid())
+  tenantId    String
+  name        String
+  code        String
+  description String?
+  status      RecordStatus @default(ACTIVE)
+  tenant      Tenant       @relation(fields: [tenantId], references: [id])
+  @@unique([tenantId, code])
+}
+
+model Staff {
+  id             String         @id @default(cuid())
+  tenantId       String
+  employeeNumber String
+  firstName      String
+  middleName     String?
+  lastName       String
+  email          String?
+  phone          String?
+  position       String?
+  employmentType EmploymentType
+  employmentDate DateTime?
+  status         RecordStatus   @default(ACTIVE)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  deletedAt      DateTime?
+  tenant         Tenant         @relation(fields: [tenantId], references: [id])
+  @@unique([tenantId, employeeNumber])
+  @@index([tenantId, status])
+}
+
+model Student {
+  id             String        @id @default(cuid())
+  tenantId       String
+  studentNumber  String
+  firstName      String
+  middleName     String?
+  lastName       String
+  dateOfBirth    DateTime?
+  gender         String?
+  photoUrl       String?
+  email          String?
+  phone          String?
+  address        String?
+  admissionDate  DateTime?
+  status         StudentStatus @default(ACTIVE)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  deletedAt      DateTime?
+  tenant         Tenant        @relation(fields: [tenantId], references: [id])
+  enrollments    StudentEnrollment[]
+  @@unique([tenantId, studentNumber])
+  @@index([tenantId, status])
+}
+
+model StudentEnrollment {
+  id               String          @id @default(cuid())
+  tenantId         String
+  studentId        String
+  academicYearId   String
+  academicPeriodId String?
+  classId          String
+  status           RecordStatus    @default(ACTIVE)
+  enrollmentDate   DateTime        @default(now())
+  endDate           DateTime?
+  student          Student         @relation(fields: [studentId], references: [id])
+  academicYear     AcademicYear    @relation(fields: [academicYearId], references: [id])
+  academicPeriod   AcademicPeriod? @relation(fields: [academicPeriodId], references: [id])
+  class            Class           @relation(fields: [classId], references: [id])
+  @@unique([tenantId, studentId, academicYearId, classId])
+  @@index([tenantId, academicYearId, classId])
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  tenantId   String?
+  userId     String?
+  action     String
+  module     String
+  entityType String?
+  entityId   String?
+  oldValue   Json?
+  newValue   Json?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+  tenant     Tenant?  @relation(fields: [tenantId], references: [id])
+  user       User?    @relation(fields: [userId], references: [id])
+  @@index([tenantId, createdAt])
+}
