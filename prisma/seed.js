@@ -41,6 +41,10 @@ const permissionKeys = [
   'platform.schools.view',
   'platform.schools.create',
   'platform.schools.update',
+  'platform.settings.view',
+  'platform.settings.update',
+  'platform.analytics.view',
+  'platform.audit.view',
   'settings.view',
   'settings.update',
 ];

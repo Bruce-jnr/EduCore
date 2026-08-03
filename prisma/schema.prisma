@@ -116,6 +116,23 @@ model Tenant {
   payments           Payment[]
 }
 
+model PlatformSettings {
+  id                  String   @id @default("platform")
+  platformName        String   @default("EduCore")
+  supportEmail        String?
+  supportPhone        String?
+  appUrl              String?
+  defaultCountry      String   @default("Ghana")
+  defaultCurrency     String   @default("GHS")
+  defaultTimezone     String   @default("Africa/Accra")
+  defaultTrialDays    Int      @default(30)
+  registrationEnabled Boolean  @default(false)
+  maintenanceMode     Boolean  @default(false)
+  primaryColor        String   @default("#4f46c8")
+  secondaryColor      String   @default("#1655d1")
+  updatedAt           DateTime @updatedAt
+}
+
 model TenantSettings {
   id              String   @id @default(cuid())
   tenantId        String   @unique
