@@ -1,0 +1,28 @@
+import { Router } from 'express';
+import { prisma } from '../../config/prisma.js';
+import { authenticate } from '../../middleware/authenticate.js';
+import { resolveTenant } from '../../middleware/resolve-tenant.js';
+import { asyncHandler } from '../../utils/async-handler.js';
+import { requirePermission } from '../../middleware/require-permission.js';
+import { validate } from '../../middleware/validate.js';
+import { academicService } from './academic.service.js';
+import { classSchema, periodSchema, subjectSchema, yearSchema } from './academic.validation.js';
+
+export const academicRouter = Router();
+
+academicRouter.get('/', authenticate, resolveTenant, requirePermission('academics.view'), asyncHandler(async(req,res)=>res.json({success:true,data:await academicService.overview(req.auth.tenantId),message:null})));
+academicRouter.post('/years',authenticate,resolveTenant,requirePermission('academics.create'),validate(yearSchema),asyncHandler(async(req,res)=>res.status(201).json({success:true,data:await academicService.createYear(req.auth,req.validated.body),message:'Academic year created'})));
+academicRouter.post('/periods',authenticate,resolveTenant,requirePermission('academics.create'),validate(periodSchema),asyncHandler(async(req,res)=>res.status(201).json({success:true,data:await academicService.createPeriod(req.auth,req.validated.body),message:'Academic period created'})));
+academicRouter.post('/classes',authenticate,resolveTenant,requirePermission('academics.create'),validate(classSchema),asyncHandler(async(req,res)=>res.status(201).json({success:true,data:await academicService.createClass(req.auth,req.validated.body),message:'Class created'})));
+academicRouter.post('/subjects',authenticate,resolveTenant,requirePermission('academics.create'),validate(subjectSchema),asyncHandler(async(req,res)=>res.status(201).json({success:true,data:await academicService.createSubject(req.auth,req.validated.body),message:'Subject created'})));
+
+academicRouter.get('/options', authenticate, resolveTenant, asyncHandler(async (req, res) => {
+  const tenantId = req.auth.tenantId;
+  const [academicYears, academicPeriods, classes, subjects] = await prisma.$transaction([
+    prisma.academicYear.findMany({ where: { tenantId, status: 'ACTIVE' }, orderBy: [{ isCurrent: 'desc' }, { startDate: 'desc' }] }),
+    prisma.academicPeriod.findMany({ where: { tenantId, status: 'ACTIVE' }, orderBy: [{ isCurrent: 'desc' }, { startDate: 'desc' }] }),
+    prisma.class.findMany({ where: { tenantId, status: 'ACTIVE' }, orderBy: [{ name: 'asc' }, { section: 'asc' }] }),
+    prisma.subject.findMany({ where: { tenantId, status: 'ACTIVE' }, orderBy: { name: 'asc' } }),
+  ]);
+  res.json({ success: true, data: { academicYears, academicPeriods, classes, subjects }, message: null });
+}));

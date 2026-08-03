@@ -1,0 +1,5 @@
+import { z } from 'zod';
+const employmentTypes = ['FULL_TIME', 'PART_TIME', 'CONTRACT', 'TEMPORARY'];
+export const listStaffSchema = z.object({ body:z.any(),params:z.any(),query:z.object({page:z.coerce.number().int().positive().default(1),limit:z.coerce.number().int().min(1).max(100).default(25),search:z.string().trim().max(100).default('')}) });
+export const createStaffSchema = z.object({query:z.any(),params:z.any(),body:z.object({employeeNumber:z.string().trim().min(2).max(40),firstName:z.string().trim().min(1).max(80),middleName:z.string().trim().max(80).optional(),lastName:z.string().trim().min(1).max(80),email:z.email().optional(),phone:z.string().trim().max(30).optional(),position:z.string().trim().max(80).optional(),employmentType:z.enum(employmentTypes),employmentDate:z.coerce.date().optional()})});
+export const createAssignmentSchema = z.object({query:z.any(),params:z.any(),body:z.object({staffId:z.string().min(1),academicYearId:z.string().min(1),academicPeriodId:z.string().min(1),classId:z.string().min(1),subjectId:z.string().min(1)})});

@@ -6,6 +6,15 @@ import morgan from 'morgan';
 import { env } from './config/env.js';
 import { errorHandler, notFound } from './middleware/error-handler.js';
 import { authRouter } from './modules/auth/auth.routes.js';
+import { dashboardRouter } from './modules/dashboard/dashboard.routes.js';
+import { studentRouter } from './modules/students/student.routes.js';
+import { academicRouter } from './modules/academics/academic.routes.js';
+import { staffRouter } from './modules/staff/staff.routes.js';
+import { userRouter } from './modules/users/user.routes.js';
+import { settingsRouter } from './modules/settings/settings.routes.js';
+import { attendanceRouter } from './modules/attendance/attendance.routes.js';
+import { financeRouter } from './modules/finance/finance.routes.js';
+import { platformRouter } from './modules/platform/platform.routes.js';
 
 export const app = express();
 
@@ -22,6 +31,15 @@ app.get('/api/health', (_req, res) => {
 });
 
 app.use('/api/auth', authRouter);
+app.use('/api/dashboard', dashboardRouter);
+app.use('/api/students', studentRouter);
+app.use('/api/academics', academicRouter);
+app.use('/api/staff', staffRouter);
+app.use('/api/users', userRouter);
+app.use('/api/settings', settingsRouter);
+app.use('/api/attendance', attendanceRouter);
+app.use('/api/finance', financeRouter);
+app.use('/api/platform', platformRouter);
 
 app.use(notFound);
 app.use(errorHandler);

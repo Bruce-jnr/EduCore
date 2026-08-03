@@ -1,0 +1,5 @@
+import{z}from'zod';const envelope=(body)=>z.object({body,query:z.any(),params:z.any()});
+export const yearSchema=envelope(z.object({name:z.string().trim().min(4).max(30),startDate:z.coerce.date(),endDate:z.coerce.date(),isCurrent:z.boolean().default(false)}).refine(x=>x.endDate>x.startDate,{message:'End date must be after start date',path:['endDate']}));
+export const periodSchema=envelope(z.object({academicYearId:z.string().min(1),name:z.string().trim().min(2).max(50),type:z.enum(['TERM','SEMESTER']),startDate:z.coerce.date(),endDate:z.coerce.date(),isCurrent:z.boolean().default(false)}).refine(x=>x.endDate>x.startDate,{message:'End date must be after start date',path:['endDate']}));
+export const classSchema=envelope(z.object({academicYearId:z.string().min(1),name:z.string().trim().min(1).max(80),section:z.string().trim().max(20).optional(),levelOrder:z.coerce.number().int().min(0).optional()}));
+export const subjectSchema=envelope(z.object({name:z.string().trim().min(1).max(100),code:z.string().trim().min(1).max(30).transform(x=>x.toUpperCase()),description:z.string().trim().max(500).optional()}));
