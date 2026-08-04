@@ -5,16 +5,17 @@ import { Icon } from './Icon.jsx';
 const groups = [
   {
     label: 'Main',
-    items: [{ label: 'Dashboard', icon: 'dashboard', href: '#/dashboard' }],
+    items: [{ label: 'Dashboard', icon: 'dashboard', href: '#/dashboard', permission: 'dashboard.view' }],
   },
   {
     label: 'Students',
     items: [
-      { label: 'All Students', icon: 'group', href: '#/students' },
+      { label: 'All Students', icon: 'group', href: '#/students', permission: 'students.view' },
       {
         label: 'Attendance',
         icon: 'fact_check',
         href: '#/attendance',
+        permission: 'attendance.view',
       },
     ],
   },
@@ -25,41 +26,50 @@ const groups = [
         label: 'Classes',
         icon: 'school',
         href: '#/academics/classes',
+        permission: 'academics.view',
       },
       {
         label: 'Subjects',
         icon: 'menu_book',
         href: '#/academics/subjects',
+        permission: 'academics.view',
       },
       {
         label: 'Academic Years',
         icon: 'calendar_month',
         href: '#/academics/years',
+        permission: 'academics.view',
       },
-      { label: 'Terms / Semesters', icon: 'date_range', href: '#/academics/periods' },
+      { label: 'Terms / Semesters', icon: 'date_range', href: '#/academics/periods', permission: 'academics.view' },
+      { label: 'Results', icon: 'grading', href: '#/results', permission: 'results.view' },
+      { label: 'Result Workflow', icon: 'task_alt', href: '#/results/workflow', permission: 'results.view' },
+      { label: 'Report Cards', icon: 'description', href: '#/results/report-cards', permission: 'results.view' },
     ],
   },
   {
     label: 'Finance',
     items: [
-      { label: 'Bills & Invoices', icon: 'receipt_long', href: '#/finance/bills' },
-      { label: 'Fees', icon: 'price_change', href: '#/finance/fees' },
-      { label: 'Payments', icon: 'payments', href: '#/finance/payments' },
+      { label: 'Bills & Invoices', icon: 'receipt_long', href: '#/finance/bills', permission: 'finance.view' },
+      { label: 'Bulk Billing', icon: 'library_add', href: '#/finance/bulk-bills', permission: 'finance.invoice.create' },
+      { label: 'Fees', icon: 'price_change', href: '#/finance/fees', permission: 'finance.view' },
+      { label: 'Payments', icon: 'payments', href: '#/finance/payments', permission: 'finance.view' },
     ],
   },
   {
     label: 'Management',
     items: [
-      { label: 'Staff', icon: 'badge', href: '#/staff' },
+      { label: 'Staff', icon: 'badge', href: '#/staff', permission: 'staff.view' },
       {
         label: 'Users & Roles',
         icon: 'admin_panel_settings',
         href: '#/users',
+        permission: 'users.view',
       },
       {
         label: 'School Settings',
         icon: 'settings',
         href: '#/settings',
+        permission: 'settings.view',
       },
     ],
   },
@@ -86,7 +96,7 @@ export function AppShell({ route, children, user, onLogout }) {
           </span>
         </a>
         <nav className="main-nav" aria-label="Main navigation">
-          {groups.map((group) => (
+          {groups.map((group) => ({ ...group, items: group.items.filter((item) => !item.permission || user.permissions?.includes(item.permission)) })).filter((group) => group.items.length).map((group) => (
             <section key={group.label}>
               <p>{group.label}</p>
               {group.items.map((item) => {

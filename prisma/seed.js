@@ -38,6 +38,13 @@ const permissionKeys = [
   'finance.fees.create',
   'finance.invoice.create',
   'finance.payment.create',
+  'assessments.manage',
+  'grading.manage',
+  'results.view',
+  'results.enter',
+  'results.submit',
+  'results.approve',
+  'results.publish',
   'platform.schools.view',
   'platform.schools.create',
   'platform.schools.update',
@@ -89,6 +96,16 @@ async function seed() {
       }),
     ),
   );
+  const rolePermissions = {
+    Teacher: ['dashboard.view', 'students.view', 'academics.view', 'attendance.view', 'attendance.take', 'results.view', 'results.enter', 'results.submit'],
+    Accountant: ['dashboard.view', 'students.view', 'finance.view', 'finance.fees.create', 'finance.invoice.create', 'finance.payment.create'],
+    'Academic Administrator': ['dashboard.view', 'students.view', 'staff.view', 'academics.view', 'academics.create', 'academics.update', 'academics.assign-teachers', 'attendance.view', 'attendance.update', 'results.view', 'results.enter', 'results.approve', 'results.publish'],
+  };
+  for (const [name, keys] of Object.entries(rolePermissions)) {
+    const defaultRole = await prisma.role.upsert({ where: { tenantId_name: { tenantId: tenant.id, name } }, update: { isSystem: true }, create: { tenantId: tenant.id, name, isSystem: true } });
+    const selected = permissions.filter((permission) => keys.includes(permission.key));
+    await Promise.all(selected.map((permission) => prisma.rolePermission.upsert({ where: { roleId_permissionId: { roleId: defaultRole.id, permissionId: permission.id } }, update: {}, create: { roleId: defaultRole.id, permissionId: permission.id } })));
+  }
   const passwordHash = await bcrypt.hash(password, 12);
   const user = await prisma.user.upsert({
     where: {

@@ -64,6 +64,7 @@ export const authService = {
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
+        staffId: user.staffProfile?.id || null,
         tenant: {
           id: user.tenant.id,
           name: user.tenant.name,

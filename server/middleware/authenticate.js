@@ -14,6 +14,7 @@ export async function authenticate(req, _res, next) {
     const user = await prisma.user.findFirst({
       where: { id: payload.sub, deletedAt: null, status: 'ACTIVE' },
       include: {
+        staffProfile: { select: { id: true } },
         userRoles: { include: { role: { include: { permissions: { include: { permission: true } } } } } },
       },
     });
@@ -25,6 +26,7 @@ export async function authenticate(req, _res, next) {
       isPlatformUser: user.isPlatformUser,
       roles: user.userRoles.map(({ role }) => role.name),
       permissions: [...new Set(user.userRoles.flatMap(({ role }) => role.permissions.map(({ permission }) => permission.key)))],
+      staffId: user.staffProfile?.id || null,
     };
     next();
   } catch (error) {

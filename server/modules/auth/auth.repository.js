@@ -16,7 +16,7 @@ export const authRepository = {
         deletedAt: null,
         tenant: { slug: schoolSlug, isActive: true },
       },
-      include: { tenant: true, ...userAccess },
+      include: { tenant: true, staffProfile: { select: { id: true } }, ...userAccess },
     });
   },
   recordLogin(userId) {

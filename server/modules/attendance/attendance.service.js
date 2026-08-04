@@ -1,4 +1,60 @@
-import{prisma}from'../../config/prisma.js';import{AppError}from'../../errors/app-error.js';import{auditService}from'../../services/audit.service.js';
-function dateValue(value){return new Date(`${value}T00:00:00.000Z`)}function key(tenantId,classId,periodId,date){return`${tenantId}:${classId}:${periodId}:${date}`}
-async function context(tenantId,classId,periodId){const period=await prisma.academicPeriod.findFirst({where:{id:periodId,tenantId},include:{academicYear:true}});if(!period)throw new AppError('Academic period not found',404,'PERIOD_NOT_FOUND');const schoolClass=await prisma.class.findFirst({where:{id:classId,tenantId,academicYearId:period.academicYearId}});if(!schoolClass)throw new AppError('Class does not belong to this academic period',422,'INVALID_ATTENDANCE_CLASS');return{period,schoolClass}}
-export const attendanceService={async roster(tenantId,input){const{period,schoolClass}=await context(tenantId,input.classId,input.academicPeriodId);const[enrollments,session]=await Promise.all([prisma.studentEnrollment.findMany({where:{tenantId,classId:input.classId,academicYearId:period.academicYearId,status:'ACTIVE',student:{deletedAt:null,status:'ACTIVE'}},include:{student:true},orderBy:{student:{firstName:'asc'}}}),prisma.attendanceSession.findUnique({where:{sessionKey:key(tenantId,input.classId,input.academicPeriodId,input.date)},include:{records:true}})]);const recordMap=new Map(session?.records.map(record=>[record.studentId,record])||[]);return{class:schoolClass,period,sessionId:session?.id||null,students:enrollments.map(({student})=>({...student,attendance:recordMap.get(student.id)||null}))}},async save(auth,input){const{period}=await context(auth.tenantId,input.classId,input.academicPeriodId);const enrolled=await prisma.studentEnrollment.findMany({where:{tenantId:auth.tenantId,classId:input.classId,academicYearId:period.academicYearId,status:'ACTIVE'},select:{studentId:true}});const allowed=new Set(enrolled.map(x=>x.studentId));if(input.records.some(record=>!allowed.has(record.studentId)))throw new AppError('Attendance contains a student not enrolled in this class',422,'INVALID_ATTENDANCE_STUDENT');const sessionKey=key(auth.tenantId,input.classId,input.academicPeriodId,input.date);const session=await prisma.$transaction(async tx=>{const saved=await tx.attendanceSession.upsert({where:{sessionKey},update:{createdById:auth.userId},create:{sessionKey,tenantId:auth.tenantId,academicYearId:period.academicYearId,academicPeriodId:input.academicPeriodId,classId:input.classId,date:dateValue(input.date),createdById:auth.userId}});for(const record of input.records)await tx.attendanceRecord.upsert({where:{attendanceSessionId_studentId:{attendanceSessionId:saved.id,studentId:record.studentId}},update:{status:record.status,remarks:record.remarks||null},create:{attendanceSessionId:saved.id,studentId:record.studentId,status:record.status,remarks:record.remarks||null}});return saved});await auditService.log({tenantId:auth.tenantId,userId:auth.userId,action:'SAVE',module:'ATTENDANCE',entityType:'AttendanceSession',entityId:session.id,newValue:{date:input.date,classId:input.classId,recordCount:input.records.length}});return session},async history(tenantId){const sessions=await prisma.attendanceSession.findMany({where:{tenantId},take:30,orderBy:{date:'desc'},include:{class:true,academicPeriod:true,records:true,createdBy:{select:{firstName:true,lastName:true}}}});return sessions.map(session=>{const counts=Object.fromEntries(['PRESENT','ABSENT','LATE','EXCUSED'].map(status=>[status,session.records.filter(x=>x.status===status).length]));return{...session,records:undefined,counts,total:session.records.length,attendanceRate:session.records.length?Math.round(((counts.PRESENT+counts.LATE)/session.records.length)*1000)/10:0}})}};
+import { prisma } from '../../config/prisma.js';
+import { AppError } from '../../errors/app-error.js';
+import { auditService } from '../../services/audit.service.js';
+
+const dateValue = (value) => new Date(`${value}T00:00:00.000Z`);
+const sessionKey = (tenantId, classId, periodId, date) => `${tenantId}:${classId}:${periodId}:${date}`;
+
+async function context(tenantId, classId, periodId) {
+  const period = await prisma.academicPeriod.findFirst({ where: { id: periodId, tenantId }, include: { academicYear: true } });
+  if (!period) throw new AppError('Academic period not found', 404, 'PERIOD_NOT_FOUND');
+  const schoolClass = await prisma.class.findFirst({ where: { id: classId, tenantId, academicYearId: period.academicYearId } });
+  if (!schoolClass) throw new AppError('Class does not belong to this academic period', 422, 'INVALID_ATTENDANCE_CLASS');
+  return { period, schoolClass };
+}
+
+async function requireAssignedClass(auth, classId, academicPeriodId) {
+  if (auth.permissions.includes('attendance.update')) return;
+  if (!auth.staffId) throw new AppError('Link this user account to a staff profile before taking attendance', 403, 'STAFF_PROFILE_REQUIRED');
+  const assignment = await prisma.teacherAssignment.findFirst({ where: { tenantId: auth.tenantId, staffId: auth.staffId, classId, academicPeriodId, status: 'ACTIVE' } });
+  if (!assignment) throw new AppError('You are not assigned to this class for the selected period', 403, 'TEACHER_ASSIGNMENT_REQUIRED');
+}
+
+export const attendanceService = {
+  async roster(auth, input) {
+    const { period, schoolClass } = await context(auth.tenantId, input.classId, input.academicPeriodId);
+    await requireAssignedClass(auth, input.classId, input.academicPeriodId);
+    const [enrollments, session] = await Promise.all([
+      prisma.studentEnrollment.findMany({ where: { tenantId: auth.tenantId, classId: input.classId, academicYearId: period.academicYearId, status: 'ACTIVE', student: { deletedAt: null, status: 'ACTIVE' } }, include: { student: true }, orderBy: { student: { firstName: 'asc' } } }),
+      prisma.attendanceSession.findUnique({ where: { sessionKey: sessionKey(auth.tenantId, input.classId, input.academicPeriodId, input.date) }, include: { records: true } }),
+    ]);
+    const recordMap = new Map(session?.records.map((record) => [record.studentId, record]) || []);
+    return { class: schoolClass, period, sessionId: session?.id || null, students: enrollments.map(({ student }) => ({ ...student, attendance: recordMap.get(student.id) || null })) };
+  },
+  async save(auth, input) {
+    const { period } = await context(auth.tenantId, input.classId, input.academicPeriodId);
+    await requireAssignedClass(auth, input.classId, input.academicPeriodId);
+    const enrolled = await prisma.studentEnrollment.findMany({ where: { tenantId: auth.tenantId, classId: input.classId, academicYearId: period.academicYearId, status: 'ACTIVE' }, select: { studentId: true } });
+    const allowed = new Set(enrolled.map((item) => item.studentId));
+    if (input.records.some((record) => !allowed.has(record.studentId))) throw new AppError('Attendance contains a student not enrolled in this class', 422, 'INVALID_ATTENDANCE_STUDENT');
+    const key = sessionKey(auth.tenantId, input.classId, input.academicPeriodId, input.date);
+    const session = await prisma.$transaction(async (tx) => {
+      const saved = await tx.attendanceSession.upsert({ where: { sessionKey: key }, update: { createdById: auth.userId }, create: { sessionKey: key, tenantId: auth.tenantId, academicYearId: period.academicYearId, academicPeriodId: input.academicPeriodId, classId: input.classId, date: dateValue(input.date), createdById: auth.userId } });
+      for (const record of input.records) await tx.attendanceRecord.upsert({ where: { attendanceSessionId_studentId: { attendanceSessionId: saved.id, studentId: record.studentId } }, update: { status: record.status, remarks: record.remarks || null }, create: { attendanceSessionId: saved.id, studentId: record.studentId, status: record.status, remarks: record.remarks || null } });
+      return saved;
+    });
+    await auditService.log({ tenantId: auth.tenantId, userId: auth.userId, action: 'SAVE', module: 'ATTENDANCE', entityType: 'AttendanceSession', entityId: session.id, newValue: { date: input.date, classId: input.classId, recordCount: input.records.length } });
+    return session;
+  },
+  async history(auth) {
+    const where = { tenantId: auth.tenantId };
+    if (!auth.permissions.includes('attendance.update')) {
+      if (!auth.staffId) return [];
+      const assignments = await prisma.teacherAssignment.findMany({ where: { tenantId: auth.tenantId, staffId: auth.staffId, status: 'ACTIVE' }, select: { classId: true, academicPeriodId: true } });
+      where.OR = assignments.map(({ classId, academicPeriodId }) => ({ classId, academicPeriodId }));
+      if (!where.OR.length) return [];
+    }
+    const sessions = await prisma.attendanceSession.findMany({ where, take: 30, orderBy: { date: 'desc' }, include: { class: true, academicPeriod: true, records: true, createdBy: { select: { firstName: true, lastName: true } } } });
+    return sessions.map((session) => { const counts = Object.fromEntries(['PRESENT', 'ABSENT', 'LATE', 'EXCUSED'].map((status) => [status, session.records.filter((item) => item.status === status).length])); return { ...session, records: undefined, counts, total: session.records.length, attendanceRate: session.records.length ? Math.round(((counts.PRESENT + counts.LATE) / session.records.length) * 1000) / 10 : 0 }; });
+  },
+};

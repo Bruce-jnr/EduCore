@@ -12,14 +12,17 @@ import { UsersRolesPage } from './features/users/UsersRolesPage.jsx';
 import { SettingsPage } from './features/settings/SettingsPage.jsx';
 import { AttendancePage } from './features/attendance/AttendancePage.jsx';
 import { FinancePage } from './features/finance/FinancePage.jsx';
+import { BulkBillingPage } from './features/finance/BulkBillingPage.jsx';
 import { PlatformLoginPage } from './features/platform/PlatformLoginPage.jsx';
 import { PlatformPage } from './features/platform/PlatformPage.jsx';
 import { PlatformSettingsPage } from './features/platform/PlatformSettingsPage.jsx';
 import { PlatformAnalyticsPage } from './features/platform/PlatformAnalyticsPage.jsx';
 import { PlatformAuditPage } from './features/platform/PlatformAuditPage.jsx';
-import { Icon } from './components/Icon.jsx';
-import './features/platform/platform-shortcut.css';
+import { ResultsPage } from './features/results/ResultsPage.jsx';
+import { ResultsWorkflowPage } from './features/results/ResultsWorkflowPage.jsx';
+import { ReportCardsPage } from './features/results/ReportCardsPage.jsx';
 import './styles.css';
+import './features/platform/platform-nav-fix.css';
 
 function getRoute() {
   return window.location.hash.replace('#', '') || '/dashboard';
@@ -45,10 +48,14 @@ function App() {
   if (route === '/settings') page = <SettingsPage />;
   if (route === '/attendance') page = <AttendancePage />;
   if (route.startsWith('/finance')) page = <FinancePage key={route} />;
+  if (route === '/finance/bulk-bills') page = <BulkBillingPage />;
+  if (route === '/results') page = <ResultsPage />;
+  if (route === '/results/workflow') page = <ResultsWorkflowPage />;
+  if (route === '/results/report-cards') page = <ReportCardsPage />;
 
   if (loading) return <div className="app-loading"><span/><p>Loading EduCore…</p></div>;
   if (!user) return route.startsWith('/platform') ? <PlatformLoginPage /> : <LoginPage />;
-  if (user.isPlatformUser) { if(route==='/platform/settings')return <PlatformSettingsPage/>;if(route==='/platform/analytics')return <PlatformAnalyticsPage/>;if(route==='/platform/audit-logs')return <PlatformAuditPage/>;return <><PlatformPage/><div className="platform-shortcuts"><a href="#/platform/analytics"><Icon>analytics</Icon><span>System Analytics</span></a><a href="#/platform/audit-logs"><Icon>history</Icon><span>Audit Logs</span></a><a href="#/platform/settings"><Icon>settings</Icon><span>Platform Settings</span></a></div></>; }
+  if (user.isPlatformUser) { if(route==='/platform/settings')return <PlatformSettingsPage/>;if(route==='/platform/analytics')return <PlatformAnalyticsPage/>;if(route==='/platform/audit-logs')return <PlatformAuditPage/>;return <PlatformPage/>; }
   return <AppShell route={route} user={user} onLogout={logout}>{page}</AppShell>;
 }
 

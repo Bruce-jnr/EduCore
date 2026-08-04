@@ -18,11 +18,14 @@ academicRouter.post('/subjects',authenticate,resolveTenant,requirePermission('ac
 
 academicRouter.get('/options', authenticate, resolveTenant, asyncHandler(async (req, res) => {
   const tenantId = req.auth.tenantId;
+  const restrictToAssignments = req.auth.staffId && (req.auth.permissions.includes('attendance.take') || req.auth.permissions.includes('results.enter')) && !req.auth.permissions.includes('academics.create') && !req.auth.permissions.includes('results.approve');
+  const assignments = restrictToAssignments ? await prisma.teacherAssignment.findMany({ where: { tenantId, staffId: req.auth.staffId, status: 'ACTIVE' }, select: { academicYearId: true, academicPeriodId: true, classId: true, subjectId: true } }) : [];
+  const assigned = (key) => [...new Set(assignments.map((item) => item[key]))];
   const [academicYears, academicPeriods, classes, subjects] = await prisma.$transaction([
-    prisma.academicYear.findMany({ where: { tenantId, status: 'ACTIVE' }, orderBy: [{ isCurrent: 'desc' }, { startDate: 'desc' }] }),
-    prisma.academicPeriod.findMany({ where: { tenantId, status: 'ACTIVE' }, orderBy: [{ isCurrent: 'desc' }, { startDate: 'desc' }] }),
-    prisma.class.findMany({ where: { tenantId, status: 'ACTIVE' }, orderBy: [{ name: 'asc' }, { section: 'asc' }] }),
-    prisma.subject.findMany({ where: { tenantId, status: 'ACTIVE' }, orderBy: { name: 'asc' } }),
+    prisma.academicYear.findMany({ where: { tenantId, status: 'ACTIVE', ...(restrictToAssignments && { id: { in: assigned('academicYearId') } }) }, orderBy: [{ isCurrent: 'desc' }, { startDate: 'desc' }] }),
+    prisma.academicPeriod.findMany({ where: { tenantId, status: 'ACTIVE', ...(restrictToAssignments && { id: { in: assigned('academicPeriodId') } }) }, orderBy: [{ isCurrent: 'desc' }, { startDate: 'desc' }] }),
+    prisma.class.findMany({ where: { tenantId, status: 'ACTIVE', ...(restrictToAssignments && { id: { in: assigned('classId') } }) }, orderBy: [{ name: 'asc' }, { section: 'asc' }] }),
+    prisma.subject.findMany({ where: { tenantId, status: 'ACTIVE', ...(restrictToAssignments && { id: { in: assigned('subjectId') } }) }, orderBy: { name: 'asc' } }),
   ]);
   res.json({ success: true, data: { academicYears, academicPeriods, classes, subjects }, message: null });
 }));

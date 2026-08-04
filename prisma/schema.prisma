@@ -79,6 +79,14 @@ enum PaymentStatus {
   REFUNDED
 }
 
+enum ResultStatus {
+  DRAFT
+  SUBMITTED
+  APPROVED
+  PUBLISHED
+  REJECTED
+}
+
 model Tenant {
   id                 String              @id @default(cuid())
   name               String
@@ -114,6 +122,11 @@ model Tenant {
   feeStructures      FeeStructure[]
   invoices           Invoice[]
   payments           Payment[]
+  bulkBillingRuns    BulkBillingRun[]
+  assessmentSchemes  AssessmentScheme[]
+  gradingSchemes     GradingScheme[]
+  resultSheets       ResultSheet[]
+  resultEntries      ResultEntry[]
 }
 
 model PlatformSettings {
@@ -146,25 +159,29 @@ model TenantSettings {
 }
 
 model User {
-  id                 String              @id @default(cuid())
-  tenantId           String?
-  firstName          String
-  lastName           String
-  email              String
-  phone              String?
-  passwordHash       String
-  status             UserStatus          @default(INVITED)
-  isPlatformUser     Boolean             @default(false)
-  lastLoginAt        DateTime?
-  emailVerifiedAt    DateTime?
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
-  deletedAt          DateTime?
-  tenant             Tenant?             @relation(fields: [tenantId], references: [id])
-  userRoles          UserRole[]
-  auditLogs          AuditLog[]
-  attendanceSessions AttendanceSession[] @relation("AttendanceCreatedBy")
-  paymentsReceived   Payment[]           @relation("PaymentsReceivedBy")
+  id                   String              @id @default(cuid())
+  tenantId             String?
+  firstName            String
+  lastName             String
+  email                String
+  phone                String?
+  passwordHash         String
+  status               UserStatus          @default(INVITED)
+  isPlatformUser       Boolean             @default(false)
+  lastLoginAt          DateTime?
+  emailVerifiedAt      DateTime?
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
+  deletedAt            DateTime?
+  tenant               Tenant?             @relation(fields: [tenantId], references: [id])
+  userRoles            UserRole[]
+  auditLogs            AuditLog[]
+  attendanceSessions   AttendanceSession[] @relation("AttendanceCreatedBy")
+  paymentsReceived     Payment[]           @relation("PaymentsReceivedBy")
+  resultSheetsEntered  ResultSheet[]       @relation("ResultSheetEnteredBy")
+  resultEntriesEntered ResultEntry[]       @relation("ResultEntryEnteredBy")
+  staffProfile         Staff?
+  bulkBillingRuns      BulkBillingRun[]
 
   @@unique([tenantId, email])
   @@index([tenantId, status])
@@ -226,6 +243,10 @@ model AcademicYear {
   attendanceSessions AttendanceSession[]
   feeStructures      FeeStructure[]
   invoices           Invoice[]
+  bulkBillingRuns    BulkBillingRun[]
+  assessmentSchemes  AssessmentScheme[]
+  resultSheets       ResultSheet[]
+  resultEntries      ResultEntry[]
 
   @@unique([tenantId, name])
   @@index([tenantId, isCurrent])
@@ -248,6 +269,10 @@ model AcademicPeriod {
   attendanceSessions AttendanceSession[]
   feeStructures      FeeStructure[]
   invoices           Invoice[]
+  bulkBillingRuns    BulkBillingRun[]
+  assessmentSchemes  AssessmentScheme[]
+  resultSheets       ResultSheet[]
+  resultEntries      ResultEntry[]
 
   @@unique([tenantId, academicYearId, name])
   @@index([tenantId, isCurrent])
@@ -267,6 +292,9 @@ model Class {
   teacherAssignments TeacherAssignment[]
   attendanceSessions AttendanceSession[]
   feeStructures      FeeStructure[]
+  assessmentSchemes  AssessmentScheme[]
+  resultSheets       ResultSheet[]
+  resultEntries      ResultEntry[]
 
   @@unique([tenantId, academicYearId, name, section])
   @@index([tenantId, status])
@@ -281,6 +309,8 @@ model Subject {
   status             RecordStatus        @default(ACTIVE)
   tenant             Tenant              @relation(fields: [tenantId], references: [id])
   teacherAssignments TeacherAssignment[]
+  resultSheets       ResultSheet[]
+  resultEntries      ResultEntry[]
 
   @@unique([tenantId, code])
 }
@@ -288,6 +318,7 @@ model Subject {
 model Staff {
   id                 String              @id @default(cuid())
   tenantId           String
+  userId             String?             @unique
   employeeNumber     String
   firstName          String
   middleName         String?
@@ -302,6 +333,7 @@ model Staff {
   updatedAt          DateTime            @updatedAt
   deletedAt          DateTime?
   tenant             Tenant              @relation(fields: [tenantId], references: [id])
+  user               User?               @relation(fields: [userId], references: [id])
   teacherAssignments TeacherAssignment[]
 
   @@unique([tenantId, employeeNumber])
@@ -354,6 +386,7 @@ model Student {
   attendanceRecords AttendanceRecord[]
   invoices          Invoice[]
   payments          Payment[]
+  resultEntries     ResultEntry[]
 
   @@unique([tenantId, studentNumber])
   @@index([tenantId, status])
@@ -409,6 +442,7 @@ model Invoice {
   dueDate          DateTime        @db.Date
   status           InvoiceStatus   @default(ISSUED)
   notes            String?
+  bulkBillingRunId String?
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
   tenant           Tenant          @relation(fields: [tenantId], references: [id])
@@ -416,10 +450,35 @@ model Invoice {
   academicYear     AcademicYear    @relation(fields: [academicYearId], references: [id])
   academicPeriod   AcademicPeriod? @relation(fields: [academicPeriodId], references: [id])
   items            InvoiceItem[]
+  bulkBillingRun   BulkBillingRun? @relation(fields: [bulkBillingRunId], references: [id])
 
   @@unique([tenantId, invoiceNumber])
   @@index([tenantId, studentId, status])
   @@index([tenantId, dueDate])
+  @@index([bulkBillingRunId])
+}
+
+model BulkBillingRun {
+  id               String          @id @default(cuid())
+  runKey           String          @unique
+  tenantId         String
+  academicYearId   String
+  academicPeriodId String?
+  scope            String
+  classId          String?
+  levelOrder       Int?
+  description      String
+  studentCount     Int
+  totalAmount      Decimal         @db.Decimal(14, 2)
+  createdById      String
+  createdAt        DateTime        @default(now())
+  tenant           Tenant          @relation(fields: [tenantId], references: [id])
+  academicYear     AcademicYear    @relation(fields: [academicYearId], references: [id])
+  academicPeriod   AcademicPeriod? @relation(fields: [academicPeriodId], references: [id])
+  createdBy        User            @relation(fields: [createdById], references: [id])
+  invoices         Invoice[]
+
+  @@index([tenantId, createdAt])
 }
 
 model InvoiceItem {
@@ -505,6 +564,130 @@ model AttendanceRecord {
 
   @@unique([attendanceSessionId, studentId])
   @@index([studentId, status])
+}
+
+model AssessmentScheme {
+  id               String                @id @default(cuid())
+  tenantId         String
+  academicYearId   String
+  academicPeriodId String?
+  classId          String?
+  name             String
+  status           RecordStatus          @default(ACTIVE)
+  createdAt        DateTime              @default(now())
+  updatedAt        DateTime              @updatedAt
+  tenant           Tenant                @relation(fields: [tenantId], references: [id])
+  academicYear     AcademicYear          @relation(fields: [academicYearId], references: [id])
+  academicPeriod   AcademicPeriod?       @relation(fields: [academicPeriodId], references: [id])
+  class            Class?                @relation(fields: [classId], references: [id])
+  components       AssessmentComponent[]
+  resultSheets     ResultSheet[]
+
+  @@unique([tenantId, academicYearId, name])
+  @@index([tenantId, academicPeriodId, classId, status])
+}
+
+model AssessmentComponent {
+  id            String           @id @default(cuid())
+  schemeId      String
+  name          String
+  weight        Decimal          @db.Decimal(5, 2)
+  maximumScore  Decimal          @db.Decimal(7, 2)
+  displayOrder  Int              @default(0)
+  status        RecordStatus     @default(ACTIVE)
+  scheme        AssessmentScheme @relation(fields: [schemeId], references: [id], onDelete: Cascade)
+  resultEntries ResultEntry[]
+
+  @@unique([schemeId, name])
+}
+
+model GradingScheme {
+  id         String          @id @default(cuid())
+  tenantId   String
+  name       String
+  isDefault  Boolean         @default(false)
+  status     RecordStatus    @default(ACTIVE)
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+  tenant     Tenant          @relation(fields: [tenantId], references: [id])
+  boundaries GradeBoundary[]
+
+  @@unique([tenantId, name])
+  @@index([tenantId, isDefault, status])
+}
+
+model GradeBoundary {
+  id              String        @id @default(cuid())
+  gradingSchemeId String
+  grade           String
+  minimumScore    Decimal       @db.Decimal(5, 2)
+  maximumScore    Decimal       @db.Decimal(5, 2)
+  remark          String?
+  gradePoint      Decimal?      @db.Decimal(4, 2)
+  gradingScheme   GradingScheme @relation(fields: [gradingSchemeId], references: [id], onDelete: Cascade)
+
+  @@unique([gradingSchemeId, grade])
+}
+
+model ResultSheet {
+  id                 String           @id @default(cuid())
+  sheetKey           String           @unique
+  tenantId           String
+  academicYearId     String
+  academicPeriodId   String
+  classId            String
+  subjectId          String
+  assessmentSchemeId String
+  enteredById        String
+  status             ResultStatus     @default(DRAFT)
+  submittedAt        DateTime?
+  approvedAt         DateTime?
+  publishedAt        DateTime?
+  approvedById       String?
+  publishedById      String?
+  rejectionReason    String?
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  tenant             Tenant           @relation(fields: [tenantId], references: [id])
+  academicYear       AcademicYear     @relation(fields: [academicYearId], references: [id])
+  academicPeriod     AcademicPeriod   @relation(fields: [academicPeriodId], references: [id])
+  class              Class            @relation(fields: [classId], references: [id])
+  subject            Subject          @relation(fields: [subjectId], references: [id])
+  assessmentScheme   AssessmentScheme @relation(fields: [assessmentSchemeId], references: [id])
+  enteredBy          User             @relation("ResultSheetEnteredBy", fields: [enteredById], references: [id])
+  entries            ResultEntry[]
+
+  @@index([tenantId, academicPeriodId, classId, status])
+}
+
+model ResultEntry {
+  id                    String              @id @default(cuid())
+  entryKey              String              @unique
+  tenantId              String
+  resultSheetId         String
+  studentId             String
+  academicYearId        String
+  academicPeriodId      String
+  classId               String
+  subjectId             String
+  assessmentComponentId String
+  rawScore              Decimal             @db.Decimal(7, 2)
+  weightedScore         Decimal             @db.Decimal(7, 2)
+  enteredById           String
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+  tenant                Tenant              @relation(fields: [tenantId], references: [id])
+  resultSheet           ResultSheet         @relation(fields: [resultSheetId], references: [id], onDelete: Cascade)
+  student               Student             @relation(fields: [studentId], references: [id])
+  academicYear          AcademicYear        @relation(fields: [academicYearId], references: [id])
+  academicPeriod        AcademicPeriod      @relation(fields: [academicPeriodId], references: [id])
+  class                 Class               @relation(fields: [classId], references: [id])
+  subject               Subject             @relation(fields: [subjectId], references: [id])
+  assessmentComponent   AssessmentComponent @relation(fields: [assessmentComponentId], references: [id])
+  enteredBy             User                @relation("ResultEntryEnteredBy", fields: [enteredById], references: [id])
+
+  @@index([tenantId, studentId, academicPeriodId])
+  @@index([resultSheetId, studentId])
 }
 
 model StudentEnrollment {
