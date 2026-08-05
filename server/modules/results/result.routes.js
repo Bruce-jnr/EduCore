@@ -27,6 +27,7 @@ resultRouter.get(
     }),
   ),
 );
+
 resultRouter.post(
   '/assessment-schemes',
   requirePermission('assessments.manage'),
@@ -42,6 +43,7 @@ resultRouter.post(
     }),
   ),
 );
+
 resultRouter.post(
   '/grading-schemes',
   requirePermission('grading.manage'),
@@ -57,6 +59,7 @@ resultRouter.post(
     }),
   ),
 );
+
 resultRouter.get(
   '/roster',
   requirePermission('results.view'),
@@ -69,6 +72,7 @@ resultRouter.get(
     }),
   ),
 );
+
 resultRouter.put(
   '/scores',
   requirePermission('results.enter'),
@@ -81,6 +85,7 @@ resultRouter.put(
     }),
   ),
 );
+
 resultRouter.post(
   '/sheets/:id/submit',
   requirePermission('results.submit'),
@@ -93,6 +98,7 @@ resultRouter.post(
     }),
   ),
 );
+
 resultRouter.post(
   '/sheets/:id/approve',
   requirePermission('results.approve'),
@@ -109,6 +115,7 @@ resultRouter.post(
     }),
   ),
 );
+
 resultRouter.post(
   '/sheets/:id/reject',
   requirePermission('results.approve'),
@@ -126,6 +133,7 @@ resultRouter.post(
     }),
   ),
 );
+
 resultRouter.post(
   '/sheets/:id/publish',
   requirePermission('results.publish'),
@@ -138,6 +146,7 @@ resultRouter.post(
     }),
   ),
 );
+
 resultRouter.get(
   '/report-cards',
   requirePermission('results.view'),
