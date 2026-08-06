@@ -8,6 +8,8 @@ const schema = z.object({
   JWT_SECRET: z.string().min(32),
   JWT_EXPIRES_IN: z.string().default('15m'),
   DATABASE_URL: z.string().min(1),
+  UPLOAD_DIR: z.string().default('./uploads'),
+  MAX_FILE_SIZE: z.string().default('2097152').transform((value) => value.toUpperCase().endsWith('MB') ? Number(value.slice(0, -2)) * 1024 * 1024 : Number(value)),
 });
 
 const parsed = schema.safeParse(process.env);

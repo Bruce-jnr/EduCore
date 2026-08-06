@@ -32,6 +32,7 @@ export const attendanceService = {
     return { class: schoolClass, period, sessionId: session?.id || null, students: enrollments.map(({ student }) => ({ ...student, attendance: recordMap.get(student.id) || null })) };
   },
   async save(auth, input) {
+    if (auth.roles.some((role) => role === 'School Administrator' || role === 'Academic Administrator')) throw new AppError('Attendance can only be recorded by teachers', 403, 'TEACHER_ATTENDANCE_REQUIRED');
     const { period } = await context(auth.tenantId, input.classId, input.academicPeriodId);
     await requireAssignedClass(auth, input.classId, input.academicPeriodId);
     const enrolled = await prisma.studentEnrollment.findMany({ where: { tenantId: auth.tenantId, classId: input.classId, academicYearId: period.academicYearId, status: 'ACTIVE' }, select: { studentId: true } });
@@ -56,5 +57,59 @@ export const attendanceService = {
     }
     const sessions = await prisma.attendanceSession.findMany({ where, take: 30, orderBy: { date: 'desc' }, include: { class: true, academicPeriod: true, records: true, createdBy: { select: { firstName: true, lastName: true } } } });
     return sessions.map((session) => { const counts = Object.fromEntries(['PRESENT', 'ABSENT', 'LATE', 'EXCUSED'].map((status) => [status, session.records.filter((item) => item.status === status).length])); return { ...session, records: undefined, counts, total: session.records.length, attendanceRate: session.records.length ? Math.round(((counts.PRESENT + counts.LATE) / session.records.length) * 1000) / 10 : 0 }; });
+  },
+  async statistics(auth) {
+    const [sessions, currentPeriod] = await Promise.all([
+      prisma.attendanceSession.findMany({
+        where: { tenantId: auth.tenantId },
+        orderBy: { date: 'desc' },
+        include: { class: true, academicPeriod: true, records: { select: { status: true } } },
+      }),
+      prisma.academicPeriod.findFirst({
+        where: { tenantId: auth.tenantId, isCurrent: true, status: 'ACTIVE' },
+        include: { academicYear: { include: { classes: { where: { status: 'ACTIVE' }, orderBy: [{ levelOrder: 'asc' }, { name: 'asc' }] } } } },
+      }),
+    ]);
+    const classes = new Map();
+    for (const schoolClass of currentPeriod?.academicYear.classes || []) {
+      classes.set(`${schoolClass.id}:${currentPeriod.id}`, {
+        classId: schoolClass.id,
+        className: `${schoolClass.name}${schoolClass.section ? ` ${schoolClass.section}` : ''}`,
+        academicPeriodId: currentPeriod.id,
+        academicPeriod: currentPeriod.name,
+        sessions: 0,
+        present: 0,
+        absent: 0,
+        late: 0,
+        excused: 0,
+        total: 0,
+        lastRecordedAt: null,
+      });
+    }
+    for (const session of sessions) {
+      const key = `${session.classId}:${session.academicPeriodId}`;
+      const item = classes.get(key) || {
+        classId: session.classId,
+        className: `${session.class.name}${session.class.section ? ` ${session.class.section}` : ''}`,
+        academicPeriodId: session.academicPeriodId,
+        academicPeriod: session.academicPeriod.name,
+        sessions: 0,
+        present: 0,
+        absent: 0,
+        late: 0,
+        excused: 0,
+        total: 0,
+        lastRecordedAt: session.date,
+      };
+      if (!item.lastRecordedAt) item.lastRecordedAt = session.date;
+      item.sessions += 1;
+      item.total += session.records.length;
+      for (const record of session.records) item[record.status.toLowerCase()] += 1;
+      classes.set(key, item);
+    }
+    return [...classes.values()].map((item) => ({
+      ...item,
+      attendanceRate: item.total ? Math.round(((item.present + item.late) / item.total) * 1000) / 10 : 0,
+    }));
   },
 };

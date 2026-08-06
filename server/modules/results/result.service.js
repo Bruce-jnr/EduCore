@@ -93,9 +93,10 @@ function validateBoundaries(boundaries) {
 export const resultService = {
   async overview(auth) {
     const tenantId = auth.tenantId;
+    const isAdministrator = auth.roles.some((role) => role === 'School Administrator' || role === 'Academic Administrator');
     const broadAccess = auth.permissions.includes('results.approve') || auth.permissions.includes('assessments.manage');
     const assignments = broadAccess || !auth.staffId ? [] : await prisma.teacherAssignment.findMany({ where: { tenantId, staffId: auth.staffId, status: 'ACTIVE' }, select: { academicPeriodId: true, classId: true, subjectId: true } });
-    const sheetWhere = broadAccess ? { tenantId } : assignments.length ? { tenantId, OR: assignments.map(({ academicPeriodId, classId, subjectId }) => ({ academicPeriodId, classId, subjectId })) } : { tenantId, id: '__none__' };
+    const sheetWhere = isAdministrator ? { tenantId, status: { in: ['SUBMITTED', 'APPROVED', 'PUBLISHED', 'REJECTED'] } } : broadAccess ? { tenantId } : assignments.length ? { tenantId, OR: assignments.map(({ academicPeriodId, classId, subjectId }) => ({ academicPeriodId, classId, subjectId })) } : { tenantId, id: '__none__' };
     const [assessmentSchemes, gradingSchemes, recentSheets] =
       await prisma.$transaction([
         prisma.assessmentScheme.findMany({
@@ -121,6 +122,8 @@ export const resultService = {
             academicPeriod: true,
             class: true,
             subject: true,
+            assessmentScheme: { include: { components: { where: { status: 'ACTIVE' }, orderBy: { displayOrder: 'asc' } } } },
+            entries: { include: { student: { select: { id: true, studentNumber: true, firstName: true, lastName: true } }, assessmentComponent: { select: { id: true, name: true, maximumScore: true } } }, orderBy: { student: { lastName: 'asc' } } },
             enteredBy: { select: { firstName: true, lastName: true } },
             _count: { select: { entries: true } },
           },
@@ -274,6 +277,7 @@ export const resultService = {
   },
 
   async saveScores(auth, input) {
+    if (auth.roles.some((role) => role === 'School Administrator' || role === 'Academic Administrator')) throw new AppError('Only teachers can enter scores', 403, 'TEACHER_RESULTS_REQUIRED');
     await requireAssignedSubject(auth, input);
     const context = await getContext(auth.tenantId, input);
     const [enrollments, existing] = await Promise.all([
@@ -391,6 +395,7 @@ export const resultService = {
   },
 
   async submit(auth, id) {
+    if (auth.roles.some((role) => role === 'School Administrator' || role === 'Academic Administrator')) throw new AppError('Only teachers can submit result sheets', 403, 'TEACHER_RESULTS_REQUIRED');
     const sheet = await prisma.resultSheet.findFirst({ where: { id, tenantId: auth.tenantId }, include: { assessmentScheme: { include: { components: { where: { status: 'ACTIVE' } } } }, entries: true } });
     if (!sheet) throw new AppError('Result sheet not found', 404, 'RESULT_SHEET_NOT_FOUND');
     await requireAssignedSubject(auth, sheet);
@@ -434,7 +439,7 @@ export const resultService = {
     const schoolClass = period ? await prisma.class.findFirst({ where: { id: input.classId, tenantId, academicYearId: period.academicYearId } }) : null;
     if (!period || !schoolClass) throw new AppError('Report-card class or period is invalid', 422, 'INVALID_REPORT_CONTEXT');
     const [tenant, enrollments, sheets, grading, attendance] = await Promise.all([
-      prisma.tenant.findUnique({ where: { id: tenantId }, select: { name: true, logoUrl: true, schoolCode: true } }),
+      prisma.tenant.findUnique({ where: { id: tenantId }, select: { name: true, logoUrl: true, schoolCode: true, email: true, phone: true, address: true, city: true, country: true, primaryColor: true, secondaryColor: true, settings: { select: { reportCardConfig: true } } } }),
       prisma.studentEnrollment.findMany({ where: { tenantId, academicYearId: period.academicYearId, classId: input.classId, status: 'ACTIVE' }, include: { student: true }, orderBy: { student: { lastName: 'asc' } } }),
       prisma.resultSheet.findMany({ where: { tenantId, academicPeriodId: period.id, classId: input.classId, status: 'PUBLISHED' }, include: { subject: true, entries: true } }),
       prisma.gradingScheme.findFirst({ where: { tenantId, status: 'ACTIVE' }, orderBy: { isDefault: 'desc' }, include: { boundaries: true } }),

@@ -41,7 +41,7 @@ const groups = [
         permission: 'academics.view',
       },
       { label: 'Terms / Semesters', icon: 'date_range', href: '#/academics/periods', permission: 'academics.view' },
-      { label: 'Enter Scores', icon: 'grading', href: '#/results', permission: 'results.view' },
+      { label: 'Enter Scores', icon: 'grading', href: '#/results', permission: 'results.enter', teacherOnly: true },
       { label: 'Submit & Review', icon: 'task_alt', href: '#/results/workflow', permission: 'results.view' },
       { label: 'Report Cards', icon: 'description', href: '#/results/report-cards', permission: 'results.view' },
     ],
@@ -71,12 +71,14 @@ const groups = [
         href: '#/settings',
         permission: 'settings.view',
       },
+      { label: 'Report Card Design', icon: 'description', href: '#/settings/report-card', permission: 'settings.update' },
     ],
   },
 ];
 
 export function AppShell({ route, children, user, onLogout }) {
   const [open, setOpen] = useState(false);
+  const isAdministrator = user.roles?.some((role) => role === 'School Administrator' || role === 'Academic Administrator');
 
   return (
     <div className="app-shell">
@@ -96,7 +98,7 @@ export function AppShell({ route, children, user, onLogout }) {
           </span>
         </a>
         <nav className="main-nav" aria-label="Main navigation">
-          {groups.map((group) => ({ ...group, items: group.items.filter((item) => !item.permission || user.permissions?.includes(item.permission)) })).filter((group) => group.items.length).map((group) => (
+          {groups.map((group) => ({ ...group, items: group.items.filter((item) => (!item.permission || user.permissions?.includes(item.permission)) && (!item.teacherOnly || !isAdministrator)).map((item) => item.href === '#/results/workflow' && isAdministrator ? { ...item, label: 'Review Scores' } : item) })).filter((group) => group.items.length).map((group) => (
             <section key={group.label}>
               <p>{group.label}</p>
               {group.items.map((item) => {

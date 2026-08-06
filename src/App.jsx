@@ -10,6 +10,7 @@ import { StaffPage } from './features/staff/StaffPage.jsx';
 import { AcademicsPage } from './features/academics/AcademicsPage.jsx';
 import { UsersRolesPage } from './features/users/UsersRolesPage.jsx';
 import { SettingsPage } from './features/settings/SettingsPage.jsx';
+import { ReportCardSettingsPage } from './features/settings/ReportCardSettingsPage.jsx';
 import { AttendancePage } from './features/attendance/AttendancePage.jsx';
 import { FinancePage } from './features/finance/FinancePage.jsx';
 import { BulkBillingPage } from './features/finance/BulkBillingPage.jsx';
@@ -46,10 +47,12 @@ function App() {
   if (route.startsWith('/academics/')) page = <AcademicsPage key={route} />;
   if (route === '/users') page = <UsersRolesPage />;
   if (route === '/settings') page = <SettingsPage />;
+  if (route === '/settings/report-card') page = <ReportCardSettingsPage />;
   if (route === '/attendance') page = <AttendancePage />;
   if (route.startsWith('/finance')) page = <FinancePage key={route} />;
   if (route === '/finance/bulk-bills') page = <BulkBillingPage />;
-  if (route === '/results') page = <ResultsPage />;
+  const isSchoolAdministrator = user?.roles?.some((role) => role === 'School Administrator' || role === 'Academic Administrator');
+  if (route === '/results') page = isSchoolAdministrator ? <ResultsWorkflowPage /> : <ResultsPage />;
   if (route === '/results/workflow') page = <ResultsWorkflowPage />;
   if (route === '/results/report-cards') page = <ReportCardsPage />;
 

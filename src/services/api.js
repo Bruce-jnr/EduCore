@@ -1,4 +1,9 @@
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+export function assetUrl(value) {
+  if (!value || value.startsWith('http://') || value.startsWith('https://') || value.startsWith('data:') || value.startsWith('blob:')) return value;
+  const serverUrl = API_URL.replace(/\/api\/?$/, '').replace(/\/$/, '');
+  return `${serverUrl}/${value.replace(/^\//, '')}`;
+}
 export async function api(path, options = {}) {
   const token = localStorage.getItem('educore_token');
   const response = await fetch(`${API_URL}${path}`, { ...options, headers: { 'Content-Type': 'application/json', ...(token && { Authorization: `Bearer ${token}` }), ...options.headers } });

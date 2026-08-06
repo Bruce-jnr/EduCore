@@ -18,6 +18,9 @@ const permissionKeys = [
   'students.create',
   'students.update',
   'students.archive',
+  'guardians.view',
+  'guardians.create',
+  'guardians.update',
   'staff.view',
   'staff.create',
   'staff.update',
@@ -86,7 +89,7 @@ async function seed() {
     },
   });
   await Promise.all(
-    permissions.map((permission) =>
+    permissions.filter((permission) => !['attendance.take', 'results.enter', 'results.submit'].includes(permission.key)).map((permission) =>
       prisma.rolePermission.upsert({
         where: {
           roleId_permissionId: { roleId: role.id, permissionId: permission.id },
@@ -96,10 +99,11 @@ async function seed() {
       }),
     ),
   );
+  await prisma.rolePermission.deleteMany({ where: { roleId: role.id, permission: { key: { in: ['attendance.take', 'results.enter', 'results.submit'] } } } });
   const rolePermissions = {
-    Teacher: ['dashboard.view', 'students.view', 'academics.view', 'attendance.view', 'attendance.take', 'results.view', 'results.enter', 'results.submit'],
+    Teacher: ['dashboard.view', 'students.view', 'guardians.view', 'academics.view', 'attendance.view', 'attendance.take', 'results.view', 'results.enter', 'results.submit'],
     Accountant: ['dashboard.view', 'students.view', 'finance.view', 'finance.fees.create', 'finance.invoice.create', 'finance.payment.create'],
-    'Academic Administrator': ['dashboard.view', 'students.view', 'staff.view', 'academics.view', 'academics.create', 'academics.update', 'academics.assign-teachers', 'attendance.view', 'attendance.update', 'results.view', 'results.enter', 'results.approve', 'results.publish'],
+    'Academic Administrator': ['dashboard.view', 'students.view', 'staff.view', 'academics.view', 'academics.create', 'academics.update', 'academics.assign-teachers', 'attendance.view', 'attendance.update', 'results.view', 'results.approve', 'results.publish'],
   };
   for (const [name, keys] of Object.entries(rolePermissions)) {
     const defaultRole = await prisma.role.upsert({ where: { tenantId_name: { tenantId: tenant.id, name } }, update: { isSystem: true }, create: { tenantId: tenant.id, name, isSystem: true } });

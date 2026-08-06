@@ -1,0 +1,26 @@
+.results-workflow .workflow-board {
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.score-review {
+  margin: 12px 0;
+  border-top: 1px solid #e5eaf1;
+  padding-top: 10px;
+}
+
+.score-review summary {
+  cursor: pointer;
+  color: #1655d1;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.score-review .table-scroll {
+  max-height: 260px;
+  margin-top: 9px;
+}
+
+.score-review table { min-width: 420px; }
+.score-review th, .score-review td { padding: 8px; font-size: 8px; }
+.score-review td:first-child { display: flex; flex-direction: column; }
+.score-review td small { margin-top: 2px; color: #7b8797; }

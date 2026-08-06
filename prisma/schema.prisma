@@ -115,6 +115,7 @@ model Tenant {
   subjects           Subject[]
   staff              Staff[]
   students           Student[]
+  guardians          Guardian[]
   auditLogs          AuditLog[]
   teacherAssignments TeacherAssignment[]
   attendanceSessions AttendanceSession[]
@@ -147,15 +148,16 @@ model PlatformSettings {
 }
 
 model TenantSettings {
-  id              String   @id @default(cuid())
-  tenantId        String   @unique
-  studentIdPrefix String   @default("STD")
-  staffIdPrefix   String   @default("STF")
-  academicConfig  Json?
-  featureFlags    Json?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  tenant          Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  id               String   @id @default(cuid())
+  tenantId         String   @unique
+  studentIdPrefix  String   @default("STD")
+  staffIdPrefix    String   @default("STF")
+  academicConfig   Json?
+  featureFlags     Json?
+  reportCardConfig Json?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  tenant           Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 }
 
 model User {
@@ -387,9 +389,45 @@ model Student {
   invoices          Invoice[]
   payments          Payment[]
   resultEntries     ResultEntry[]
+  guardians         StudentGuardian[]
 
   @@unique([tenantId, studentNumber])
   @@index([tenantId, status])
+}
+
+model Guardian {
+  id         String            @id @default(cuid())
+  tenantId   String
+  firstName  String
+  lastName   String
+  phone      String
+  email      String?
+  address    String?
+  occupation String?
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+  tenant     Tenant            @relation(fields: [tenantId], references: [id])
+  students   StudentGuardian[]
+
+  @@unique([tenantId, phone])
+  @@index([tenantId, lastName, firstName])
+}
+
+model StudentGuardian {
+  id                       String   @id @default(cuid())
+  tenantId                 String
+  studentId                String
+  guardianId               String
+  relationship             String
+  isPrimary                Boolean  @default(false)
+  isEmergencyContact       Boolean  @default(false)
+  isFinanciallyResponsible Boolean  @default(false)
+  createdAt                DateTime @default(now())
+  student                  Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  guardian                 Guardian @relation(fields: [guardianId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, guardianId])
+  @@index([tenantId, guardianId])
 }
 
 model FeeCategory {
