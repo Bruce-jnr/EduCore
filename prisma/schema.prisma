@@ -87,6 +87,15 @@ enum ResultStatus {
   REJECTED
 }
 
+enum NotificationType {
+  APPROVAL_REQUIRED
+  APPROVED
+  REJECTED
+  FINANCE_REVIEW
+  SUBSCRIPTION_EXPIRING
+  SYSTEM
+}
+
 model Tenant {
   id                 String              @id @default(cuid())
   name               String
@@ -104,6 +113,7 @@ model Tenant {
   primaryColor       String?
   secondaryColor     String?
   isActive           Boolean             @default(true)
+  subscriptionEndsAt DateTime?
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
   settings           TenantSettings?
@@ -128,6 +138,7 @@ model Tenant {
   gradingSchemes     GradingScheme[]
   resultSheets       ResultSheet[]
   resultEntries      ResultEntry[]
+  notifications      Notification[]
 }
 
 model PlatformSettings {
@@ -184,9 +195,30 @@ model User {
   resultEntriesEntered ResultEntry[]       @relation("ResultEntryEnteredBy")
   staffProfile         Staff?
   bulkBillingRuns      BulkBillingRun[]
+  notifications        Notification[]
 
   @@unique([tenantId, email])
   @@index([tenantId, status])
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  tenantId  String
+  userId    String
+  type      NotificationType @default(SYSTEM)
+  title     String
+  message   String
+  link      String?
+  entityType String?
+  entityId  String?
+  dedupeKey String?
+  readAt    DateTime?
+  createdAt DateTime         @default(now())
+  tenant    Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, dedupeKey])
+  @@index([tenantId, userId, readAt, createdAt])
 }
 
 model Role {

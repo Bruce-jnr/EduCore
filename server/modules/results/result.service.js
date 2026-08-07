@@ -1,6 +1,7 @@
 import { prisma } from '../../config/prisma.js';
 import { AppError } from '../../errors/app-error.js';
 import { auditService } from '../../services/audit.service.js';
+import { notificationService } from '../../services/notification.service.js';
 
 const clean = (value) => value || null;
 const sheetKey = (tenantId, input) =>
@@ -262,7 +263,7 @@ export const resultService = {
         orderBy: { student: { lastName: 'asc' } },
       }),
       prisma.resultSheet.findUnique({
-        where: { sheetKey: sheetKey(tenantId, input) },
+        where: { sheetKey: sheetKey(tenantId, input), tenantId },
         include: { entries: true },
       }),
     ]);
@@ -291,7 +292,7 @@ export const resultService = {
         select: { studentId: true },
       }),
       prisma.resultSheet.findUnique({
-        where: { sheetKey: sheetKey(auth.tenantId, input) },
+        where: { sheetKey: sheetKey(auth.tenantId, input), tenantId: auth.tenantId },
       }),
     ]);
     if (
@@ -331,7 +332,7 @@ export const resultService = {
     }
     const saved = await prisma.$transaction(async (tx) => {
       const sheet = await tx.resultSheet.upsert({
-        where: { sheetKey: sheetKey(auth.tenantId, input) },
+        where: { sheetKey: sheetKey(auth.tenantId, input), tenantId: auth.tenantId },
         update: { enteredById: auth.userId, status: 'DRAFT' },
         create: {
           sheetKey: sheetKey(auth.tenantId, input),
@@ -351,7 +352,7 @@ export const resultService = {
           Number(component.weight);
         const entryKey = `${sheet.id}:${score.studentId}:${score.componentId}`;
         await tx.resultEntry.upsert({
-          where: { entryKey },
+          where: { entryKey, tenantId: auth.tenantId },
           update: {
             rawScore: score.rawScore,
             weightedScore,
@@ -374,7 +375,7 @@ export const resultService = {
         });
       }
       return tx.resultSheet.findUnique({
-        where: { id: sheet.id },
+        where: { id: sheet.id, tenantId: auth.tenantId },
         include: { entries: true },
       });
     });
@@ -396,15 +397,16 @@ export const resultService = {
 
   async submit(auth, id) {
     if (auth.roles.some((role) => role === 'School Administrator' || role === 'Academic Administrator')) throw new AppError('Only teachers can submit result sheets', 403, 'TEACHER_RESULTS_REQUIRED');
-    const sheet = await prisma.resultSheet.findFirst({ where: { id, tenantId: auth.tenantId }, include: { assessmentScheme: { include: { components: { where: { status: 'ACTIVE' } } } }, entries: true } });
+    const sheet = await prisma.resultSheet.findFirst({ where: { id, tenantId: auth.tenantId }, include: { class: true, subject: true, assessmentScheme: { include: { components: { where: { status: 'ACTIVE' } } } }, entries: true } });
     if (!sheet) throw new AppError('Result sheet not found', 404, 'RESULT_SHEET_NOT_FOUND');
     await requireAssignedSubject(auth, sheet);
     if (!['DRAFT', 'REJECTED'].includes(sheet.status)) throw new AppError('Only draft or rejected sheets can be submitted', 409, 'INVALID_RESULT_STATUS');
     const studentCount = await prisma.studentEnrollment.count({ where: { tenantId: auth.tenantId, academicYearId: sheet.academicYearId, classId: sheet.classId, status: 'ACTIVE', student: { deletedAt: null, status: 'ACTIVE' } } });
     const expected = studentCount * sheet.assessmentScheme.components.length;
     if (!expected || sheet.entries.length !== expected) throw new AppError(`Complete every score before submission. Expected ${expected} scores but found ${sheet.entries.length}.`, 422, 'INCOMPLETE_RESULT_SHEET');
-    const updated = await prisma.resultSheet.update({ where: { id }, data: { status: 'SUBMITTED', submittedAt: new Date(), rejectionReason: null } });
+    const updated = await prisma.resultSheet.update({ where: { id, tenantId: auth.tenantId }, data: { status: 'SUBMITTED', submittedAt: new Date(), rejectionReason: null } });
     await auditService.log({ tenantId: auth.tenantId, userId: auth.userId, action: 'SUBMIT', module: 'RESULTS', entityType: 'ResultSheet', entityId: id, oldValue: { status: sheet.status }, newValue: { status: 'SUBMITTED' } });
+    await notificationService.notifyPermission(auth.tenantId, 'results.approve', { type: 'APPROVAL_REQUIRED', title: 'Results require approval', message: `${auth.firstName} ${auth.lastName} submitted ${sheet.subject.name} results for ${sheet.class.name}${sheet.class.section ? ` ${sheet.class.section}` : ''}.`, link: '#/results/workflow', entityType: 'ResultSheet', entityId: id, dedupeKey: `result-submit-${id}-${updated.submittedAt.toISOString()}` }, auth.userId);
     return updated;
   },
 
@@ -414,19 +416,19 @@ export const resultService = {
     if (action === 'REJECT') {
       if (!reason) throw new AppError('A rejection reason is required', 422, 'REJECTION_REASON_REQUIRED');
       if (!['SUBMITTED', 'APPROVED'].includes(sheet.status)) throw new AppError('This result sheet cannot be rejected', 409, 'INVALID_RESULT_STATUS');
-      const updated = await prisma.resultSheet.update({ where: { id }, data: { status: 'REJECTED', rejectionReason: reason, approvedAt: null, approvedById: null } });
-      await auditService.log({ tenantId: auth.tenantId, userId: auth.userId, action: 'REJECT', module: 'RESULTS', entityType: 'ResultSheet', entityId: id, oldValue: { status: sheet.status }, newValue: { status: 'REJECTED', reason } }); return updated;
+      const updated = await prisma.resultSheet.update({ where: { id, tenantId: auth.tenantId }, data: { status: 'REJECTED', rejectionReason: reason, approvedAt: null, approvedById: null } });
+      await auditService.log({ tenantId: auth.tenantId, userId: auth.userId, action: 'REJECT', module: 'RESULTS', entityType: 'ResultSheet', entityId: id, oldValue: { status: sheet.status }, newValue: { status: 'REJECTED', reason } }); await notificationService.notifyUser(auth.tenantId, sheet.enteredById, { type: 'REJECTED', title: 'Results returned for correction', message: reason, link: '#/results/workflow', entityType: 'ResultSheet', entityId: id, dedupeKey: `result-rejected-${id}-${updated.updatedAt.toISOString()}` }); return updated;
     }
     if (sheet.status !== 'SUBMITTED') throw new AppError('Only submitted result sheets can be approved', 409, 'INVALID_RESULT_STATUS');
-    const updated = await prisma.resultSheet.update({ where: { id }, data: { status: 'APPROVED', approvedAt: new Date(), approvedById: auth.userId, rejectionReason: null } });
-    await auditService.log({ tenantId: auth.tenantId, userId: auth.userId, action: 'APPROVE', module: 'RESULTS', entityType: 'ResultSheet', entityId: id, oldValue: { status: sheet.status }, newValue: { status: 'APPROVED' } }); return updated;
+    const updated = await prisma.resultSheet.update({ where: { id, tenantId: auth.tenantId }, data: { status: 'APPROVED', approvedAt: new Date(), approvedById: auth.userId, rejectionReason: null } });
+    await auditService.log({ tenantId: auth.tenantId, userId: auth.userId, action: 'APPROVE', module: 'RESULTS', entityType: 'ResultSheet', entityId: id, oldValue: { status: sheet.status }, newValue: { status: 'APPROVED' } }); await notificationService.notifyUser(auth.tenantId, sheet.enteredById, { type: 'APPROVED', title: 'Results approved', message: 'Your submitted result sheet has been approved.', link: '#/results/workflow', entityType: 'ResultSheet', entityId: id, dedupeKey: `result-approved-${id}` }); return updated;
   },
 
   async publish(auth, id) {
     const sheet = await prisma.resultSheet.findFirst({ where: { id, tenantId: auth.tenantId } });
     if (!sheet) throw new AppError('Result sheet not found', 404, 'RESULT_SHEET_NOT_FOUND');
     if (sheet.status !== 'APPROVED') throw new AppError('Only approved result sheets can be published', 409, 'INVALID_RESULT_STATUS');
-    const updated = await prisma.resultSheet.update({ where: { id }, data: { status: 'PUBLISHED', publishedAt: new Date(), publishedById: auth.userId } });
+    const updated = await prisma.resultSheet.update({ where: { id, tenantId: auth.tenantId }, data: { status: 'PUBLISHED', publishedAt: new Date(), publishedById: auth.userId } });
     await auditService.log({ tenantId: auth.tenantId, userId: auth.userId, action: 'PUBLISH', module: 'RESULTS', entityType: 'ResultSheet', entityId: id, oldValue: { status: sheet.status }, newValue: { status: 'PUBLISHED' } }); return updated;
   },
 

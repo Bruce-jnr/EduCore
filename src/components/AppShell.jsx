@@ -2,6 +2,7 @@ import { useState } from 'react';
 import logo from '../assets/educore_logo.png';
 import { Icon } from './Icon.jsx';
 import { ThemeToggle } from '../features/theme/ThemeToggle.jsx';
+import { NotificationMenu } from '../features/notifications/NotificationMenu.jsx';
 
 const groups = [
   {
@@ -148,10 +149,7 @@ export function AppShell({ route, children, user, onLogout }) {
           </label>
           <div className="topbar-actions">
             <ThemeToggle />
-            <button className="icon-button" aria-label="Notifications">
-              <Icon>notifications</Icon>
-              <i />
-            </button>
+            <NotificationMenu />
             <button className="profile-menu" onClick={onLogout} title="Sign out">
               <span>{`${user.firstName?.[0] || ''}${user.lastName?.[0] || ''}`}</span>
               <div>

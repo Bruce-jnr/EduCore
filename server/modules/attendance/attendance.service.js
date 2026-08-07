@@ -26,7 +26,7 @@ export const attendanceService = {
     await requireAssignedClass(auth, input.classId, input.academicPeriodId);
     const [enrollments, session] = await Promise.all([
       prisma.studentEnrollment.findMany({ where: { tenantId: auth.tenantId, classId: input.classId, academicYearId: period.academicYearId, status: 'ACTIVE', student: { deletedAt: null, status: 'ACTIVE' } }, include: { student: true }, orderBy: { student: { firstName: 'asc' } } }),
-      prisma.attendanceSession.findUnique({ where: { sessionKey: sessionKey(auth.tenantId, input.classId, input.academicPeriodId, input.date) }, include: { records: true } }),
+      prisma.attendanceSession.findFirst({ where: { tenantId: auth.tenantId, sessionKey: sessionKey(auth.tenantId, input.classId, input.academicPeriodId, input.date) }, include: { records: true } }),
     ]);
     const recordMap = new Map(session?.records.map((record) => [record.studentId, record]) || []);
     return { class: schoolClass, period, sessionId: session?.id || null, students: enrollments.map(({ student }) => ({ ...student, attendance: recordMap.get(student.id) || null })) };
@@ -40,7 +40,7 @@ export const attendanceService = {
     if (input.records.some((record) => !allowed.has(record.studentId))) throw new AppError('Attendance contains a student not enrolled in this class', 422, 'INVALID_ATTENDANCE_STUDENT');
     const key = sessionKey(auth.tenantId, input.classId, input.academicPeriodId, input.date);
     const session = await prisma.$transaction(async (tx) => {
-      const saved = await tx.attendanceSession.upsert({ where: { sessionKey: key }, update: { createdById: auth.userId }, create: { sessionKey: key, tenantId: auth.tenantId, academicYearId: period.academicYearId, academicPeriodId: input.academicPeriodId, classId: input.classId, date: dateValue(input.date), createdById: auth.userId } });
+      const saved = await tx.attendanceSession.upsert({ where: { sessionKey: key, tenantId: auth.tenantId }, update: { createdById: auth.userId }, create: { sessionKey: key, tenantId: auth.tenantId, academicYearId: period.academicYearId, academicPeriodId: input.academicPeriodId, classId: input.classId, date: dateValue(input.date), createdById: auth.userId } });
       for (const record of input.records) await tx.attendanceRecord.upsert({ where: { attendanceSessionId_studentId: { attendanceSessionId: saved.id, studentId: record.studentId } }, update: { status: record.status, remarks: record.remarks || null }, create: { attendanceSessionId: saved.id, studentId: record.studentId, status: record.status, remarks: record.remarks || null } });
       return saved;
     });

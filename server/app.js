@@ -16,6 +16,7 @@ import { attendanceRouter } from './modules/attendance/attendance.routes.js';
 import { financeRouter } from './modules/finance/finance.routes.js';
 import { platformRouter } from './modules/platform/platform.routes.js';
 import { resultRouter } from './modules/results/result.routes.js';
+import { notificationRouter } from './modules/notifications/notification.routes.js';
 
 export const app = express();
 
@@ -46,6 +47,7 @@ app.use('/api/attendance', attendanceRouter);
 app.use('/api/finance', financeRouter);
 app.use('/api/platform', platformRouter);
 app.use('/api/results', resultRouter);
+app.use('/api/notifications', notificationRouter);
 
 app.use(notFound);
 app.use(errorHandler);

@@ -44,7 +44,7 @@ export const authService = {
     );
 
     await Promise.all([
-      authRepository.recordLogin(user.id),
+      authRepository.recordLogin(user.id, user.tenantId),
       auditService.log({
         tenantId: user.tenantId,
         userId: user.id,

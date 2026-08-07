@@ -22,6 +22,8 @@ export async function authenticate(req, _res, next) {
 
     req.auth = {
       userId: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
       tenantId: user.tenantId,
       isPlatformUser: user.isPlatformUser,
       roles: user.userRoles.map(({ role }) => role.name),

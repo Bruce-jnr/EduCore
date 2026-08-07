@@ -19,7 +19,7 @@ export const authRepository = {
       include: { tenant: true, staffProfile: { select: { id: true } }, ...userAccess },
     });
   },
-  recordLogin(userId) {
-    return prisma.user.update({ where: { id: userId }, data: { lastLoginAt: new Date() } });
+  recordLogin(userId, tenantId) {
+    return prisma.user.update({ where: { id: userId, tenantId }, data: { lastLoginAt: new Date() } });
   },
 };
