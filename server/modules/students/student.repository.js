@@ -1,10 +1,10 @@
 import { prisma } from '../../config/prisma.js';
 
 export const studentRepository = {
-  async list(tenantId, { page, limit, search, status }) {
+  async list(tenantId, { page, limit, search, status, classId, academicYearId, gender }) {
     const where = { tenantId, deletedAt: null, ...(status && { status }), ...(search && { OR: [
       { firstName: { contains: search } }, { lastName: { contains: search } }, { studentNumber: { contains: search } },
-    ] }) };
+    ] }), ...(gender && { gender }), ...((classId || academicYearId) && { enrollments: { some: { tenantId, status: 'ACTIVE', ...(classId && { classId }), ...(academicYearId && { academicYearId }) } } }) };
     const [items, total] = await prisma.$transaction([
       prisma.student.findMany({ where, skip: (page - 1) * limit, take: limit, orderBy: { createdAt: 'desc' }, include: { guardians: { take: 1, orderBy: [{ isPrimary: 'desc' }, { createdAt: 'asc' }], include: { guardian: true } }, enrollments: { where: { status: 'ACTIVE' }, take: 1, orderBy: { enrollmentDate: 'desc' }, include: { class: true, academicYear: true } } } }),
       prisma.student.count({ where }),

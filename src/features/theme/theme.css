@@ -1,0 +1,28 @@
+.theme-toggle{border:0;background:transparent;box-shadow:none}.theme-toggle:hover{background:var(--soft)}.theme-toggle .material-symbols-outlined{font-size:20px;color:var(--primary)}
+
+html[data-theme=dark]{--surface:#0b1220;--card:#111b2d;--muted:#94a3b8;--line:#29364a;--soft:#18243a;--text:#e5edf8;--control:#152238;--control-hover:#1c2b44;--subtle-text:#a9b6c8;--shadow:0 1px 2px rgba(0,0,0,.25),0 10px 28px rgba(0,0,0,.22);color:#e5edf8;background:#0b1220}
+html[data-theme=light]{--text:#0b1c30;--control:#fff;--control-hover:#f8fafc;--subtle-text:#637083}
+body{background:var(--surface);color:var(--text);transition:background-color .18s ease,color .18s ease}
+
+html[data-theme=dark] .sidebar,html[data-theme=dark] .platform-sidebar,html[data-theme=dark] .login-form-wrap{background:var(--card)}
+html[data-theme=dark] .topbar,html[data-theme=dark] .platform-topbar{background:rgba(17,27,45,.92)}
+html[data-theme=dark] .panel,html[data-theme=dark] .stat-card,html[data-theme=dark] .student-summary,html[data-theme=dark] .academic-summary,html[data-theme=dark] .login-page,html[data-theme=dark] .audit-detail{background:var(--card);border-color:var(--line)}
+html[data-theme=dark] input,html[data-theme=dark] select,html[data-theme=dark] textarea,html[data-theme=dark] .secondary-button,html[data-theme=dark] .filter-button,html[data-theme=dark] .pagination button,html[data-theme=dark] .status-options button,html[data-theme=dark] .roster-heading button{background:var(--control);border-color:var(--line);color:var(--text)}
+html[data-theme=dark] input::placeholder,html[data-theme=dark] textarea::placeholder{color:#718198}
+html[data-theme=dark] .global-search,html[data-theme=dark] .quick-grid a,html[data-theme=dark] .quick-grid button,html[data-theme=dark] th,html[data-theme=dark] td code,html[data-theme=dark] .profile-title code,html[data-theme=dark] .audit-detail pre{background:var(--control);border-color:var(--line);color:var(--subtle-text)}
+html[data-theme=dark] .global-search:focus-within,html[data-theme=dark] .secondary-button:hover,html[data-theme=dark] .filter-button:hover,html[data-theme=dark] .icon-button:hover,html[data-theme=dark] .quick-grid a:hover,html[data-theme=dark] .quick-grid button:hover,html[data-theme=dark] tbody tr:hover{background:var(--control-hover)}
+html[data-theme=dark] td,html[data-theme=dark] dd,html[data-theme=dark] .student-cell,html[data-theme=dark] .profile-menu,html[data-theme=dark] .platform-topbar strong,html[data-theme=dark] .form-grid label,html[data-theme=dark] .assignment-form label,html[data-theme=dark] .data-state strong,html[data-theme=dark] .table-tools>div>strong{color:var(--text)}
+html[data-theme=dark] th,html[data-theme=dark] td,html[data-theme=dark] .table-tools,html[data-theme=dark] .activity-item,html[data-theme=dark] .event-list>div,html[data-theme=dark] .academic-list article,html[data-theme=dark] .assignment-list article,html[data-theme=dark] .form-section-heading,html[data-theme=dark] .guardian-profile,html[data-theme=dark] .profile-tabs,html[data-theme=dark] .audit-detail>header{border-color:var(--line)}
+html[data-theme=dark] .main-nav a,html[data-theme=dark] .platform-sidebar nav a,html[data-theme=dark] .platform-sidebar>button,html[data-theme=dark] .icon-button{color:#aab8ca}
+html[data-theme=dark] .main-nav a:hover:not(.disabled),html[data-theme=dark] .platform-sidebar nav a:hover,html[data-theme=dark] .platform-sidebar>button:hover{background:var(--soft)}
+html[data-theme=dark] .sidebar-help,html[data-theme=dark] .branding-note,html[data-theme=dark] .branding-logo-preview,html[data-theme=dark] .logo-upload,html[data-theme=dark] .empty-inline>.material-symbols-outlined{background:var(--soft)}
+html[data-theme=dark] .branding-logo,html[data-theme=dark] .branding-logo-preview{border-color:var(--line)}
+html[data-theme=dark] .donut:after{background:var(--card)}
+html[data-theme=dark] .chart-gridline{stroke:#2a3950}
+html[data-theme=dark] .login-card label{color:var(--text)}
+html[data-theme=dark] .login-card input{background:var(--control);border-color:var(--line);color:var(--text)}
+
+/* Report cards remain paper-like on screen and when printed. */
+html[data-theme=dark] .report-card,html[data-theme=dark] .letterhead-preview{background:#fff;color:#0b1c30}
+html[data-theme=dark] .report-card td{color:#445267}
+@media print{.theme-toggle{display:none!important}.report-card{background:#fff!important;color:#0b1c30!important}}

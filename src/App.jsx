@@ -24,6 +24,7 @@ import { ResultsWorkflowPage } from './features/results/ResultsWorkflowPage.jsx'
 import { ReportCardsPage } from './features/results/ReportCardsPage.jsx';
 import './styles.css';
 import './features/platform/platform-nav-fix.css';
+import './features/theme/theme.css';
 
 function getRoute() {
   return window.location.hash.replace('#', '') || '/dashboard';

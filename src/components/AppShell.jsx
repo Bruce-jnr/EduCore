@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import logo from '../assets/educore_logo.png';
 import { Icon } from './Icon.jsx';
+import { ThemeToggle } from '../features/theme/ThemeToggle.jsx';
 
 const groups = [
   {
@@ -146,6 +147,7 @@ export function AppShell({ route, children, user, onLogout }) {
             />
           </label>
           <div className="topbar-actions">
+            <ThemeToggle />
             <button className="icon-button" aria-label="Notifications">
               <Icon>notifications</Icon>
               <i />
