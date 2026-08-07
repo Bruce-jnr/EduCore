@@ -46,6 +46,7 @@ const groups = [
       { label: 'Enter Scores', icon: 'grading', href: '#/results', permission: 'results.enter', teacherOnly: true },
       { label: 'Submit & Review', icon: 'task_alt', href: '#/results/workflow', permission: 'results.view' },
       { label: 'Report Cards', icon: 'description', href: '#/results/report-cards', permission: 'results.view' },
+      { label: 'Year-end Progression', icon: 'published_with_changes', href: '#/academics/progression', permission: 'academics.update' },
     ],
   },
   {

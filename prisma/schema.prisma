@@ -96,6 +96,14 @@ enum NotificationType {
   SYSTEM
 }
 
+enum ProgressionAction {
+  PROMOTE
+  REPEAT
+  TRANSFER
+  WITHDRAW
+  GRADUATE
+}
+
 model Tenant {
   id                 String              @id @default(cuid())
   name               String
@@ -139,6 +147,8 @@ model Tenant {
   resultSheets       ResultSheet[]
   resultEntries      ResultEntry[]
   notifications      Notification[]
+  progressionRuns    ProgressionRun[]
+  progressionItems   ProgressionItem[]
 }
 
 model PlatformSettings {
@@ -219,6 +229,45 @@ model Notification {
 
   @@unique([userId, dedupeKey])
   @@index([tenantId, userId, readAt, createdAt])
+}
+
+model ProgressionRun {
+  id                   String            @id @default(cuid())
+  tenantId             String
+  action               ProgressionAction
+  sourceAcademicYearId String
+  sourceClassId        String
+  targetAcademicYearId String?
+  targetClassId        String?
+  studentCount         Int
+  notes                String?
+  createdById          String
+  createdAt            DateTime          @default(now())
+  tenant               Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  items                ProgressionItem[]
+
+  @@index([tenantId, createdAt])
+  @@index([tenantId, sourceAcademicYearId, sourceClassId])
+}
+
+model ProgressionItem {
+  id                    String            @id @default(cuid())
+  tenantId              String
+  progressionRunId      String
+  studentId             String
+  studentNumber         String
+  studentName           String
+  action                ProgressionAction
+  sourceEnrollmentId    String
+  targetEnrollmentId    String?
+  previousStudentStatus StudentStatus
+  newStudentStatus      StudentStatus
+  createdAt             DateTime          @default(now())
+  tenant                Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  progressionRun        ProgressionRun     @relation(fields: [progressionRunId], references: [id], onDelete: Cascade)
+
+  @@unique([progressionRunId, studentId])
+  @@index([tenantId, studentId, createdAt])
 }
 
 model Role {

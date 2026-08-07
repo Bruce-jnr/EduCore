@@ -22,6 +22,7 @@ import { PlatformAuditPage } from './features/platform/PlatformAuditPage.jsx';
 import { ResultsPage } from './features/results/ResultsPage.jsx';
 import { ResultsWorkflowPage } from './features/results/ResultsWorkflowPage.jsx';
 import { ReportCardsPage } from './features/results/ReportCardsPage.jsx';
+import { ProgressionPage } from './features/academics/ProgressionPage.jsx';
 import './styles.css';
 import './features/platform/platform-nav-fix.css';
 import './features/theme/theme.css';
@@ -46,6 +47,7 @@ function App() {
   if (route === '/students/new') page = <AddStudentPage />;
   if (route === '/staff') page = <StaffPage />;
   if (route.startsWith('/academics/')) page = <AcademicsPage key={route} />;
+  if (route === '/academics/progression') page = <ProgressionPage />;
   if (route === '/users') page = <UsersRolesPage />;
   if (route === '/settings') page = <SettingsPage />;
   if (route === '/settings/report-card') page = <ReportCardSettingsPage />;

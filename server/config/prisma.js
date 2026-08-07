@@ -2,7 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import { currentTenantId } from '../security/tenant-context.js';
 
 const globalForPrisma = globalThis;
-const tenantModels = new Set(['User', 'Role', 'TenantSettings', 'AcademicYear', 'AcademicPeriod', 'Class', 'Subject', 'TeacherAssignment', 'Staff', 'Student', 'Guardian', 'StudentGuardian', 'FeeCategory', 'FeeStructure', 'Invoice', 'Payment', 'BulkBillingRun', 'AssessmentScheme', 'GradingScheme', 'ResultSheet', 'ResultEntry', 'StudentEnrollment', 'AttendanceSession', 'Notification', 'AuditLog']);
+const tenantModels = new Set(['User', 'Role', 'TenantSettings', 'AcademicYear', 'AcademicPeriod', 'Class', 'Subject', 'TeacherAssignment', 'Staff', 'Student', 'Guardian', 'StudentGuardian', 'FeeCategory', 'FeeStructure', 'Invoice', 'Payment', 'BulkBillingRun', 'AssessmentScheme', 'GradingScheme', 'ResultSheet', 'ResultEntry', 'StudentEnrollment', 'AttendanceSession', 'Notification', 'ProgressionRun', 'ProgressionItem', 'AuditLog']);
 
 function secureTenantArgs(model, operation, args) {
   const tenantId = currentTenantId();
