@@ -1,6 +1,6 @@
 # EduCore
 
-EduCore is a multi-tenant school management SaaS for primary schools, secondary schools, colleges, and combined institutions. Each school operates as an isolated tenant with its own users, academic records, students, attendance, results, finances, branding, settings, and audit history.
+EduCore is a multi-tenant school-management SaaS for primary schools, secondary schools, colleges, and combined institutions. Each school operates as an isolated tenant with its own users, students, academics, attendance, results, finances, branding, settings, notifications, and audit history.
 
 The project uses JavaScript only—no TypeScript—and all Node.js code uses ES modules.
 
@@ -8,81 +8,73 @@ The project uses JavaScript only—no TypeScript—and all Node.js code uses ES 
 
 - React 19 and Vite
 - Node.js and Express 5
-- Prisma ORM
-- MySQL 8
-- Zod validation
-- JWT authentication
-- bcrypt password hashing
-- Custom responsive CSS based on the Google Stitch references in `view/`
+- Prisma ORM and MySQL 8
+- Zod request validation
+- JWT authentication and bcrypt password hashing
+- Responsive custom CSS based on the Google Stitch references in `view/`
 
 ## Implemented functionality
 
 ### Platform Super Admin
 
 - Separate platform login at `#/platform/login`
-- Platform dashboard at `#/platform/schools`
-- School tenant provisioning
-- Tenant activation and suspension
-- School-type academic templates
-- Platform settings
-- Cross-tenant system analytics
-- Platform and tenant audit-log search
+- School provisioning, activation, and suspension
+- Primary, secondary, college, and combined academic templates
+- Configurable platform identity, trial duration, and tenant defaults
+- Platform analytics and cross-tenant audit-log search
+- Automatic subscription end date for newly provisioned schools
 
-New schools receive these academic defaults:
+Default academic templates:
 
 - Primary: P1 through P6
 - Secondary: S1, S2, and S3
 - College: Level 100, 200, 300, and 400
 - Combined: P1–P6, JHS 1–3, and S1–S3
 
-College tenants also default to semester, level, and course terminology. Primary and secondary tenants default to term, class, and subject terminology.
+College tenants use semester, level, and course terminology. Primary and secondary tenants use term, class, and subject terminology.
 
 ### Tenant administration
 
-- Tenant login and JWT authentication
-- Role-based access control
-- Users and custom roles
-- Staff profiles linked to login accounts
-- School profile, branding, and academic settings
-- Academic years and terms/semesters
-- Classes or levels and subjects or courses
-- Staff and teacher assignments
-- Student records, profiles, guardians, and enrollment history
-- Tenant dashboard
+- Tenant login and permission-based RBAC
+- Users, custom roles, and staff-linked accounts
+- Staff profiles and teacher assignments
+- School profile and regional settings
+- Central school-logo upload and primary/secondary branding colors
+- Light and dark application themes with saved preference
+- Academic years, terms or semesters, classes or levels, and subjects or courses
+- Student records, profiles, guardians, and historical enrollments
+- Tenant dashboard and audit logging
+
+The report-card letterhead inherits the school logo and colors configured in **School Settings → Branding**.
 
 ### Attendance
 
 - Class attendance rosters
 - Present, absent, late, and excused statuses
 - Mark-all actions and individual remarks
-- Attendance history and percentages
-- Teacher assignment enforcement
+- Attendance history, summaries, and percentages
+- Teacher-assignment enforcement
 
-Teachers can only take attendance for classes assigned to their linked staff profile. Administrators with broader attendance permissions can oversee all classes.
+Teachers can only record attendance for assigned classes. Administrators with broader permissions can oversee attendance across the school.
 
 ### Results and report cards
 
-- Configurable assessment schemes
-- Assessment components and tenant-defined weights
-- Validation that component weights total 100%
+- Configurable assessment schemes and weighted components
+- Validation that assessment weights total 100%
 - Configurable grading schemes and boundaries
-- Weighted score calculation on the server
 - Assignment-restricted teacher score entry
-- Draft result sheets
-- Submit, reject, approve, and publish workflow
+- Draft, submit, reject, approve, and publish workflow
 - Rejection reasons and workflow audit logs
 - Published-results-only report cards
-- Attendance summary on report cards
-- Printable report-card view
-
-Result workflow:
+- School-specific letterhead, logo, colors, and contact information
+- Attendance summaries and printable report cards
 
 ```text
 Teacher enters scores
         ↓
-Teacher saves draft
+Teacher saves a draft
         ↓
-Teacher submits completed sheet
+Teacher submits the completed sheet
         ↓
 Academic Administrator reviews
         ↓
@@ -90,24 +82,64 @@ Reject for correction or approve
         ↓
 Authorized administrator publishes
         ↓
-Teacher or administrator prepares report cards
+Report cards become available
 ```
+
+### Year-end progression
+
+- Source academic-year and class roster selection
+- Individual or bulk student selection
+- Promote, repeat, transfer, withdraw, and graduate outcomes
+- Destination-year and class validation
+- Promotion must move to a higher level
+- Repeat must remain at the same level
+- Previous enrollment is closed rather than overwritten
+- Promotion and repeat create a new historical enrollment
+- Duplicate and stale-roster protection
+- Transactional processing, run history, student-level records, and audit logs
+
+The workflow is available at `#/academics/progression` to users with `academics.update` permission.
 
 ### Finance
 
-- Fee categories
-- Fee structures
+- Fee categories and fee structures
 - Individual student bills
-- Bulk billing for all students, a class, or a level
+- Bulk billing for the entire school, a class, or a level
 - Duplicate bulk-billing protection
-- Student invoices and invoice items
-- Partial and full payments
+- Invoice items, partial payments, and full payments
 - Automatic payment allocation
-- Unique invoice and receipt identifiers
-- Outstanding-balance calculations
+- Tenant-unique invoice and receipt identifiers
+- Accountant activity notifications for administrative review
 - Finance audit logging
 
-The Accountant role can manage fee structures, bills, bulk bills, and payments without receiving academic-administration permissions.
+### Student financial ledger
+
+Each student has a calculated transaction ledger containing:
+
+- Charges from non-void invoices
+- Completed payments
+- Discounts
+- Scholarships
+- Refunds
+- Credit adjustments
+- Debit adjustments
+- Running balance after every transaction
+
+The ledger displays total charges, payments, discounts, scholarships, refunds, and outstanding balance. Adjustments are immutable; incorrect adjustments must be reversed with a required reason. Credits cannot exceed the outstanding balance, and refunds cannot exceed net completed payments.
+
+Open a student profile and select **Open student ledger**, or navigate to `#/finance/ledger/STUDENT_ID`.
+
+### Notifications
+
+- Unread counter and notification dropdown in the tenant top bar
+- Teacher result-submission alerts for academic approvers
+- Result approval and rejection alerts for teachers
+- Accountant fee-structure and bulk-billing alerts for administrators
+- Subscription-expiry warnings at 14, 7, 3, and 1 day remaining
+- Direct workflow links
+- Mark-one and mark-all-as-read actions
+- Persistent, tenant-isolated notification history
+- Automatic refresh every 60 seconds
 
 ## Default roles
 
@@ -119,9 +151,9 @@ The development seed configures:
 - Accountant
 - Platform Super Admin
 
-Authorization is permission-based rather than based only on role names. The server remains the authority even when the UI hides unavailable actions.
+Authorization is permission-based rather than determined only by role names. The API remains authoritative even when the UI hides unavailable actions.
 
-Teacher accounts must be linked to a staff profile. Teacher assignments connect that staff profile to an academic year, period, class, and subject. Attendance and result APIs use this relationship to enforce assignment access.
+Teacher accounts must be linked to staff profiles. Teacher assignments connect staff to an academic year, period, class, and subject. Attendance and result APIs enforce those assignments.
 
 ## Requirements
 
@@ -137,9 +169,9 @@ Teacher accounts must be linked to a staff profile. Teacher assignments connect 
    npm install
    ```
 
-2. Copy `.env.example` to `.env` and replace every placeholder.
+2. Copy `.env.example` to `.env` and replace the placeholders.
 
-3. Create the MySQL database named in `DATABASE_URL`.
+3. Create the MySQL database referenced by `DATABASE_URL`.
 
 4. Generate Prisma Client:
 
@@ -147,7 +179,7 @@ Teacher accounts must be linked to a staff profile. Teacher assignments connect 
    npm run prisma:generate
    ```
 
-5. Apply existing migrations:
+5. Apply committed migrations:
 
    ```bash
    npx prisma migrate deploy
@@ -159,13 +191,13 @@ Teacher accounts must be linked to a staff profile. Teacher assignments connect 
    npm run prisma:seed
    ```
 
-7. Start the frontend and API together:
+7. Start the frontend and API:
 
    ```bash
    npm run dev:all
    ```
 
-The frontend runs at `http://localhost:5173`. The API runs at `http://localhost:8080` by default. Check the API with `GET http://localhost:8080/api/health`.
+The frontend runs at `http://localhost:5173`. The API runs at `http://localhost:8080` by default. The health endpoint is `GET http://localhost:8080/api/health`.
 
 ## Environment variables
 
@@ -178,7 +210,7 @@ JWT_SECRET="replace-with-a-long-random-secret"
 JWT_EXPIRES_IN="15m"
 
 UPLOAD_DIR="./uploads"
-MAX_FILE_SIZE=2097152
+MAX_FILE_SIZE="2MB"
 
 SEED_ADMIN_EMAIL="admin@demo.educore.local"
 SEED_ADMIN_PASSWORD="replace-with-a-development-password"
@@ -187,21 +219,22 @@ PLATFORM_ADMIN_EMAIL="platform@educore.local"
 PLATFORM_ADMIN_PASSWORD="replace-with-a-platform-development-password"
 ```
 
-`DATABASE_URL` is the connection value Prisma uses. If a MySQL password contains reserved URL characters such as `@`, `#`, `/`, or `:`, percent-encode those characters in `DATABASE_URL`.
+If a MySQL password contains reserved URL characters such as `@`, `#`, `/`, or `:`, percent-encode them in `DATABASE_URL`.
 
-Never commit `.env`, real passwords, JWT secrets, database credentials, or provider API keys.
+Never commit `.env`, passwords, JWT secrets, database credentials, or provider keys.
 
 ## Available commands
 
 | Command | Purpose |
 | --- | --- |
 | `npm run dev` | Start the Vite frontend |
-| `npm run dev:api` | Start the Express API with Nodemon |
+| `npm run dev:api` | Start Express with Nodemon |
 | `npm run dev:all` | Start frontend and API together |
 | `npm run start:api` | Start the API without Nodemon |
 | `npm run build` | Create a production frontend build |
-| `npm run preview` | Preview the production frontend build |
+| `npm run preview` | Preview the production build |
 | `npm run lint` | Run ESLint |
+| `npm run security:tenant` | Verify automatic tenant read/write isolation |
 | `npm run prisma:generate` | Generate Prisma Client |
 | `npm run prisma:migrate -- --name NAME` | Create a development migration |
 | `npx prisma migrate deploy` | Apply committed migrations |
@@ -216,12 +249,16 @@ prisma/
   schema.prisma           Prisma data model
   seed.js                 Development tenant, roles, and users
 
+scripts/
+  check-tenant-security.js
+
 server/
   config/                 Environment and Prisma configuration
   errors/                 Application error types
   middleware/             Authentication, tenancy, RBAC, and validation
   modules/                Domain routes, services, and validation
-  services/               Shared services such as auditing
+  security/               Request-level tenant context
+  services/               Auditing and notification services
   app.js                   Express application
   index.js                 API entry point
 
@@ -234,41 +271,39 @@ src/
 view/                      Original Google Stitch HTML references
 ```
 
-## Architecture and security
+## Architecture and tenant security
 
-EduCore is a modular monolith using a shared database with tenant-aware tables. Tenant identity comes from the authenticated user—not from a tenant ID supplied by the frontend.
-
-The expected request flow is:
+EduCore is a modular monolith using a shared MySQL database with tenant-aware tables. Tenant identity comes from the authenticated user—not from a tenant ID supplied by the frontend.
 
 ```text
 Authentication
     ↓
-Tenant resolution
+Tenant resolution and active-status validation
     ↓
-Tenant status validation
+Request-level tenant security context
     ↓
-Permission validation
+Permission and assignment validation
     ↓
-Assignment validation where required
-    ↓
-Tenant-scoped business operation
+Tenant-scoped Prisma operation
 ```
 
-Security rules:
+Defense-in-depth protections include:
 
-- Every tenant-owned query must include the authenticated `tenantId`.
-- Platform users are separate from tenant users.
-- Teachers require linked staff profiles for assignment-restricted work.
-- Academic configuration requires explicit management permissions.
-- Submitted result sheets cannot be silently edited.
-- Only approved results can be published.
-- Report cards use published results only.
-- Financial and academic changes are audited.
-- Important financial and academic history must not be permanently deleted.
+- Explicit `tenantId` predicates throughout tenant services
+- Async request-level tenant context
+- Automatic Prisma scoping for tenant-owned models
+- Foreign tenant predicates overridden by the authenticated context
+- Cross-tenant creates, updates, and upserts rejected
+- Separate platform users and platform-only permission middleware
+- Teacher assignment validation for attendance and results
+- Tenant-scoped notifications, finance, progression, and audit records
+- Repeatable tenant-isolation verification through `npm run security:tenant`
+
+Submitted results cannot be silently edited, published report cards only use published results, financial adjustments are reversed rather than deleted, and historical enrollments are preserved.
 
 ## Database migrations
 
-The repository currently contains migrations for:
+The repository currently contains 14 migrations:
 
 1. Initial multi-tenant MVP
 2. Teacher assignments
@@ -276,30 +311,37 @@ The repository currently contains migrations for:
 4. Finance core
 5. Platform settings
 6. Results core
-7. User-to-staff account links
+7. User-to-staff links
 8. Bulk billing
 9. Result workflow metadata
+10. Guardians
+11. Report-card letterhead and branding
+12. Notifications and subscription expiry
+13. Year-end progression
+14. Student financial ledger
 
 Use Prisma migrations for schema changes. Do not manually modify deployed database tables.
 
 ## Current limitations and next work
 
-- Report-card remarks are currently printable signature/remark lines rather than persisted remark records.
-- PDF files use the browser print workflow; dedicated server-generated PDFs are not implemented yet.
-- College departments, programmes, and persistent programme-level entities still need their full academic model.
+- Report-card remarks use printable signature and remark lines rather than persisted teacher/head-teacher remark records.
+- PDF output currently uses the browser print workflow; dedicated server-generated PDFs are not implemented.
+- College departments, programmes, and persistent programme-level entities still require their full model.
 - Admissions remains intentionally excluded for now.
-- Password reset, invitations, refresh-token rotation, MFA, external file storage, notifications, and payment-provider integrations remain future work.
-- Automated tenant-isolation, result-workflow, finance, and end-to-end test suites should be expanded before production deployment.
+- Password reset, invitations, refresh-token rotation, MFA, and login-history management remain future work.
+- Notifications are currently in-app; email, SMS, push delivery, and WebSocket delivery are not implemented.
+- Local uploads should be replaced with S3-compatible object storage for production.
+- Payment-provider integrations and payment reversals/refunds against an external provider are not implemented.
+- Automated result, finance, progression, and browser end-to-end tests should be expanded before production deployment.
 
-## Production notes
+## Production checklist
 
-Before production deployment:
-
-- Use a strong secret manager for credentials.
+- Store credentials in a managed secret service.
 - Run `npx prisma migrate deploy` during deployment.
-- Serve the API and frontend over HTTPS.
-- Restrict CORS to the deployed frontend origin.
-- Configure secure backup and restore procedures for MySQL.
+- Run `npm run security:tenant`, lint, tests, and the production build as release gates.
+- Serve the frontend and API over HTTPS.
+- Restrict CORS to trusted frontend origins.
+- Configure MySQL backups and regularly test restoration.
 - Add rate limiting, refresh-token rotation, password-reset delivery, monitoring, and structured logs.
-- Replace local uploads with S3-compatible object storage.
-- Run tenant-isolation and permission tests as release gates.
+- Replace local uploads with S3-compatible storage.
+- Add a background-job system for bulk email, SMS, reports, and long-running finance operations.

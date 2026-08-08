@@ -23,6 +23,7 @@ import { ResultsPage } from './features/results/ResultsPage.jsx';
 import { ResultsWorkflowPage } from './features/results/ResultsWorkflowPage.jsx';
 import { ReportCardsPage } from './features/results/ReportCardsPage.jsx';
 import { ProgressionPage } from './features/academics/ProgressionPage.jsx';
+import { StudentLedgerPage } from './features/finance/StudentLedgerPage.jsx';
 import './styles.css';
 import './features/platform/platform-nav-fix.css';
 import './features/theme/theme.css';
@@ -54,6 +55,7 @@ function App() {
   if (route === '/attendance') page = <AttendancePage />;
   if (route.startsWith('/finance')) page = <FinancePage key={route} />;
   if (route === '/finance/bulk-bills') page = <BulkBillingPage />;
+  if (route.startsWith('/finance/ledger/')) page = <StudentLedgerPage />;
   const isSchoolAdministrator = user?.roles?.some((role) => role === 'School Administrator' || role === 'Academic Administrator');
   if (route === '/results') page = isSchoolAdministrator ? <ResultsWorkflowPage /> : <ResultsPage />;
   if (route === '/results/workflow') page = <ResultsWorkflowPage />;

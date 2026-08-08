@@ -5,7 +5,8 @@ import { requirePermission } from '../../middleware/require-permission.js';
 import { validate } from '../../middleware/validate.js';
 import { asyncHandler } from '../../utils/async-handler.js';
 import { financeService } from './finance.service.js';
-import { bulkInvoiceSchema, categorySchema, invoiceSchema, paymentSchema, structureSchema } from './finance.validation.js';
+import { adjustmentSchema, bulkInvoiceSchema, categorySchema, invoiceSchema, ledgerStudentSchema, paymentSchema, reverseAdjustmentSchema, structureSchema } from './finance.validation.js';
+import { ledgerService } from './ledger.service.js';
 
 export const financeRouter = Router();
 financeRouter.use(authenticate, resolveTenant);
@@ -16,3 +17,6 @@ financeRouter.post('/structures', requirePermission('finance.fees.create'), vali
 financeRouter.post('/invoices', requirePermission('finance.invoice.create'), validate(invoiceSchema), response(financeService.invoice, 'Student bill created'));
 financeRouter.post('/invoices/bulk', requirePermission('finance.invoice.create'), validate(bulkInvoiceSchema), response(financeService.bulkInvoice, 'Bulk bills created'));
 financeRouter.post('/payments', requirePermission('finance.payment.create'), validate(paymentSchema), response(financeService.payment, 'Payment recorded'));
+financeRouter.get('/students/:studentId/ledger', requirePermission('finance.view'), validate(ledgerStudentSchema), asyncHandler(async(req,res)=>res.json({success:true,data:await ledgerService.get(req.auth,req.validated.params.studentId),message:null})));
+financeRouter.post('/adjustments', requirePermission('finance.payment.create'), validate(adjustmentSchema), response(ledgerService.createAdjustment.bind(ledgerService), 'Ledger adjustment recorded'));
+financeRouter.patch('/adjustments/:id/reverse', requirePermission('finance.payment.create'), validate(reverseAdjustmentSchema), asyncHandler(async(req,res)=>res.json({success:true,data:await ledgerService.reverseAdjustment(req.auth,req.validated.params.id,req.validated.body.reason),message:'Ledger adjustment reversed'})));

@@ -1,0 +1,23 @@
+CREATE TABLE `FinancialAdjustment` (
+  `id` VARCHAR(191) NOT NULL,
+  `tenantId` VARCHAR(191) NOT NULL,
+  `studentId` VARCHAR(191) NOT NULL,
+  `type` ENUM('DISCOUNT', 'SCHOLARSHIP', 'REFUND', 'ADJUSTMENT_CREDIT', 'ADJUSTMENT_DEBIT') NOT NULL,
+  `status` ENUM('ACTIVE', 'REVERSED') NOT NULL DEFAULT 'ACTIVE',
+  `amount` DECIMAL(12,2) NOT NULL,
+  `effectiveDate` DATE NOT NULL,
+  `reference` VARCHAR(191) NULL,
+  `reason` VARCHAR(191) NOT NULL,
+  `createdById` VARCHAR(191) NOT NULL,
+  `reversedById` VARCHAR(191) NULL,
+  `reversedAt` DATETIME(3) NULL,
+  `reversalReason` VARCHAR(191) NULL,
+  `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+  INDEX `FinancialAdjustment_tenantId_studentId_effectiveDate_idx`(`tenantId`, `studentId`, `effectiveDate`),
+  INDEX `FinancialAdjustment_tenantId_status_type_idx`(`tenantId`, `status`, `type`),
+  PRIMARY KEY (`id`),
+  CONSTRAINT `FinancialAdjustment_tenantId_fkey` FOREIGN KEY (`tenantId`) REFERENCES `Tenant`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `FinancialAdjustment_studentId_fkey` FOREIGN KEY (`studentId`) REFERENCES `Student`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `FinancialAdjustment_createdById_fkey` FOREIGN KEY (`createdById`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `FinancialAdjustment_reversedById_fkey` FOREIGN KEY (`reversedById`) REFERENCES `User`(`id`) ON DELETE SET NULL ON UPDATE CASCADE
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;

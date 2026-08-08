@@ -34,6 +34,7 @@ export function StudentProfilePage() {
   const [saving, setSaving] = useState(false);
   const canAddGuardian = user.permissions?.includes('guardians.create');
   const canEditStudent = user.permissions?.includes('students.update');
+  const canViewFinance = user.permissions?.includes('finance.view');
   async function load() {
     setStudent(await api(`/students/${id}`));
   }
@@ -444,6 +445,7 @@ export function StudentProfilePage() {
           </section>
         </div>
         <aside className="profile-aside">
+          {canViewFinance && <section className="panel student-ledger-card"><div className="panel-heading"><h2>Financial Ledger</h2></div><div className="attendance-score unavailable"><Icon>account_balance_wallet</Icon><span>View charges, payments, discounts, and outstanding balance.</span></div><a className="secondary-button full-button" href={`#/finance/ledger/${id}`}><Icon>receipt_long</Icon>Open student ledger</a></section>}
           <section className="panel attendance-card">
             <div className="panel-heading">
               <h2>Attendance</h2>
