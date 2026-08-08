@@ -12,7 +12,7 @@ export const ledgerService = {
   async get(auth, studentId) {
     const [student, tenant, invoices, payments, adjustments] = await Promise.all([
       prisma.student.findFirst({ where: { id: studentId, tenantId: auth.tenantId, deletedAt: null }, select: { id: true, studentNumber: true, firstName: true, middleName: true, lastName: true, status: true } }),
-      prisma.tenant.findFirst({ where: { id: auth.tenantId }, select: { currency: true } }),
+      prisma.tenant.findFirst({ where: { id: auth.tenantId }, select: { name: true, schoolCode: true, currency: true, logoUrl: true, primaryColor: true, secondaryColor: true, email: true, phone: true, address: true, city: true, country: true } }),
       prisma.invoice.findMany({ where: { tenantId: auth.tenantId, studentId, status: { not: 'VOID' } }, include: { academicYear: { select: { name: true } }, academicPeriod: { select: { name: true } }, items: { include: { feeCategory: { select: { name: true } } } } }, orderBy: { issueDate: 'asc' } }),
       prisma.payment.findMany({ where: { tenantId: auth.tenantId, studentId }, include: { receivedBy: { select: { firstName: true, lastName: true } } }, orderBy: { paymentDate: 'asc' } }),
       prisma.financialAdjustment.findMany({ where: { tenantId: auth.tenantId, studentId }, include: { createdBy: { select: { firstName: true, lastName: true } }, reversedBy: { select: { firstName: true, lastName: true } } }, orderBy: { effectiveDate: 'asc' } }),
@@ -27,7 +27,7 @@ export const ledgerService = {
     const activeAdjustments = adjustments.filter((item) => item.status === 'ACTIVE');
     const sumAdjustments = (type) => activeAdjustments.filter((item) => item.type === type).reduce((sum, item) => sum + value(item.amount), 0);
     const summary = { totalCharges: rounded(invoices.reduce((sum, invoice) => sum + invoice.items.reduce((subtotal, item) => subtotal + value(item.amount), 0), 0)), totalPayments: rounded(payments.filter((item) => item.status === 'COMPLETED').reduce((sum, item) => sum + value(item.amount), 0)), totalDiscounts: rounded(sumAdjustments('DISCOUNT')), totalScholarships: rounded(sumAdjustments('SCHOLARSHIP')), totalRefunds: rounded(sumAdjustments('REFUND')), creditAdjustments: rounded(sumAdjustments('ADJUSTMENT_CREDIT')), debitAdjustments: rounded(sumAdjustments('ADJUSTMENT_DEBIT')), outstandingBalance: rounded(balance) };
-    return { student, currency: tenant?.currency || 'GHS', summary, transactions: transactions.reverse() };
+    return { student, tenant, currency: tenant?.currency || 'GHS', summary, transactions: transactions.reverse() };
   },
 
   async createAdjustment(auth, data) {
