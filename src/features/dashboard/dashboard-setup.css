@@ -1,0 +1,33 @@
+.setup-percentage {
+  color: var(--primary);
+  font-size: 20px;
+}
+
+.setup-progress {
+  height: 9px;
+  margin-top: 16px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e7edf5;
+}
+
+.setup-progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #2563eb, #17a673);
+  transition: width 0.35s ease;
+}
+
+.setup-panel ul {
+  max-height: 285px;
+  overflow: auto;
+}
+
+.dashboard-page .lower-grid {
+  grid-template-columns: 1fr;
+}
+
+.dashboard-grid.dashboard-grid-single {
+  grid-template-columns: 1fr;
+}

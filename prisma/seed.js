@@ -67,7 +67,7 @@ async function seed() {
       name: 'St. Andrews Excellence',
       slug: 'st-andrews',
       schoolCode: 'SAE001',
-      schoolType: 'COMBINED',
+      schoolType: 'BASIC',
       email: 'office@standrews.edu',
       settings: { create: {} },
     },

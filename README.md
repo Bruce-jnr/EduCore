@@ -1,6 +1,6 @@
 # EduCore
 
-EduCore is a multi-tenant school-management SaaS for primary schools, secondary schools, colleges, and combined institutions. Each school operates as an isolated tenant with its own users, students, academics, attendance, results, finances, branding, settings, notifications, and audit history.
+EduCore is a multi-tenant school-management SaaS for basic schools from kindergarten through JHS. Each school operates as an isolated tenant with its own users, students, academics, attendance, results, finances, branding, settings, notifications, and audit history.
 
 The project uses JavaScript only—no TypeScript—and all Node.js code uses ES modules.
 
@@ -19,19 +19,16 @@ The project uses JavaScript only—no TypeScript—and all Node.js code uses ES 
 
 - Separate platform login at `#/platform/login`
 - School provisioning, activation, and suspension
-- Primary, secondary, college, and combined academic templates
+- Kindergarten-to-JHS academic templates
 - Configurable platform identity, trial duration, and tenant defaults
 - Platform analytics and cross-tenant audit-log search
 - Automatic subscription end date for newly provisioned schools
 
 Default academic templates:
 
-- Primary: P1 through P6
-- Secondary: S1, S2, and S3
-- College: Level 100, 200, 300, and 400
-- Combined: P1–P6, JHS 1–3, and S1–S3
+- Basic School: KG 1–2, Primary 1–6, and JHS 1–3
 
-College tenants use semester, level, and course terminology. Primary and secondary tenants use term, class, and subject terminology.
+All tenants use term, class, and subject terminology with levels from KG 1 through JHS 3.
 
 ### Tenant administration
 
@@ -41,7 +38,7 @@ College tenants use semester, level, and course terminology. Primary and seconda
 - School profile and regional settings
 - Central school-logo upload and primary/secondary branding colors
 - Light and dark application themes with saved preference
-- Academic years, terms or semesters, classes or levels, and subjects or courses
+- Academic years, terms, classes, and subjects
 - Student records, profiles, guardians, and historical enrollments
 - Tenant dashboard and audit logging
 
@@ -53,19 +50,19 @@ The report-card letterhead inherits the school logo and colors configured in **S
 - Present, absent, late, and excused statuses
 - Mark-all actions and individual remarks
 - Attendance history, summaries, and percentages
-- Teacher-assignment enforcement
+- Form-teacher assignment enforcement
 
-Teachers can only record attendance for assigned classes. Administrators with broader permissions can oversee attendance across the school.
+Each class and academic period has one form teacher. That teacher records class attendance; administrators oversee attendance statistics across the school.
 
 ### Results and report cards
 
 - Configurable assessment schemes and weighted components
 - Validation that assessment weights total 100%
 - Configurable grading schemes and boundaries
-- Assignment-restricted teacher score entry
-- Draft, submit, reject, approve, and publish workflow
+- Form-teacher score entry across every subject in the assigned class
+- Draft, submit, reject, and approve-to-publish workflow
 - Rejection reasons and workflow audit logs
-- Published-results-only report cards
+- Administrator-approved results available to the assigned form teacher for report-card preparation and printing
 - School-specific letterhead, logo, colors, and contact information
 - Attendance summaries and printable report cards
 
@@ -326,7 +323,6 @@ Use Prisma migrations for schema changes. Do not manually modify deployed databa
 
 - Report-card remarks use printable signature and remark lines rather than persisted teacher/head-teacher remark records.
 - PDF output currently uses the browser print workflow; dedicated server-generated PDFs are not implemented.
-- College departments, programmes, and persistent programme-level entities still require their full model.
 - Admissions remains intentionally excluded for now.
 - Password reset, invitations, refresh-token rotation, MFA, and login-history management remain future work.
 - Notifications are currently in-app; email, SMS, push delivery, and WebSocket delivery are not implemented.

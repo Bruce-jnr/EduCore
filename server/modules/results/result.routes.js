@@ -134,19 +134,6 @@ resultRouter.post(
   ),
 );
 
-resultRouter.post(
-  '/sheets/:id/publish',
-  requirePermission('results.publish'),
-  validate(sheetActionSchema),
-  asyncHandler(async (req, res) =>
-    res.json({
-      success: true,
-      data: await resultService.publish(req.auth, req.validated.params.id),
-      message: 'Results published',
-    }),
-  ),
-);
-
 resultRouter.get(
   '/report-cards',
   requirePermission('results.view'),

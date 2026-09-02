@@ -6,13 +6,10 @@ import { AppError } from '../../errors/app-error.js';
 import { auditService } from '../../services/audit.service.js';
 
 export const schoolLevelTemplates = {
-  PRIMARY: [{ name: 'P1', order: 1 }, { name: 'P2', order: 2 }, { name: 'P3', order: 3 }, { name: 'P4', order: 4 }, { name: 'P5', order: 5 }, { name: 'P6', order: 6 }],
-  SECONDARY: [{ name: 'S1', order: 1 }, { name: 'S2', order: 2 }, { name: 'S3', order: 3 }],
-  COLLEGE: [{ name: 'Level 100', order: 100 }, { name: 'Level 200', order: 200 }, { name: 'Level 300', order: 300 }, { name: 'Level 400', order: 400 }],
-  COMBINED: [{ name: 'P1', order: 1 }, { name: 'P2', order: 2 }, { name: 'P3', order: 3 }, { name: 'P4', order: 4 }, { name: 'P5', order: 5 }, { name: 'P6', order: 6 }, { name: 'JHS 1', order: 7 }, { name: 'JHS 2', order: 8 }, { name: 'JHS 3', order: 9 }, { name: 'S1', order: 10 }, { name: 'S2', order: 11 }, { name: 'S3', order: 12 }],
+  BASIC: [{ name: 'KG 1', order: 1 }, { name: 'KG 2', order: 2 }, { name: 'Primary 1', order: 3 }, { name: 'Primary 2', order: 4 }, { name: 'Primary 3', order: 5 }, { name: 'Primary 4', order: 6 }, { name: 'Primary 5', order: 7 }, { name: 'Primary 6', order: 8 }, { name: 'JHS 1', order: 9 }, { name: 'JHS 2', order: 10 }, { name: 'JHS 3', order: 11 }],
 };
-const periodTypes = { PRIMARY: 'TERM', SECONDARY: 'TERM', COLLEGE: 'SEMESTER', COMBINED: 'TERM' };
-const terminology = { PRIMARY: { class: 'Class', subject: 'Subject', period: 'Term' }, SECONDARY: { class: 'Class', subject: 'Subject', period: 'Term' }, COLLEGE: { class: 'Level', subject: 'Course', period: 'Semester' }, COMBINED: { class: 'Class / Level', subject: 'Subject / Course', period: 'Term / Semester' } };
+const periodTypes = { BASIC: 'TERM' };
+const terminology = { BASIC: { class: 'Class', subject: 'Subject', period: 'Term' } };
 function access(user) { return { roles: user.userRoles.map(({ role }) => role.name), permissions: [...new Set(user.userRoles.flatMap(({ role }) => role.permissions.map(({ permission }) => permission.key)))] }; }
 
 export const platformService = {

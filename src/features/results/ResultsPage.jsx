@@ -5,6 +5,7 @@ import { api } from '../../services/api.js';
 import { useAuth } from '../auth/useAuth.js';
 import './results.css';
 import './assignment-notice.css';
+import './assessment-components.css';
 
 const emptyAssessment = {
   name: '',
@@ -12,8 +13,8 @@ const emptyAssessment = {
   academicPeriodId: '',
   classId: '',
   components: [
-    { name: 'Class Work', weight: 40, maximumScore: 40 },
-    { name: 'Final Examination', weight: 60, maximumScore: 100 },
+    { name: 'Class Work', weight: 40 },
+    { name: 'Final Examination', weight: 60 },
   ],
 };
 const emptyGrading = {
@@ -87,10 +88,11 @@ export function ResultsPage() {
           academic.classes.find(
             (item) => item.academicYearId === period?.academicYearId,
           ) || academic.classes[0];
+        const subject = academic.subjects.find((item) => schoolClass?.subjectIds?.includes(item.id));
         setFilters({
           academicPeriodId: period?.id || '',
           classId: schoolClass?.id || '',
-          subjectId: academic.subjects[0]?.id || '',
+          subjectId: subject?.id || '',
           assessmentSchemeId:
             results.assessmentSchemes.find(
               (item) => item.academicYearId === period?.academicYearId,
@@ -111,6 +113,8 @@ export function ResultsPage() {
   const classes = options.classes.filter(
     (item) => !period || item.academicYearId === period.academicYearId,
   );
+  const selectedClass = options.classes.find((item) => item.id === filters.classId);
+  const subjects = options.subjects.filter((item) => selectedClass?.subjectIds?.includes(item.id));
   const schemes = data.assessmentSchemes
     .filter((item) => !period || item.academicYearId === period.academicYearId)
     .filter(
@@ -328,6 +332,7 @@ export function ResultsPage() {
                 setFilters({
                   ...filters,
                   classId: value,
+                  subjectId: options.subjects.find((subject) => options.classes.find((item) => item.id === value)?.subjectIds?.includes(subject.id))?.id || '',
                   assessmentSchemeId: '',
                 })
               }
@@ -338,7 +343,7 @@ export function ResultsPage() {
               label="Subject"
               value={filters.subjectId}
               onChange={(value) => setFilters({ ...filters, subjectId: value })}
-              items={options.subjects}
+              items={subjects}
             />
             <Select
               label="Assessment scheme"
@@ -486,11 +491,10 @@ export function ResultsPage() {
                 )}
               />
             </div>
-            <div className="setup-table">
+            <div className="setup-table assessment-components">
               <div className="setup-row heading">
                 <span>Component</span>
                 <span>Weight %</span>
-                <span>Maximum</span>
                 <span />
               </div>
               {assessment.components.map((item, index) => (
@@ -511,16 +515,6 @@ export function ResultsPage() {
                     value={item.weight}
                     onChange={(e) =>
                       componentChange(index, 'weight', e.target.value)
-                    }
-                  />
-                  <input
-                    required
-                    type="number"
-                    min="0.01"
-                    step="0.01"
-                    value={item.maximumScore}
-                    onChange={(e) =>
-                      componentChange(index, 'maximumScore', e.target.value)
                     }
                   />
                   <button
@@ -555,7 +549,7 @@ export function ResultsPage() {
                     ...assessment,
                     components: [
                       ...assessment.components,
-                      { name: '', weight: 0, maximumScore: 100 },
+                      { name: '', weight: 0 },
                     ],
                   })
                 }

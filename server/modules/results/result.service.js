@@ -19,7 +19,7 @@ async function getContext(tenantId, input) {
       where: { id: input.academicPeriodId, tenantId, status: 'ACTIVE' },
     }),
     prisma.class.findFirst({
-      where: { id: input.classId, tenantId, status: 'ACTIVE' },
+      where: { id: input.classId, tenantId, status: 'ACTIVE', classSubjects: { some: { subjectId: input.subjectId } } },
     }),
     prisma.subject.findFirst({
       where: { id: input.subjectId, tenantId, status: 'ACTIVE' },
@@ -67,8 +67,8 @@ async function getContext(tenantId, input) {
 async function requireAssignedSubject(auth, input) {
   if (auth.permissions.includes('results.approve') || auth.permissions.includes('assessments.manage')) return;
   if (!auth.staffId) throw new AppError('Link this user account to a staff profile before entering results', 403, 'STAFF_PROFILE_REQUIRED');
-  const assignment = await prisma.teacherAssignment.findFirst({ where: { tenantId: auth.tenantId, staffId: auth.staffId, academicPeriodId: input.academicPeriodId, classId: input.classId, subjectId: input.subjectId, status: 'ACTIVE' } });
-  if (!assignment) throw new AppError('You are not assigned to this class and subject for the selected period', 403, 'TEACHER_ASSIGNMENT_REQUIRED');
+  const assignment = await prisma.formTeacherAssignment.findFirst({ where: { tenantId: auth.tenantId, staffId: auth.staffId, academicPeriodId: input.academicPeriodId, classId: input.classId, status: 'ACTIVE' } });
+  if (!assignment) throw new AppError('You are not the form teacher for this class in the selected period', 403, 'FORM_TEACHER_ASSIGNMENT_REQUIRED');
 }
 
 function validateBoundaries(boundaries) {
@@ -96,8 +96,8 @@ export const resultService = {
     const tenantId = auth.tenantId;
     const isAdministrator = auth.roles.some((role) => role === 'School Administrator' || role === 'Academic Administrator');
     const broadAccess = auth.permissions.includes('results.approve') || auth.permissions.includes('assessments.manage');
-    const assignments = broadAccess || !auth.staffId ? [] : await prisma.teacherAssignment.findMany({ where: { tenantId, staffId: auth.staffId, status: 'ACTIVE' }, select: { academicPeriodId: true, classId: true, subjectId: true } });
-    const sheetWhere = isAdministrator ? { tenantId, status: { in: ['SUBMITTED', 'APPROVED', 'PUBLISHED', 'REJECTED'] } } : broadAccess ? { tenantId } : assignments.length ? { tenantId, OR: assignments.map(({ academicPeriodId, classId, subjectId }) => ({ academicPeriodId, classId, subjectId })) } : { tenantId, id: '__none__' };
+    const assignments = broadAccess || !auth.staffId ? [] : await prisma.formTeacherAssignment.findMany({ where: { tenantId, staffId: auth.staffId, status: 'ACTIVE' }, select: { academicPeriodId: true, classId: true } });
+    const sheetWhere = isAdministrator ? { tenantId, status: { in: ['SUBMITTED', 'APPROVED', 'PUBLISHED', 'REJECTED'] } } : broadAccess ? { tenantId } : assignments.length ? { tenantId, OR: assignments.map(({ academicPeriodId, classId }) => ({ academicPeriodId, classId })) } : { tenantId, id: '__none__' };
     const [assessmentSchemes, gradingSchemes, recentSheets] =
       await prisma.$transaction([
         prisma.assessmentScheme.findMany({
@@ -192,7 +192,9 @@ export const resultService = {
         name: input.name,
         components: {
           create: input.components.map((component, displayOrder) => ({
-            ...component,
+            name: component.name,
+            weight: component.weight,
+            maximumScore: component.weight,
             displayOrder,
           })),
         },
@@ -420,23 +422,15 @@ export const resultService = {
       await auditService.log({ tenantId: auth.tenantId, userId: auth.userId, action: 'REJECT', module: 'RESULTS', entityType: 'ResultSheet', entityId: id, oldValue: { status: sheet.status }, newValue: { status: 'REJECTED', reason } }); await notificationService.notifyUser(auth.tenantId, sheet.enteredById, { type: 'REJECTED', title: 'Results returned for correction', message: reason, link: '#/results/workflow', entityType: 'ResultSheet', entityId: id, dedupeKey: `result-rejected-${id}-${updated.updatedAt.toISOString()}` }); return updated;
     }
     if (sheet.status !== 'SUBMITTED') throw new AppError('Only submitted result sheets can be approved', 409, 'INVALID_RESULT_STATUS');
-    const updated = await prisma.resultSheet.update({ where: { id, tenantId: auth.tenantId }, data: { status: 'APPROVED', approvedAt: new Date(), approvedById: auth.userId, rejectionReason: null } });
-    await auditService.log({ tenantId: auth.tenantId, userId: auth.userId, action: 'APPROVE', module: 'RESULTS', entityType: 'ResultSheet', entityId: id, oldValue: { status: sheet.status }, newValue: { status: 'APPROVED' } }); await notificationService.notifyUser(auth.tenantId, sheet.enteredById, { type: 'APPROVED', title: 'Results approved', message: 'Your submitted result sheet has been approved.', link: '#/results/workflow', entityType: 'ResultSheet', entityId: id, dedupeKey: `result-approved-${id}` }); return updated;
-  },
-
-  async publish(auth, id) {
-    const sheet = await prisma.resultSheet.findFirst({ where: { id, tenantId: auth.tenantId } });
-    if (!sheet) throw new AppError('Result sheet not found', 404, 'RESULT_SHEET_NOT_FOUND');
-    if (sheet.status !== 'APPROVED') throw new AppError('Only approved result sheets can be published', 409, 'INVALID_RESULT_STATUS');
-    const updated = await prisma.resultSheet.update({ where: { id, tenantId: auth.tenantId }, data: { status: 'PUBLISHED', publishedAt: new Date(), publishedById: auth.userId } });
-    await auditService.log({ tenantId: auth.tenantId, userId: auth.userId, action: 'PUBLISH', module: 'RESULTS', entityType: 'ResultSheet', entityId: id, oldValue: { status: sheet.status }, newValue: { status: 'PUBLISHED' } }); return updated;
+    const approvedAt = new Date();
+    const updated = await prisma.resultSheet.update({ where: { id, tenantId: auth.tenantId }, data: { status: 'PUBLISHED', approvedAt, approvedById: auth.userId, publishedAt: approvedAt, publishedById: auth.userId, rejectionReason: null } });
+    await auditService.log({ tenantId: auth.tenantId, userId: auth.userId, action: 'APPROVE', module: 'RESULTS', entityType: 'ResultSheet', entityId: id, oldValue: { status: sheet.status }, newValue: { status: 'PUBLISHED' } }); await notificationService.notifyUser(auth.tenantId, sheet.enteredById, { type: 'APPROVED', title: 'Results approved and published', message: 'Your submitted result sheet is approved and available for report cards.', link: '#/results/report-cards', entityType: 'ResultSheet', entityId: id, dedupeKey: `result-approved-${id}` }); return updated;
   },
 
   async reportCards(auth, input) {
     const tenantId = auth.tenantId;
-    if (!auth.permissions.includes('results.approve') && !auth.permissions.includes('results.publish')) {
-      if (!auth.staffId || !await prisma.teacherAssignment.findFirst({ where: { tenantId, staffId: auth.staffId, academicPeriodId: input.academicPeriodId, classId: input.classId, status: 'ACTIVE' } })) throw new AppError('You are not assigned to this report-card class', 403, 'TEACHER_ASSIGNMENT_REQUIRED');
-    }
+    if (auth.roles.some((role) => role === 'School Administrator' || role === 'Academic Administrator')) throw new AppError('Report cards are prepared and printed by the form teacher', 403, 'FORM_TEACHER_REPORT_CARDS_REQUIRED');
+    if (!auth.staffId || !await prisma.formTeacherAssignment.findFirst({ where: { tenantId, staffId: auth.staffId, academicPeriodId: input.academicPeriodId, classId: input.classId, status: 'ACTIVE' } })) throw new AppError('You are not the form teacher for this report-card class', 403, 'FORM_TEACHER_ASSIGNMENT_REQUIRED');
     const period = await prisma.academicPeriod.findFirst({ where: { id: input.academicPeriodId, tenantId } });
     const schoolClass = period ? await prisma.class.findFirst({ where: { id: input.classId, tenantId, academicYearId: period.academicYearId } }) : null;
     if (!period || !schoolClass) throw new AppError('Report-card class or period is invalid', 422, 'INVALID_REPORT_CONTEXT');

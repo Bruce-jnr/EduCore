@@ -8,10 +8,7 @@ datasource db {
 }
 
 enum SchoolType {
-  PRIMARY
-  SECONDARY
-  COLLEGE
-  COMBINED
+  BASIC
 }
 
 enum RecordStatus {
@@ -29,7 +26,6 @@ enum UserStatus {
 
 enum PeriodType {
   TERM
-  SEMESTER
 }
 
 enum StudentStatus {
@@ -118,51 +114,53 @@ enum FinancialAdjustmentStatus {
 }
 
 model Tenant {
-  id                 String              @id @default(cuid())
-  name               String
-  slug               String              @unique
-  schoolCode         String              @unique
-  schoolType         SchoolType
-  email              String?
-  phone              String?
-  address            String?
-  city               String?
-  country            String              @default("Ghana")
-  currency           String              @default("GHS")
-  timezone           String              @default("Africa/Accra")
-  logoUrl            String?
-  primaryColor       String?
-  secondaryColor     String?
-  isActive           Boolean             @default(true)
-  subscriptionEndsAt DateTime?
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
-  settings           TenantSettings?
-  users              User[]
-  roles              Role[]
-  academicYears      AcademicYear[]
-  academicPeriods    AcademicPeriod[]
-  classes            Class[]
-  subjects           Subject[]
-  staff              Staff[]
-  students           Student[]
-  guardians          Guardian[]
-  auditLogs          AuditLog[]
-  teacherAssignments TeacherAssignment[]
-  attendanceSessions AttendanceSession[]
-  feeCategories      FeeCategory[]
-  feeStructures      FeeStructure[]
-  invoices           Invoice[]
-  payments           Payment[]
-  bulkBillingRuns    BulkBillingRun[]
-  assessmentSchemes  AssessmentScheme[]
-  gradingSchemes     GradingScheme[]
-  resultSheets       ResultSheet[]
-  resultEntries      ResultEntry[]
-  notifications      Notification[]
-  progressionRuns    ProgressionRun[]
-  progressionItems   ProgressionItem[]
-  financialAdjustments FinancialAdjustment[]
+  id                     String                  @id @default(cuid())
+  name                   String
+  slug                   String                  @unique
+  schoolCode             String                  @unique
+  schoolType             SchoolType
+  email                  String?
+  phone                  String?
+  address                String?
+  city                   String?
+  country                String                  @default("Ghana")
+  currency               String                  @default("GHS")
+  timezone               String                  @default("Africa/Accra")
+  logoUrl                String?
+  primaryColor           String?
+  secondaryColor         String?
+  isActive               Boolean                 @default(true)
+  subscriptionEndsAt     DateTime?
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @updatedAt
+  settings               TenantSettings?
+  users                  User[]
+  roles                  Role[]
+  academicYears          AcademicYear[]
+  academicPeriods        AcademicPeriod[]
+  classes                Class[]
+  subjects               Subject[]
+  staff                  Staff[]
+  students               Student[]
+  guardians              Guardian[]
+  auditLogs              AuditLog[]
+  teacherAssignments     TeacherAssignment[]
+  formTeacherAssignments FormTeacherAssignment[]
+  classSubjects          ClassSubject[]
+  attendanceSessions     AttendanceSession[]
+  feeCategories          FeeCategory[]
+  feeStructures          FeeStructure[]
+  invoices               Invoice[]
+  payments               Payment[]
+  bulkBillingRuns        BulkBillingRun[]
+  assessmentSchemes      AssessmentScheme[]
+  gradingSchemes         GradingScheme[]
+  resultSheets           ResultSheet[]
+  resultEntries          ResultEntry[]
+  notifications          Notification[]
+  progressionRuns        ProgressionRun[]
+  progressionItems       ProgressionItem[]
+  financialAdjustments   FinancialAdjustment[]
 }
 
 model PlatformSettings {
@@ -196,31 +194,31 @@ model TenantSettings {
 }
 
 model User {
-  id                   String              @id @default(cuid())
-  tenantId             String?
-  firstName            String
-  lastName             String
-  email                String
-  phone                String?
-  passwordHash         String
-  status               UserStatus          @default(INVITED)
-  isPlatformUser       Boolean             @default(false)
-  lastLoginAt          DateTime?
-  emailVerifiedAt      DateTime?
-  createdAt            DateTime            @default(now())
-  updatedAt            DateTime            @updatedAt
-  deletedAt            DateTime?
-  tenant               Tenant?             @relation(fields: [tenantId], references: [id])
-  userRoles            UserRole[]
-  auditLogs            AuditLog[]
-  attendanceSessions   AttendanceSession[] @relation("AttendanceCreatedBy")
-  paymentsReceived     Payment[]           @relation("PaymentsReceivedBy")
-  resultSheetsEntered  ResultSheet[]       @relation("ResultSheetEnteredBy")
-  resultEntriesEntered ResultEntry[]       @relation("ResultEntryEnteredBy")
-  staffProfile         Staff?
-  bulkBillingRuns      BulkBillingRun[]
-  notifications        Notification[]
-  financialAdjustmentsCreated FinancialAdjustment[] @relation("FinancialAdjustmentCreatedBy")
+  id                           String                @id @default(cuid())
+  tenantId                     String?
+  firstName                    String
+  lastName                     String
+  email                        String
+  phone                        String?
+  passwordHash                 String
+  status                       UserStatus            @default(INVITED)
+  isPlatformUser               Boolean               @default(false)
+  lastLoginAt                  DateTime?
+  emailVerifiedAt              DateTime?
+  createdAt                    DateTime              @default(now())
+  updatedAt                    DateTime              @updatedAt
+  deletedAt                    DateTime?
+  tenant                       Tenant?               @relation(fields: [tenantId], references: [id])
+  userRoles                    UserRole[]
+  auditLogs                    AuditLog[]
+  attendanceSessions           AttendanceSession[]   @relation("AttendanceCreatedBy")
+  paymentsReceived             Payment[]             @relation("PaymentsReceivedBy")
+  resultSheetsEntered          ResultSheet[]         @relation("ResultSheetEnteredBy")
+  resultEntriesEntered         ResultEntry[]         @relation("ResultEntryEnteredBy")
+  staffProfile                 Staff?
+  bulkBillingRuns              BulkBillingRun[]
+  notifications                Notification[]
+  financialAdjustmentsCreated  FinancialAdjustment[] @relation("FinancialAdjustmentCreatedBy")
   financialAdjustmentsReversed FinancialAdjustment[] @relation("FinancialAdjustmentReversedBy")
 
   @@unique([tenantId, email])
@@ -228,20 +226,20 @@ model User {
 }
 
 model Notification {
-  id        String           @id @default(cuid())
-  tenantId  String
-  userId    String
-  type      NotificationType @default(SYSTEM)
-  title     String
-  message   String
-  link      String?
+  id         String           @id @default(cuid())
+  tenantId   String
+  userId     String
+  type       NotificationType @default(SYSTEM)
+  title      String
+  message    String
+  link       String?
   entityType String?
-  entityId  String?
-  dedupeKey String?
-  readAt    DateTime?
-  createdAt DateTime         @default(now())
-  tenant    Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  entityId   String?
+  dedupeKey  String?
+  readAt     DateTime?
+  createdAt  DateTime         @default(now())
+  tenant     Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user       User             @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, dedupeKey])
   @@index([tenantId, userId, readAt, createdAt])
@@ -280,7 +278,7 @@ model ProgressionItem {
   newStudentStatus      StudentStatus
   createdAt             DateTime          @default(now())
   tenant                Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  progressionRun        ProgressionRun     @relation(fields: [progressionRunId], references: [id], onDelete: Cascade)
+  progressionRun        ProgressionRun    @relation(fields: [progressionRunId], references: [id], onDelete: Cascade)
 
   @@unique([progressionRunId, studentId])
   @@index([tenantId, studentId, createdAt])
@@ -325,75 +323,79 @@ model UserRole {
 }
 
 model AcademicYear {
-  id                 String              @id @default(cuid())
-  tenantId           String
-  name               String
-  startDate          DateTime
-  endDate            DateTime
-  isCurrent          Boolean             @default(false)
-  status             RecordStatus        @default(ACTIVE)
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
-  tenant             Tenant              @relation(fields: [tenantId], references: [id])
-  periods            AcademicPeriod[]
-  classes            Class[]
-  enrollments        StudentEnrollment[]
-  teacherAssignments TeacherAssignment[]
-  attendanceSessions AttendanceSession[]
-  feeStructures      FeeStructure[]
-  invoices           Invoice[]
-  bulkBillingRuns    BulkBillingRun[]
-  assessmentSchemes  AssessmentScheme[]
-  resultSheets       ResultSheet[]
-  resultEntries      ResultEntry[]
+  id                     String                  @id @default(cuid())
+  tenantId               String
+  name                   String
+  startDate              DateTime
+  endDate                DateTime
+  isCurrent              Boolean                 @default(false)
+  status                 RecordStatus            @default(ACTIVE)
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @updatedAt
+  tenant                 Tenant                  @relation(fields: [tenantId], references: [id])
+  periods                AcademicPeriod[]
+  classes                Class[]
+  enrollments            StudentEnrollment[]
+  teacherAssignments     TeacherAssignment[]
+  formTeacherAssignments FormTeacherAssignment[]
+  attendanceSessions     AttendanceSession[]
+  feeStructures          FeeStructure[]
+  invoices               Invoice[]
+  bulkBillingRuns        BulkBillingRun[]
+  assessmentSchemes      AssessmentScheme[]
+  resultSheets           ResultSheet[]
+  resultEntries          ResultEntry[]
 
   @@unique([tenantId, name])
   @@index([tenantId, isCurrent])
 }
 
 model AcademicPeriod {
-  id                 String              @id @default(cuid())
-  tenantId           String
-  academicYearId     String
-  name               String
-  type               PeriodType
-  startDate          DateTime
-  endDate            DateTime
-  isCurrent          Boolean             @default(false)
-  status             RecordStatus        @default(ACTIVE)
-  tenant             Tenant              @relation(fields: [tenantId], references: [id])
-  academicYear       AcademicYear        @relation(fields: [academicYearId], references: [id])
-  enrollments        StudentEnrollment[]
-  teacherAssignments TeacherAssignment[]
-  attendanceSessions AttendanceSession[]
-  feeStructures      FeeStructure[]
-  invoices           Invoice[]
-  bulkBillingRuns    BulkBillingRun[]
-  assessmentSchemes  AssessmentScheme[]
-  resultSheets       ResultSheet[]
-  resultEntries      ResultEntry[]
+  id                     String                  @id @default(cuid())
+  tenantId               String
+  academicYearId         String
+  name                   String
+  type                   PeriodType
+  startDate              DateTime
+  endDate                DateTime
+  isCurrent              Boolean                 @default(false)
+  status                 RecordStatus            @default(ACTIVE)
+  tenant                 Tenant                  @relation(fields: [tenantId], references: [id])
+  academicYear           AcademicYear            @relation(fields: [academicYearId], references: [id])
+  enrollments            StudentEnrollment[]
+  teacherAssignments     TeacherAssignment[]
+  formTeacherAssignments FormTeacherAssignment[]
+  attendanceSessions     AttendanceSession[]
+  feeStructures          FeeStructure[]
+  invoices               Invoice[]
+  bulkBillingRuns        BulkBillingRun[]
+  assessmentSchemes      AssessmentScheme[]
+  resultSheets           ResultSheet[]
+  resultEntries          ResultEntry[]
 
   @@unique([tenantId, academicYearId, name])
   @@index([tenantId, isCurrent])
 }
 
 model Class {
-  id                 String              @id @default(cuid())
-  tenantId           String
-  academicYearId     String
-  name               String
-  section            String?
-  levelOrder         Int?
-  status             RecordStatus        @default(ACTIVE)
-  tenant             Tenant              @relation(fields: [tenantId], references: [id])
-  academicYear       AcademicYear        @relation(fields: [academicYearId], references: [id])
-  enrollments        StudentEnrollment[]
-  teacherAssignments TeacherAssignment[]
-  attendanceSessions AttendanceSession[]
-  feeStructures      FeeStructure[]
-  assessmentSchemes  AssessmentScheme[]
-  resultSheets       ResultSheet[]
-  resultEntries      ResultEntry[]
+  id                     String                  @id @default(cuid())
+  tenantId               String
+  academicYearId         String
+  name                   String
+  section                String?
+  levelOrder             Int?
+  status                 RecordStatus            @default(ACTIVE)
+  tenant                 Tenant                  @relation(fields: [tenantId], references: [id])
+  academicYear           AcademicYear            @relation(fields: [academicYearId], references: [id])
+  enrollments            StudentEnrollment[]
+  teacherAssignments     TeacherAssignment[]
+  formTeacherAssignments FormTeacherAssignment[]
+  classSubjects          ClassSubject[]
+  attendanceSessions     AttendanceSession[]
+  feeStructures          FeeStructure[]
+  assessmentSchemes      AssessmentScheme[]
+  resultSheets           ResultSheet[]
+  resultEntries          ResultEntry[]
 
   @@unique([tenantId, academicYearId, name, section])
   @@index([tenantId, status])
@@ -408,32 +410,48 @@ model Subject {
   status             RecordStatus        @default(ACTIVE)
   tenant             Tenant              @relation(fields: [tenantId], references: [id])
   teacherAssignments TeacherAssignment[]
+  classSubjects      ClassSubject[]
   resultSheets       ResultSheet[]
   resultEntries      ResultEntry[]
 
   @@unique([tenantId, code])
 }
 
+model ClassSubject {
+  id        String   @id @default(cuid())
+  tenantId  String
+  classId   String
+  subjectId String
+  createdAt DateTime @default(now())
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+  class     Class    @relation(fields: [classId], references: [id], onDelete: Cascade)
+  subject   Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+
+  @@unique([classId, subjectId])
+  @@index([tenantId, subjectId])
+}
+
 model Staff {
-  id                 String              @id @default(cuid())
-  tenantId           String
-  userId             String?             @unique
-  employeeNumber     String
-  firstName          String
-  middleName         String?
-  lastName           String
-  email              String?
-  phone              String?
-  position           String?
-  employmentType     EmploymentType
-  employmentDate     DateTime?
-  status             RecordStatus        @default(ACTIVE)
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
-  deletedAt          DateTime?
-  tenant             Tenant              @relation(fields: [tenantId], references: [id])
-  user               User?               @relation(fields: [userId], references: [id])
-  teacherAssignments TeacherAssignment[]
+  id                     String                  @id @default(cuid())
+  tenantId               String
+  userId                 String?                 @unique
+  employeeNumber         String
+  firstName              String
+  middleName             String?
+  lastName               String
+  email                  String?
+  phone                  String?
+  position               String?
+  employmentType         EmploymentType
+  employmentDate         DateTime?
+  status                 RecordStatus            @default(ACTIVE)
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @updatedAt
+  deletedAt              DateTime?
+  tenant                 Tenant                  @relation(fields: [tenantId], references: [id])
+  user                   User?                   @relation(fields: [userId], references: [id])
+  teacherAssignments     TeacherAssignment[]
+  formTeacherAssignments FormTeacherAssignment[]
 
   @@unique([tenantId, employeeNumber])
   @@index([tenantId, status])
@@ -458,35 +476,35 @@ model TeacherAssignment {
   class            Class          @relation(fields: [classId], references: [id])
   subject          Subject        @relation(fields: [subjectId], references: [id])
 
-  @@index([tenantId, academicYearId, academicPeriodId])
+  @@index([tenantId, academicYearId, academicPeriodId], map: "FormTeacher_tenant_year_period_idx")
   @@index([tenantId, staffId])
 }
 
 model Student {
-  id                String              @id @default(cuid())
-  tenantId          String
-  studentNumber     String
-  firstName         String
-  middleName        String?
-  lastName          String
-  dateOfBirth       DateTime?
-  gender            String?
-  photoUrl          String?
-  email             String?
-  phone             String?
-  address           String?
-  admissionDate     DateTime?
-  status            StudentStatus       @default(ACTIVE)
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime            @updatedAt
-  deletedAt         DateTime?
-  tenant            Tenant              @relation(fields: [tenantId], references: [id])
-  enrollments       StudentEnrollment[]
-  attendanceRecords AttendanceRecord[]
-  invoices          Invoice[]
-  payments          Payment[]
-  resultEntries     ResultEntry[]
-  guardians         StudentGuardian[]
+  id                   String                @id @default(cuid())
+  tenantId             String
+  studentNumber        String
+  firstName            String
+  middleName           String?
+  lastName             String
+  dateOfBirth          DateTime?
+  gender               String?
+  photoUrl             String?
+  email                String?
+  phone                String?
+  address              String?
+  admissionDate        DateTime?
+  status               StudentStatus         @default(ACTIVE)
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  deletedAt            DateTime?
+  tenant               Tenant                @relation(fields: [tenantId], references: [id])
+  enrollments          StudentEnrollment[]
+  attendanceRecords    AttendanceRecord[]
+  invoices             Invoice[]
+  payments             Payment[]
+  resultEntries        ResultEntry[]
+  guardians            StudentGuardian[]
   financialAdjustments FinancialAdjustment[]
 
   @@unique([tenantId, studentNumber])
@@ -663,6 +681,28 @@ model PaymentAllocation {
 
   @@unique([paymentId, invoiceItemId])
   @@index([invoiceItemId])
+}
+
+model FormTeacherAssignment {
+  id               String         @id @default(cuid())
+  assignmentKey    String         @unique
+  tenantId         String
+  staffId          String
+  academicYearId   String
+  academicPeriodId String
+  classId          String
+  status           RecordStatus   @default(ACTIVE)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  tenant           Tenant         @relation(fields: [tenantId], references: [id])
+  staff            Staff          @relation(fields: [staffId], references: [id])
+  academicYear     AcademicYear   @relation(fields: [academicYearId], references: [id])
+  academicPeriod   AcademicPeriod @relation(fields: [academicPeriodId], references: [id])
+  class            Class          @relation(fields: [classId], references: [id])
+
+  @@unique([tenantId, academicPeriodId, classId])
+  @@index([tenantId, staffId])
+  @@index([tenantId, academicYearId, academicPeriodId])
 }
 
 model FinancialAdjustment {

@@ -3,3 +3,5 @@ export async function listStaff(req,res){res.json({success:true,data:await staff
 export async function createStaff(req,res){res.status(201).json({success:true,data:await staffService.create(req.auth,req.validated.body),message:'Staff member created'})}
 export async function listAssignments(req,res){res.json({success:true,data:await staffService.assignments(req.auth.tenantId),message:null})}
 export async function createAssignment(req,res){res.status(201).json({success:true,data:await staffService.assign(req.auth,req.validated.body),message:'Teacher assigned'})}
+export async function listFormTeacherAssignments(req,res){res.json({success:true,data:await staffService.formTeacherAssignments(req.auth.tenantId),message:null})}
+export async function createFormTeacherAssignment(req,res){res.status(201).json({success:true,data:await staffService.assignFormTeacher(req.auth,req.validated.body),message:'Form teacher assigned'})}

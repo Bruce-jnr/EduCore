@@ -59,7 +59,7 @@ function App() {
   const isSchoolAdministrator = user?.roles?.some((role) => role === 'School Administrator' || role === 'Academic Administrator');
   if (route === '/results') page = isSchoolAdministrator ? <ResultsWorkflowPage /> : <ResultsPage />;
   if (route === '/results/workflow') page = <ResultsWorkflowPage />;
-  if (route === '/results/report-cards') page = <ReportCardsPage />;
+  if (route === '/results/report-cards') page = isSchoolAdministrator ? <ResultsWorkflowPage /> : <ReportCardsPage />;
 
   if (loading) return <div className="app-loading"><span/><p>Loading EduCore…</p></div>;
   if (!user) return route.startsWith('/platform') ? <PlatformLoginPage /> : <LoginPage />;

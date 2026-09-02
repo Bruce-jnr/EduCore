@@ -16,8 +16,8 @@ async function context(tenantId, classId, periodId) {
 async function requireAssignedClass(auth, classId, academicPeriodId) {
   if (auth.permissions.includes('attendance.update')) return;
   if (!auth.staffId) throw new AppError('Link this user account to a staff profile before taking attendance', 403, 'STAFF_PROFILE_REQUIRED');
-  const assignment = await prisma.teacherAssignment.findFirst({ where: { tenantId: auth.tenantId, staffId: auth.staffId, classId, academicPeriodId, status: 'ACTIVE' } });
-  if (!assignment) throw new AppError('You are not assigned to this class for the selected period', 403, 'TEACHER_ASSIGNMENT_REQUIRED');
+  const assignment = await prisma.formTeacherAssignment.findFirst({ where: { tenantId: auth.tenantId, staffId: auth.staffId, classId, academicPeriodId, status: 'ACTIVE' } });
+  if (!assignment) throw new AppError('You are not the form teacher for this class in the selected period', 403, 'FORM_TEACHER_ASSIGNMENT_REQUIRED');
 }
 
 export const attendanceService = {
@@ -51,7 +51,7 @@ export const attendanceService = {
     const where = { tenantId: auth.tenantId };
     if (!auth.permissions.includes('attendance.update')) {
       if (!auth.staffId) return [];
-      const assignments = await prisma.teacherAssignment.findMany({ where: { tenantId: auth.tenantId, staffId: auth.staffId, status: 'ACTIVE' }, select: { classId: true, academicPeriodId: true } });
+      const assignments = await prisma.formTeacherAssignment.findMany({ where: { tenantId: auth.tenantId, staffId: auth.staffId, status: 'ACTIVE' }, select: { classId: true, academicPeriodId: true } });
       where.OR = assignments.map(({ classId, academicPeriodId }) => ({ classId, academicPeriodId }));
       if (!where.OR.length) return [];
     }

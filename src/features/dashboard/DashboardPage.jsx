@@ -4,9 +4,14 @@ import { PageHeader } from '../../components/PageHeader.jsx';
 import { StatCard } from '../../components/StatCard.jsx';
 import { api } from '../../services/api.js';
 import { useAuth } from '../auth/useAuth.js';
+import './dashboard-setup.css';
 
 export function DashboardPage() {
   const { user } = useAuth();
+  const isAdministrator = user.roles?.some(
+    (role) =>
+      role === 'School Administrator' || role === 'Academic Administrator',
+  );
   const [metrics, setMetrics] = useState({
     totalStudents: '—',
     activeStudents: '—',
@@ -68,7 +73,9 @@ export function DashboardPage() {
           tone="amber"
         />
       </section>
-      <section className="dashboard-grid">
+      <section
+        className={`dashboard-grid ${isAdministrator ? '' : 'dashboard-grid-single'}`}
+      >
         <article className="panel chart-panel">
           <div className="panel-heading">
             <div>
@@ -96,31 +103,44 @@ export function DashboardPage() {
             </div>
           </div>
         </article>
-        <article className="panel setup-panel">
-          <div className="panel-heading">
-            <div>
-              <h2>MVP Setup</h2>
-              <p>Foundation progress</p>
+        {isAdministrator && (
+          <article className="panel setup-panel">
+            <div className="panel-heading">
+              <div>
+                <h2>MVP Setup</h2>
+                <p>
+                  {metrics.setup?.completed || 0} of{' '}
+                  {metrics.setup?.total || 19} steps complete
+                </p>
+              </div>
+              <strong className="setup-percentage">
+                {metrics.setup?.percentage || 0}%
+              </strong>
             </div>
-          </div>
-          <ul>
-            {[
-              'School and administrator',
-              'Tenant-safe authentication',
-              'Academic year and class',
-              'Student records',
-            ].map((item) => (
-              <li className="done" key={item}>
-                <Icon>check_circle</Icon>
-                <span>{item}</span>
-              </li>
-            ))}
-            <li>
-              <Icon>radio_button_unchecked</Icon>
-              <span>Staff and teacher assignments</span>
-            </li>
-          </ul>
-        </article>
+            <div
+              className="setup-progress"
+              role="progressbar"
+              aria-label="MVP setup progress"
+              aria-valuemin="0"
+              aria-valuemax="100"
+              aria-valuenow={metrics.setup?.percentage || 0}
+            >
+              <span style={{ width: `${metrics.setup?.percentage || 0}%` }} />
+            </div>
+            <ul>
+              {(metrics.setup?.steps || []).map((step) => (
+                <li className={step.complete ? 'done' : ''} key={step.order}>
+                  <Icon>
+                    {step.complete ? 'check_circle' : 'radio_button_unchecked'}
+                  </Icon>
+                  <span>
+                    {step.order}. {step.label}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </article>
+        )}
       </section>
       <section className="quick-actions panel">
         <div>
@@ -136,52 +156,21 @@ export function DashboardPage() {
             <Icon>groups</Icon>
             <span>View Students</span>
           </a>
-          <button disabled>
-            <Icon>badge</Icon>
-            <span>Add Staff</span>
-          </button>
-          <button disabled>
-            <Icon>school</Icon>
-            <span>Create Class</span>
-          </button>
+          {user.permissions?.includes('staff.create') && (
+            <a href="#/staff">
+              <Icon>badge</Icon>
+              <span>Add Staff</span>
+            </a>
+          )}
+          {user.permissions?.includes('academics.create') && (
+            <a href="#/academics/classes">
+              <Icon>school</Icon>
+              <span>Create Class</span>
+            </a>
+          )}
         </div>
       </section>
       <section className="lower-grid">
-        <article className="panel next-steps">
-          <div className="panel-heading">
-            <div>
-              <h2>Next implementation steps</h2>
-              <p>Following the approved MVP order</p>
-            </div>
-          </div>
-          <div className="next-step-list">
-            {[
-              [
-                '01',
-                'Staff management',
-                'Add staff profiles and employee records.',
-              ],
-              [
-                '02',
-                'Academic management',
-                'Manage years, periods, classes, and subjects.',
-              ],
-              [
-                '03',
-                'Guardian records',
-                'Link multiple guardians to each student.',
-              ],
-            ].map(([number, title, detail]) => (
-              <div key={number}>
-                <span>{number}</span>
-                <p>
-                  <strong>{title}</strong>
-                  <small>{detail}</small>
-                </p>
-              </div>
-            ))}
-          </div>
-        </article>
         <article className="panel tenant-card">
           <span className="tenant-mark">
             <Icon>domain</Icon>

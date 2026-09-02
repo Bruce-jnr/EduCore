@@ -15,7 +15,7 @@ export const assessmentSchemeSchema = request(
         z.object({
           name: z.string().trim().min(1).max(80),
           weight: z.coerce.number().positive().max(100),
-          maximumScore: z.coerce.number().positive().max(10000),
+          maximumScore: z.coerce.number().positive().max(10000).optional(),
         }),
       )
       .min(1)

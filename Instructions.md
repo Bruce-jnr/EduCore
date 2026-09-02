@@ -4,12 +4,7 @@
 
 Build a production-ready multi-tenant school management SaaS application called **EduCore**.
 
-The application will support:
-
-- Primary Schools
-- Secondary Schools
-- Colleges
-- Combined Schools
+The application supports basic schools from kindergarten through JHS.
 
 The application must allow multiple schools to use the same platform while keeping each school's users, students, academic records, finances, settings, and documents completely isolated.
 
@@ -33,8 +28,8 @@ Every tenant must have its own:
 - Parents
 - Admissions
 - Attendance
-- Subjects or courses
-- Classes or programmes
+- Subjects
+- Classes from kindergarten through JHS
 - Examinations
 - Results
 - Fees
@@ -162,7 +157,6 @@ Teacher
 Parent
 Class
 Subject
-Course
 Payment
 Invoice
 Attendance
@@ -209,10 +203,7 @@ updatedAt
 School type enum:
 
 ```text
-PRIMARY
-SECONDARY
-COLLEGE
-COMBINED
+BASIC
 ```
 
 ---
@@ -443,7 +434,7 @@ Build settings sections for:
 - Timezone
 - Academic structure
 - Academic year
-- Term or semester naming
+- Term naming
 - Assessment rules
 - Grading rules
 - Student ID format
@@ -490,37 +481,6 @@ Mathematics
 
 ---
 
-## College
-
-Hierarchy:
-
-```text
-Academic Year
-    ↓
-Semester
-    ↓
-Department
-    ↓
-Programme
-    ↓
-Level
-    ↓
-Course
-```
-
-Example:
-
-```text
-2026/2027
-Semester 1
-ICT Department
-Diploma in Information Technology
-Level 200
-Database Systems
-```
-
----
-
 # 14. ACADEMIC YEAR MODEL
 
 Create:
@@ -555,12 +515,7 @@ Only one academic year should normally be current per tenant.
 
 # 15. ACADEMIC PERIOD MODEL
 
-Create a flexible model for:
-
-```text
-Term
-Semester
-```
+Create a model for school terms.
 
 Recommended generic model:
 
@@ -586,7 +541,6 @@ Type:
 
 ```text
 TERM
-SEMESTER
 ```
 
 ---
@@ -699,8 +653,6 @@ studentId
 academicYearId
 academicPeriodId
 classId
-programmeId
-levelId
 status
 enrollmentDate
 endDate
@@ -746,7 +698,6 @@ phone
 guardianName
 guardianPhone
 requestedClassId
-requestedProgrammeId
 academicYearId
 status
 paymentStatus
@@ -803,81 +754,12 @@ JHS 1A
 
 ---
 
-# 22. COLLEGE DEPARTMENTS
-
-Create:
-
-```text
-Department
-```
-
-Fields:
-
-```text
-id
-tenantId
-name
-code
-headOfDepartmentId
-status
-```
-
----
-
-# 23. PROGRAMMES
-
-Create:
-
-```text
-Programme
-```
-
-Fields:
-
-```text
-id
-tenantId
-departmentId
-name
-code
-duration
-status
-```
-
----
-
-# 24. LEVELS
-
-Create:
-
-```text
-ProgrammeLevel
-```
-
-Examples:
-
-```text
-Level 100
-Level 200
-Level 300
-```
-
----
-
-# 25. SUBJECTS AND COURSES
+# 22. SUBJECTS
 
 Create a reusable academic content structure.
 
-For primary/secondary:
-
 ```text
 Subject
-```
-
-For college:
-
-```text
-Course
 ```
 
 Fields should include:
@@ -910,8 +792,8 @@ This should associate:
 teacher
 academicYear
 academicPeriod
-class or programme
-subject or course
+class
+subject
 ```
 
 Do not hard-code teacher assignment directly into the teacher record.
@@ -935,7 +817,6 @@ email
 phone
 gender
 photoUrl
-department
 position
 employmentType
 employmentDate
@@ -971,7 +852,6 @@ tenantId
 academicYearId
 academicPeriodId
 classId
-courseId
 date
 createdBy
 ```
@@ -1021,10 +901,7 @@ tenantId
 academicYearId
 academicPeriodId
 classId
-programmeId
-levelId
 subjectId
-courseId
 teacherId
 room
 dayOfWeek
@@ -1037,7 +914,7 @@ Detect conflicts involving:
 - Teacher
 - Room
 - Class
-- Programme
+- Class
 - Time
 
 ---
@@ -1092,22 +969,6 @@ Example:
 0 - 49 → F
 ```
 
-College grading may additionally support:
-
-```text
-gradePoint
-```
-
-Example:
-
-```text
-A → 4.0
-B+ → 3.5
-B → 3.0
-```
-
----
-
 # 33. RESULTS
 
 Create:
@@ -1124,10 +985,7 @@ studentId
 academicYearId
 academicPeriodId
 classId
-programmeId
-levelId
 subjectId
-courseId
 assessmentComponentId
 rawScore
 weightedScore
@@ -1188,7 +1046,7 @@ Never silently modify academic results.
 
 # 36. REPORT CARDS
 
-Generate primary/secondary report cards.
+Generate basic-school report cards.
 
 Include:
 
@@ -1208,22 +1066,6 @@ Include:
 - Promotion status
 
 Use tenant-specific templates.
-
----
-
-# 37. COLLEGE RESULTS
-
-Support:
-
-- Semester result slips
-- GPA
-- CGPA
-- Academic statements
-- Transcript data
-
-Calculate GPA based on tenant grading configuration.
-
-Do not hard-code one GPA formula without configuration.
 
 ---
 
@@ -1304,7 +1146,7 @@ Allow fees to apply to:
 
 - Entire school
 - Specific class
-- Specific programme
+- Specific class
 - Specific level
 - Individual student
 
@@ -1448,7 +1290,6 @@ PARENTS
 STAFF
 TEACHERS
 CLASS
-PROGRAMME
 CUSTOM
 ```
 
@@ -1828,8 +1669,6 @@ Support backend filtering for:
 - Academic year
 - Academic period
 - Class
-- Programme
-- Level
 - Gender
 - Status
 - Date range
@@ -1926,8 +1765,8 @@ Example tenant routes:
 
 /academics/classes
 /academics/subjects
-/academics/programmes
-/academics/courses
+/academics/classes
+/academics/subjects
 /academics/timetable
 
 /attendance
@@ -2168,7 +2007,6 @@ academicYearId
 academicPeriodId
 studentId
 classId
-programmeId
 paymentDate
 status
 createdAt
@@ -2220,7 +2058,6 @@ Required imports:
 - Students
 - Staff
 - Subjects
-- Courses
 - Fees
 - Results
 
@@ -2284,7 +2121,7 @@ Finance:
 - Fee collection
 - Outstanding fees
 - Payment history
-- Fee collection by class/programme
+- Fee collection by class
 
 Enrollment:
 
@@ -2506,22 +2343,15 @@ Acceptance criteria:
 Build:
 
 1. Academic years
-2. Terms / semesters
+2. Terms
 3. Classes
-4. Departments
-5. Programmes
-6. Levels
-7. Subjects
-8. Courses
-9. Staff
-10. Teacher assignments
+4. Subjects
+5. Staff
+6. Form-teacher assignments
 
 Acceptance criteria:
 
-- Primary school can configure classes and subjects.
-- Secondary school can configure classes and subjects.
-- College can configure departments, programmes, levels and courses.
-- Combined schools can use relevant structures.
+- Schools can configure classes from kindergarten through JHS and their subjects.
 
 ---
 
@@ -2690,10 +2520,6 @@ StudentEnrollment
 
 Class
 Subject
-Department
-Programme
-ProgrammeLevel
-Course
 TeacherAssignment
 
 AuditLog
@@ -2971,12 +2797,12 @@ The first usable release must allow a school administrator to:
 1. Sign in securely.
 2. Configure school profile.
 3. Configure academic year.
-4. Configure term or semester.
-5. Create classes or programmes.
-6. Create subjects or courses.
+4. Configure term.
+5. Create classes.
+6. Create subjects.
 7. Add staff.
 8. Add students.
-9. Assign students to classes or programmes.
+9. Assign students to classes.
 10. Assign teachers.
 11. View dashboard information.
 12. Manage users.
@@ -2999,11 +2825,11 @@ School Configured
 ↓
 Academic Year Created
 ↓
-Term / Semester Created
+Term Created
 ↓
-Classes / Programmes Created
+Classes Created
 ↓
-Subjects / Courses Created
+Subjects Created
 ↓
 Teachers Added
 ↓
