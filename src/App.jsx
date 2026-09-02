@@ -5,6 +5,7 @@ import { StudentProfilePage } from './features/students/StudentProfilePage.jsx';
 import { StudentsPage } from './features/students/StudentsPage.jsx';
 import { AddStudentPage } from './features/students/AddStudentPage.jsx';
 import { LoginPage } from './features/auth/LoginPage.jsx';
+import { LandingPage } from './features/landing/LandingPage.jsx';
 import { useAuth } from './features/auth/useAuth.js';
 import { StaffPage } from './features/staff/StaffPage.jsx';
 import { AcademicsPage } from './features/academics/AcademicsPage.jsx';
@@ -29,7 +30,7 @@ import './features/platform/platform-nav-fix.css';
 import './features/theme/theme.css';
 
 function getRoute() {
-  return window.location.hash.replace('#', '') || '/dashboard';
+  return window.location.hash.replace('#', '') || '/';
 }
 
 function App() {
@@ -62,7 +63,11 @@ function App() {
   if (route === '/results/report-cards') page = isSchoolAdministrator ? <ResultsWorkflowPage /> : <ReportCardsPage />;
 
   if (loading) return <div className="app-loading"><span/><p>Loading EduCore…</p></div>;
-  if (!user) return route.startsWith('/platform') ? <PlatformLoginPage /> : <LoginPage />;
+  if (!user) {
+    if (route.startsWith('/platform')) return <PlatformLoginPage />;
+    if (route === '/login') return <LoginPage />;
+    return <LandingPage />;
+  }
   if (user.isPlatformUser) { if(route==='/platform/settings')return <PlatformSettingsPage/>;if(route==='/platform/analytics')return <PlatformAnalyticsPage/>;if(route==='/platform/audit-logs')return <PlatformAuditPage/>;return <PlatformPage/>; }
   return <AppShell route={route} user={user} onLogout={logout}>{page}</AppShell>;
 }

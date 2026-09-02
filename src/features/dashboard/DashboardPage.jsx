@@ -12,6 +12,9 @@ export function DashboardPage() {
     (role) =>
       role === 'School Administrator' || role === 'Academic Administrator',
   );
+  const canSeeStaffStatistics = isAdministrator || user.roles?.includes('Accountant');
+  const isTeacher = user.roles?.includes('Teacher') && !canSeeStaffStatistics;
+  const canCreateStudents = user.permissions?.includes('students.create');
   const [metrics, setMetrics] = useState({
     totalStudents: '—',
     activeStudents: '—',
@@ -38,29 +41,23 @@ export function DashboardPage() {
         eyebrow={date}
         title={`Welcome, ${user.firstName}`}
         description={`Here’s what’s happening at ${user.tenant?.name || 'your school'} today.`}
-        actions={
+        actions={canCreateStudents ?
           <a className="primary-button" href="#/students/new">
             <Icon>add</Icon>Add student
           </a>
-        }
+        : null}
       />
-      <section className="stats-grid">
+      <section className={`stats-grid ${canSeeStaffStatistics ? '' : 'teacher-stats'}`}>
         <StatCard
           icon="groups"
-          label="Total Students"
+          label={isTeacher ? 'Students in My Class' : 'Total Students'}
           value={metrics.totalStudents}
           trend={`${metrics.activeStudents} active`}
         />
-        <StatCard
-          icon="badge"
-          label="Total Staff"
-          value={metrics.totalStaff}
-          trend="Active staff records"
-          tone="violet"
-        />
+        {canSeeStaffStatistics && <StatCard icon="badge" label="Total Staff" value={metrics.totalStaff} trend="Active staff records" tone="violet" />}
         <StatCard
           icon="school"
-          label="Active Classes"
+          label={isTeacher ? 'Assigned Classes' : 'Active Classes'}
           value={metrics.totalClasses}
           trend="Current academic structure"
           tone="green"
@@ -148,10 +145,10 @@ export function DashboardPage() {
           <p>Continue school setup</p>
         </div>
         <div className="quick-grid">
-          <a href="#/students/new">
+          {canCreateStudents && <a href="#/students/new">
             <Icon>person_add</Icon>
             <span>Add Student</span>
-          </a>
+          </a>}
           <a href="#/students">
             <Icon>groups</Icon>
             <span>View Students</span>

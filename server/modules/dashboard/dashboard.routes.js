@@ -8,9 +8,15 @@ import { asyncHandler } from '../../utils/async-handler.js';
 export const dashboardRouter = Router();
 dashboardRouter.get('/', authenticate, resolveTenant, requirePermission('dashboard.view'), asyncHandler(async (req, res) => {
   const tenantId = req.auth.tenantId;
+  const isAdministrator = req.auth.roles.some((role) => role === 'School Administrator' || role === 'Academic Administrator');
+  const canSeeStaffStatistics = isAdministrator || req.auth.roles.includes('Accountant');
+  const isTeacher = req.auth.roles.includes('Teacher') && !canSeeStaffStatistics;
+  const teacherAssignments = isTeacher && req.auth.staffId ? await prisma.formTeacherAssignment.findMany({ where: { tenantId, staffId: req.auth.staffId, status: 'ACTIVE', academicPeriod: { isCurrent: true, status: 'ACTIVE' } }, select: { classId: true } }) : [];
+  const assignedClassIds = [...new Set(teacherAssignments.map((assignment) => assignment.classId))];
+  const studentScope = isTeacher ? { tenantId, deletedAt: null, enrollments: { some: { tenantId, status: 'ACTIVE', classId: { in: assignedClassIds }, academicYear: { isCurrent: true, status: 'ACTIVE' } } } } : { tenantId, deletedAt: null };
   const [totalStudents, activeStudents, totalStaff, totalClasses, tenant, administrators, academicYears, academicPeriods, subjects, enrollments, attendanceSessions, invoices, payments, assessmentSchemes, scoreSheets, approvedResults, publishedResults] = await prisma.$transaction([
-    prisma.student.count({ where: { tenantId, deletedAt: null } }), prisma.student.count({ where: { tenantId, deletedAt: null, status: 'ACTIVE' } }),
-    prisma.staff.count({ where: { tenantId, deletedAt: null, status: 'ACTIVE' } }), prisma.class.count({ where: { tenantId, status: 'ACTIVE' } }),
+    prisma.student.count({ where: studentScope }), prisma.student.count({ where: { ...studentScope, status: 'ACTIVE' } }),
+    prisma.staff.count({ where: canSeeStaffStatistics ? { tenantId, deletedAt: null, status: 'ACTIVE' } : { tenantId, id: '__restricted__' } }), isTeacher ? prisma.class.count({ where: { tenantId, id: { in: assignedClassIds }, status: 'ACTIVE' } }) : prisma.class.count({ where: { tenantId, status: 'ACTIVE' } }),
     prisma.tenant.findUnique({ where: { id: tenantId }, include: { settings: true } }),
     prisma.user.count({ where: { tenantId, deletedAt: null, userRoles: { some: { role: { name: { in: ['School Administrator', 'Academic Administrator'] } } } } } }),
     prisma.academicYear.count({ where: { tenantId, status: 'ACTIVE' } }),
@@ -38,5 +44,5 @@ dashboardRouter.get('/', authenticate, resolveTenant, requirePermission('dashboa
     ['Report card generated', publishedResults > 0],
   ].map(([label, complete], index) => ({ order: index + 1, label, complete }));
   const completed = setupSteps.filter((step) => step.complete).length;
-  res.json({ success: true, data: { totalStudents, activeStudents, totalStaff, totalClasses, setup: { completed, total: setupSteps.length, percentage: Math.round((completed / setupSteps.length) * 100), steps: setupSteps } }, message: null });
+  res.json({ success: true, data: { totalStudents, activeStudents, totalClasses, ...(canSeeStaffStatistics && { totalStaff }), ...(isAdministrator && { setup: { completed, total: setupSteps.length, percentage: Math.round((completed / setupSteps.length) * 100), steps: setupSteps } }) }, message: null });
 }));
