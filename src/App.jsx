@@ -62,7 +62,7 @@ function App() {
   if (route === '/results/workflow') page = <ResultsWorkflowPage />;
   if (route === '/results/report-cards') page = isSchoolAdministrator ? <ResultsWorkflowPage /> : <ReportCardsPage />;
 
-  if (loading) return <div className="app-loading"><span/><p>Loading EduCore…</p></div>;
+  if (loading) return <div className="app-loading"><span/><p>Loading EduPalGh…</p></div>;
   if (!user) {
     if (route.startsWith('/platform')) return <PlatformLoginPage />;
     if (route === '/login') return <LoginPage />;

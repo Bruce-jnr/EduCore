@@ -1,6 +1,6 @@
-# EduCore
+# EduPalGh
 
-EduCore is a multi-tenant school-management SaaS for basic schools from kindergarten through JHS. Each school operates as an isolated tenant with its own users, students, academics, attendance, results, finances, branding, settings, notifications, and audit history.
+EduPalGh is a multi-tenant school-management SaaS for basic schools from kindergarten through JHS. Each school operates as an isolated tenant with its own users, students, academics, attendance, results, finances, branding, settings, notifications, and audit history.
 
 The project uses JavaScript only—no TypeScript—and all Node.js code uses ES modules.
 
@@ -199,7 +199,7 @@ The frontend runs at `http://localhost:5173`. The API runs at `http://localhost:
 ## Environment variables
 
 ```env
-DATABASE_URL="mysql://USER:PASSWORD@localhost:3306/educore"
+DATABASE_URL="mysql://USER:PASSWORD@localhost:3306/edupalgh"
 PORT=8080
 CLIENT_URL="http://localhost:5173"
 
@@ -209,10 +209,10 @@ JWT_EXPIRES_IN="15m"
 UPLOAD_DIR="./uploads"
 MAX_FILE_SIZE="2MB"
 
-SEED_ADMIN_EMAIL="admin@demo.educore.local"
+SEED_ADMIN_EMAIL="admin@demo.edupalgh.local"
 SEED_ADMIN_PASSWORD="replace-with-a-development-password"
 
-PLATFORM_ADMIN_EMAIL="platform@educore.local"
+PLATFORM_ADMIN_EMAIL="platform@edupalgh.local"
 PLATFORM_ADMIN_PASSWORD="replace-with-a-platform-development-password"
 ```
 
@@ -270,7 +270,7 @@ view/                      Original Google Stitch HTML references
 
 ## Architecture and tenant security
 
-EduCore is a modular monolith using a shared MySQL database with tenant-aware tables. Tenant identity comes from the authenticated user—not from a tenant ID supplied by the frontend.
+EduPalGh is a modular monolith using a shared MySQL database with tenant-aware tables. Tenant identity comes from the authenticated user—not from a tenant ID supplied by the frontend.
 
 ```text
 Authentication

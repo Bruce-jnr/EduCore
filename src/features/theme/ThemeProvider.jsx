@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ThemeContext } from './theme-context.js';
-const STORAGE_KEY = 'educore_theme';
+const STORAGE_KEY = 'edupalgh_theme';
 
 function getInitialTheme() {
   const saved = localStorage.getItem(STORAGE_KEY);

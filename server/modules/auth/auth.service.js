@@ -35,6 +35,8 @@ export const authService = {
         'INVALID_CREDENTIALS',
       );
     }
+    const subscriptionUnavailable = ['EXPIRED', 'CANCELLED'].includes(user.tenant.subscriptionStatus) || (user.tenant.subscriptionEndsAt && user.tenant.subscriptionEndsAt < new Date());
+    if (subscriptionUnavailable) throw new AppError('Your school trial or subscription has expired. Contact the platform administrator.', 403, 'SUBSCRIPTION_EXPIRED');
 
     const access = accessFromUser(user);
     const token = jwt.sign(

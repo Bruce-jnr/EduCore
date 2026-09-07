@@ -33,7 +33,7 @@ app.use('/uploads', (_req, res, next) => {
 }, express.static(env.UPLOAD_DIR));
 
 app.get('/api/health', (_req, res) => {
-  res.json({ success: true, data: { service: 'educore-api', status: 'healthy' }, message: null });
+  res.json({ success: true, data: { service: 'edupalgh-api', status: 'healthy' }, message: null });
 });
 
 app.use('/api/auth', authRouter);

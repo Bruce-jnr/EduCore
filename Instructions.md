@@ -1,8 +1,8 @@
-# EduCore Multi-Tenant School Management System
+# EduPalGh Multi-Tenant School Management System
 
 ## Codex Application Build Instructions
 
-Build a production-ready multi-tenant school management SaaS application called **EduCore**.
+Build a production-ready multi-tenant school management SaaS application called **EduPalGh**.
 
 The application supports basic schools from kindergarten through JHS.
 
@@ -14,7 +14,7 @@ Use the existing Google Stitch UI prototype as the visual reference. Match the p
 
 # 1. CORE OBJECTIVE
 
-Build EduCore as a secure multi-tenant SaaS school management platform.
+Build EduPalGh as a secure multi-tenant SaaS school management platform.
 
 Each school is a tenant.
 
@@ -109,7 +109,7 @@ Do not begin with microservices.
 Recommended structure:
 
 ```text
-educore/
+edupalgh/
 │
 ├── apps/
 │   ├── web/
@@ -213,7 +213,7 @@ BASIC
 Tenant identification should support:
 
 ```text
-schoolslug.educore.com
+schoolslug.edupalgh.com
 ```
 
 and potentially:

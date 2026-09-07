@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import logo from '../assets/educore_logo.png';
+import logo from '../assets/edupalgh_logo.png';
 import { Icon } from './Icon.jsx';
 import { ThemeToggle } from '../features/theme/ThemeToggle.jsx';
 import { NotificationMenu } from '../features/notifications/NotificationMenu.jsx';
@@ -94,9 +94,9 @@ export function AppShell({ route, children, user, onLogout }) {
       )}
       <aside className={`sidebar ${open ? 'is-open' : ''}`}>
         <a className="brand" href="#/dashboard" onClick={() => setOpen(false)}>
-          <img src={logo} alt="EduCore" />
+          <img src={logo} alt="EduPalGh" />
           <span>
-            <strong>EduCore</strong>
+            <strong>EduPalGh</strong>
             <small>St. Andrews Excellence</small>
           </span>
         </a>

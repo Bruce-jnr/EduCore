@@ -1,4 +1,4 @@
-import logo from '../../assets/educore_logo.png';
+import logo from '../../assets/edupalgh_logo.png';
 import { Icon } from '../../components/Icon.jsx';
 import './landing.css';
 
@@ -104,7 +104,7 @@ function DashboardPreview() {
       <div className="preview-top">
         <span>
           <img src={logo} alt="" />
-          <b>EduCore</b>
+          <b>EduPalGh</b>
         </span>
         <i />
         <i />
@@ -180,14 +180,14 @@ export function LandingPage() {
         <a className="marketing-brand" href="#/">
           <img src={logo} alt="" />
           <span>
-            <strong>EduCore</strong>
+            <strong>EduPalGh</strong>
             <small>School management for Ghana</small>
           </span>
         </a>
         <div className="marketing-links">
           <a href="#features">Features</a>
           <a href="#roles">Who it’s for</a>
-          <a href="#why">Why EduCore</a>
+          <a href="#why">Why EduPalGh</a>
         </div>
         <a className="marketing-signin" href="#/login">
           School sign in <Icon>arrow_forward</Icon>
@@ -241,7 +241,7 @@ export function LandingPage() {
         </header>
         <div className="change-grid">
           <article className="before-card">
-            <span>Before EduCore</span>
+            <span>Before EduPalGh</span>
             {[
               ['close', 'Attendance registers are hard to summarize'],
               ['close', 'Score sheets move through chats and paper'],
@@ -255,7 +255,7 @@ export function LandingPage() {
             ))}
           </article>
           <article className="after-card">
-            <span>With EduCore</span>
+            <span>With EduPalGh</span>
             {[
               ['check', 'Teachers record attendance for their class'],
               ['check', 'Submitted scores follow an approval workflow'],
@@ -307,11 +307,11 @@ export function LandingPage() {
           <span className="section-kicker">Connected school operations</span>
           <h2>From morning attendance to end-of-term reports.</h2>
           <p>
-            EduCore connects the records your school already manages, so
+            EduPalGh connects the records your school already manages, so
             information entered once becomes useful everywhere.
           </p>
           <a href="#/login">
-            Sign in to EduCore <Icon>arrow_forward</Icon>
+            Sign in to EduPalGh <Icon>arrow_forward</Icon>
           </a>
         </div>
         <div className="workflow-demo">
@@ -387,7 +387,7 @@ export function LandingPage() {
           <h2>
             Bring your students, academics, and operations into one place.
           </h2>
-          <p>Access your school workspace and continue setting up EduCore.</p>
+          <p>Access your school workspace and continue setting up EduPalGh.</p>
         </div>
         <a href="#/login">
           Go to school sign in <Icon>arrow_forward</Icon>
@@ -398,13 +398,13 @@ export function LandingPage() {
         <a className="marketing-brand" href="#/">
           <img src={logo} alt="" />
           <span>
-            <strong>EduCore</strong>
+            <strong>EduPalGh</strong>
             <small>School management for Ghana</small>
           </span>
         </a>
         <p>Secure school operations from kindergarten through JHS.</p>
         <a href="#/login">School sign in</a>
-        <span>© {new Date().getFullYear()} EduCore</span>
+        <span>© {new Date().getFullYear()} EduPalGh</span>
       </footer>
     </main>
   );

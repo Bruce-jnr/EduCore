@@ -1,2 +1,80 @@
-import{useState}from'react';import logo from'../../assets/educore_logo.png';import{Icon}from'../../components/Icon.jsx';import{useAuth}from'../auth/useAuth.js';
-export function PlatformLoginPage(){const{platformLogin}=useAuth(),[form,setForm]=useState({email:'',password:''}),[error,setError]=useState(''),[busy,setBusy]=useState(false);async function submit(e){e.preventDefault();try{setBusy(true);setError('');await platformLogin(form);window.location.hash='/platform/schools'}catch(err){setError(err.message)}finally{setBusy(false)}}return <main className="login-page"><section className="login-brand platform-login-brand"><div><img src={logo} alt="EduCore"/><h1>Manage the EduCore platform.</h1><p>Provision schools, manage tenant access, and monitor platform usage.</p></div><small>Platform administration · Restricted access</small></section><section className="login-form-wrap"><form className="login-card" onSubmit={submit}><div className="login-logo"><img src={logo} alt=""/><strong>EduCore Platform</strong></div><div><span className="eyebrow">Super Administrator</span><h2>Platform sign in</h2><p>Use your platform administrator credentials.</p></div>{error&&<div className="form-error"><Icon>error</Icon>{error}</div>}<label>Email address<input required type="email" value={form.email} onChange={e=>setForm({...form,email:e.target.value})}/></label><label>Password<input required minLength="8" type="password" value={form.password} onChange={e=>setForm({...form,password:e.target.value})}/></label><button className="primary-button login-submit" disabled={busy}>{busy?'Signing in…':'Sign in to platform'}<Icon>arrow_forward</Icon></button></form></section></main>}
+import { useState } from 'react';
+import logo from '../../assets/edupalgh_logo.png';
+import { Icon } from '../../components/Icon.jsx';
+import { useAuth } from '../auth/useAuth.js';
+import '../auth/auth.css';
+export function PlatformLoginPage() {
+  const { platformLogin } = useAuth(),
+    [form, setForm] = useState({ email: '', password: '' }),
+    [error, setError] = useState(''),
+    [busy, setBusy] = useState(false);
+  async function submit(e) {
+    e.preventDefault();
+    try {
+      setBusy(true);
+      setError('');
+      await platformLogin(form);
+      window.location.hash = '/platform/schools';
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setBusy(false);
+    }
+  }
+  return (
+    <main className="login-page">
+      <section className="login-brand platform-login-brand">
+        <div>
+          <img src={logo} alt="EduPalGh" />
+          <h1>Manage the EduPalGh platform.</h1>
+          <p>
+            Provision schools, manage tenant access, and monitor platform usage.
+          </p>
+        </div>
+        <small>Platform administration · Restricted access</small>
+      </section>
+      <section className="login-form-wrap">
+        <form className="login-card" onSubmit={submit}>
+          <div className="login-logo">
+            <img src={logo} alt="" />
+            <strong>EduPalGh Platform</strong>
+          </div>
+          <div>
+            <span className="eyebrow">Super Administrator</span>
+            <h2>Platform sign in</h2>
+            <p>Use your platform administrator credentials.</p>
+          </div>
+          {error && (
+            <div className="form-error">
+              <Icon>error</Icon>
+              {error}
+            </div>
+          )}
+          <label>
+            Email address
+            <input
+              required
+              type="email"
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
+            />
+          </label>
+          <label>
+            Password
+            <input
+              required
+              minLength="8"
+              type="password"
+              value={form.password}
+              onChange={(e) => setForm({ ...form, password: e.target.value })}
+            />
+          </label>
+          <button className="primary-button login-submit" disabled={busy}>
+            {busy ? 'Signing in…' : 'Sign in to platform'}
+            <Icon>arrow_forward</Icon>
+          </button>
+        </form>
+      </section>
+    </main>
+  );
+}

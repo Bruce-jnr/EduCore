@@ -1,0 +1,113 @@
+.login-page {
+  padding: 0;
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: minmax(360px, 0.9fr) minmax(480px, 1.1fr);
+  background: #fff;
+}
+.login-brand {
+  padding: 64px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  color: #fff;
+  background-color: #0b1c30;
+}
+.login-brand img {
+  width: 72px;
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.15));
+}
+.login-brand h1 {
+  max-width: 470px;
+  font-size: 48px;
+  line-height: 1.08;
+  letter-spacing: -0.045em;
+  margin: 56px 0 18px;
+}
+.login-brand p {
+  max-width: 480px;
+  color: #d5e2ff;
+  font-size: 16px;
+  line-height: 1.7;
+}
+.login-brand small {
+  color: #b9cae8;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+}
+.login-form-wrap {
+  display: grid;
+  place-items: center;
+  padding: 42px;
+}
+.login-card {
+  width: min(100%, 430px);
+  display: grid;
+  gap: 20px;
+}
+.login-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--primary);
+  font-size: 17px;
+}
+.login-logo img {
+  width: 37px;
+  height: 37px;
+  object-fit: contain;
+}
+.login-card h2 {
+  font-size: 28px;
+  letter-spacing: -0.035em;
+  margin: 0;
+}
+.login-card > div > p {
+  font-size: 12px;
+  color: var(--muted);
+  margin: 8px 0 0;
+}
+.login-card label {
+  display: grid;
+  gap: 7px;
+  font-size: 11px;
+  font-weight: 650;
+  color: #314157;
+}
+.login-card input {
+  height: 45px;
+  border: 1px solid #ccd6e4;
+  border-radius: 9px;
+  padding: 0 12px;
+  outline: 0;
+  color: #172b42;
+}
+.login-card input:focus {
+  box-shadow: 0 0 0 3px #e7edff;
+}
+.login-submit {
+  height: 46px;
+  width: 100%;
+  margin-top: 3px;
+  background-color: #0b1c30;
+  border: none;
+}
+.login-submit:disabled {
+  opacity: 0.65;
+}
+.login-help {
+  text-align: center !important;
+  font-size: 10px !important;
+}
+@media (max-width: 800px) {
+  .login-page {
+    grid-template-columns: 1fr;
+  }
+  .login-brand {
+    display: none;
+  }
+  .login-form-wrap {
+    min-height: 100vh;
+    padding: 28px;
+  }
+}

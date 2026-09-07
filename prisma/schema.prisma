@@ -113,6 +113,21 @@ enum FinancialAdjustmentStatus {
   REVERSED
 }
 
+enum SubscriptionPlan {
+  TRIAL
+  STARTER
+  PROFESSIONAL
+  ENTERPRISE
+}
+
+enum SubscriptionStatus {
+  TRIAL
+  ACTIVE
+  PAST_DUE
+  EXPIRED
+  CANCELLED
+}
+
 model Tenant {
   id                     String                  @id @default(cuid())
   name                   String
@@ -130,6 +145,11 @@ model Tenant {
   primaryColor           String?
   secondaryColor         String?
   isActive               Boolean                 @default(true)
+  subscriptionPlan       SubscriptionPlan        @default(TRIAL)
+  subscriptionStatus     SubscriptionStatus      @default(TRIAL)
+  trialStartedAt         DateTime                @default(now())
+  trialEndsAt            DateTime?
+  subscriptionStartedAt  DateTime?
   subscriptionEndsAt     DateTime?
   createdAt              DateTime                @default(now())
   updatedAt              DateTime                @updatedAt
@@ -161,11 +181,13 @@ model Tenant {
   progressionRuns        ProgressionRun[]
   progressionItems       ProgressionItem[]
   financialAdjustments   FinancialAdjustment[]
+
+  @@index([subscriptionStatus, subscriptionEndsAt])
 }
 
 model PlatformSettings {
   id                  String   @id @default("platform")
-  platformName        String   @default("EduCore")
+  platformName        String   @default("EduPalGh")
   supportEmail        String?
   supportPhone        String?
   appUrl              String?

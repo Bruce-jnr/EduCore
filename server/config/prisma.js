@@ -28,8 +28,8 @@ function secureTenantArgs(model, operation, args) {
 
 const createClient = () => new PrismaClient().$extends({ name: 'tenant-defense', query: { $allModels: { async $allOperations({ model, operation, args, query }) { return query(secureTenantArgs(model, operation, args)); } } } });
 
-export const prisma = globalForPrisma.__educorePrisma ?? createClient();
+export const prisma = globalForPrisma.__edupalghPrisma ?? createClient();
 
 if (process.env.NODE_ENV !== 'production') {
-  globalForPrisma.__educorePrisma = prisma;
+  globalForPrisma.__edupalghPrisma = prisma;
 }
