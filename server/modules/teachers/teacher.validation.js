@@ -9,6 +9,6 @@ export const teacherSignupSchema = envelope(teacherSignupBody);
 export const teacherLoginSchema = envelope(teacherLoginBody);
 export const teacherGoogleSchema = envelope(z.object({ credential: z.string().min(1).max(10000), challenge: z.string().min(1).max(1000) }).strict());
 export const teacherChallengeSchema = envelope(z.object({ intent: z.enum(['signin','signup']) }).strict());
-export const personalCreateBody = createLessonBody.safeExtend({ academicYearName: z.string().trim().min(2).max(40) });
+export const personalCreateBody = createLessonBody.safeExtend({ academicYearName: z.string().trim().min(2).max(40), contentPackId:z.string().trim().min(1).max(100).optional() });
 export const personalCreateSchema = envelope(personalCreateBody);
 export const personalUpdateSchema = z.object({ body: updateLessonBody, query: z.any(), params: z.object({ id: z.string().min(1).max(191) }) });

@@ -75,3 +75,9 @@
   body:has(.lesson-booklet) { page: lesson-booklet; }
   @page lesson-booklet { size: A4 portrait; margin: 16mm; }
 }
+
+.lesson-pack-picker{padding:1.25rem;margin:1rem 0;border:1px solid var(--line);border-radius:16px;background:var(--soft);color:var(--text)}
+.lesson-pack-picker label{display:grid;gap:.5rem;font-weight:600}.lesson-pack-picker select{width:100%;padding:.75rem;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--text)}
+.lesson-pack-picker p,.lesson-pack-picker li{line-height:1.6}.lesson-pack-picker summary{cursor:pointer;font-weight:600}.lesson-pack-picker a{color:var(--text);text-decoration:underline}
+
+.lesson-pack-filters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-bottom:12px}.lesson-pack-picker{min-width:0}.lesson-pack-picker select{min-width:0;max-width:100%;text-overflow:ellipsis}@media(max-width:600px){.lesson-pack-filters{grid-template-columns:1fr}}

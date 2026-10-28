@@ -1,3 +1,4 @@
+import {TeacherPackPicker} from '../teachers/TeacherPackPicker.jsx';
 import { useEffect, useState } from 'react';
 import { PageHeader } from '../../components/PageHeader.jsx';
 import { Icon } from '../../components/Icon.jsx';
@@ -104,7 +105,7 @@ export function LessonPlansPage({ mode = 'school', teacherUser = null }) {
     if (!canLeave() || !options) return;
     setExportUnlocked(false);
     const period = options.academicPeriods.find(item => item.isCurrent) || options.academicPeriods[0];
-    setNewForm({ ...(mode === 'personal' && { academicYearName: `${new Date().getFullYear()}/${new Date().getFullYear()+1}` }), title: '', academicPeriodId: period?.id || '', classId: '', subjectId: '', weekCount: 12, durationMinutes: 60, topicText: '' });
+    setNewForm({ ...(mode === 'personal' && { contentPackId:'', academicYearName: `${new Date().getFullYear()}/${new Date().getFullYear()+1}` }), title: '', academicPeriodId: period?.id || '', classId: '', subjectId: '', weekCount: 12, durationMinutes: 60, topicText: '' });
     if (libraryChoice) setNewForm(current => ({ ...current, ...prefillLibraryBooklet(options, mode==='personal'&&libraryChoice.level.slug.startsWith('shs-')?{...libraryChoice,period:libraryChoice.period.replace('term-','semester-')}:libraryChoice, canReview), ...(mode==='personal'&&libraryChoice.level.slug.startsWith('shs-')&&{weekCount:16}) }));
     setPlan(null); setDirty(false); setNotice(''); setError('');
   }
@@ -126,14 +127,23 @@ export function LessonPlansPage({ mode = 'school', teacherUser = null }) {
       const selectedSubject = options.subjects.find(item => item.id === input.subjectId);
       const normalize = value => value.toLowerCase().replace(/[^a-z0-9]/g, '');
       const correctStarterClass = choice?.level.slug === 'basic-1' && ['basic1','primary1'].includes(normalize(selectedClass?.name || ''));
-      if (choice?.starter && choice.week <= data.weekCount && correctStarterClass && normalize(selectedSubject?.name || '') === normalize(choice.subject.name)) {
+      if (!input.contentPackId && choice?.starter && choice.week <= data.weekCount && correctStarterClass && normalize(selectedSubject?.name || '') === normalize(choice.subject.name)) {
         setPlan({ ...data, weeks: data.weeks.map(week => week.week === choice.week ? { ...week, ...choice.starter.fields } : week) });
         setDirty(true); setWeekIndex(choice.week - 1);
         setNotice('Booklet created. Original starter added as unsaved edits. Verify curriculum codes and activities, then save your draft.');
-      } else setNotice('Booklet created. Add your curriculum references, learning outcomes and lesson activities.');
+      } else setNotice(data.contentPack?'Ready-to-use lessons added. Review the suggested sequence, adapt activities to your class, and save your changes.':'Booklet created. Add your curriculum references, learning outcomes and lesson activities.');
       setLibraryChoice(null);
       try { sessionStorage.removeItem(LESSON_LIBRARY_KEY); } catch { /* Private browsing can disable storage. */ }
     } catch (requestError) { setError(requestError.message); } finally { setBusy(false); }
+  }
+  function choosePack(id){
+    const pack=options.contentPacks.find(item=>item.id===id);
+    setNewForm(current=>({...current,contentPackId:id,...(pack?{classId:pack.classId,subjectId:pack.subjectId,weekCount:pack.weekCount,durationMinutes:pack.defaultDurationMinutes,title:pack.title,topicText:''}:{})}));
+  }
+  function moveWeek(direction){
+    const target=weekIndex+direction;if(target<0||target>=plan.weeks.length)return;
+    const weeks=[...plan.weeks];[weeks[weekIndex],weeks[target]]=[weeks[target],weeks[weekIndex]];
+    setPlan({...plan,weeks:weeks.map((week,index)=>({...week,week:index+1}))});setWeekIndex(target);setDirty(true);setNotice('Week moved. Save your changes to update the scheme.');
   }
   function changeWeek(field, value) {
     setPlan(current => ({ ...current, weeks: current.weeks.map((week, index) => index === weekIndex ? { ...week, [field]: value } : week) }));
@@ -163,26 +173,28 @@ export function LessonPlansPage({ mode = 'school', teacherUser = null }) {
   const selectedClass = classes.find(item => item.id === newForm?.classId);
   const subjects = options?.subjects.filter(item => selectedClass?.subjectIds.includes(item.id) && (canReview || options.assignments.some(assignment => assignment.classId === selectedClass?.id && assignment.academicPeriodId === selectedPeriod?.id && (!assignment.subjectId || assignment.subjectId === item.id)))) || [];
   const currentWeek = plan?.weeks[weekIndex];
+  const selectedPack=options?.contentPacks?.find(item=>item.id===newForm?.contentPackId);
 
   return <div className="page lesson-plans-page">
     <PageHeader eyebrow="Teacher workspace" title="Lesson plans" description="Build a term scheme, personalize weekly lesson notes, and prepare a printable booklet." actions={canManage && <button className="primary-button" onClick={begin} disabled={busy || !options}><Icon>add</Icon>New booklet</button>} />
     {error && <div className="form-error" role="alert"><Icon>error</Icon>{error}</div>}
     {notice && <div className="lesson-notice" role="status"><Icon>check_circle</Icon>{notice}</div>}
     <p className="lesson-service-note"><a href="#/lesson-library">Browse the Ghana curriculum library ↗</a>{libraryChoice && <span> · Selected: {libraryChoice.level.name}, {libraryChoice.subject.name}. Choose New booklet to use this selection; confirm the class and term.</span>}</p>
-    <p className="lesson-service-note">Your topics. Your teaching. Verify curriculum codes and review lesson content before classroom use.</p>
+    <p className="lesson-service-note">{mode==='personal'?'Start with ready-to-use lessons, adapt them to your class, and pay once to export a polished booklet. Browse KG integrated learning and packs for the listed Primary/JHS subjects, including English, Science, languages, humanities, creative and practical subjects. Filter by class and subject to choose a unit.':'Your topics. Your teaching. Verify curriculum codes and review lesson content before classroom use.'}</p>
 
     {newForm && <form className="panel lesson-create" onSubmit={create}>
       <header><h2>Set up your lesson booklet</h2><button type="button" className="secondary-button" onClick={() => setNewForm(null)}>Cancel</button></header>
       {!options?.academicPeriods.length && <p role="status">No classes or active terms are available. School users should ask their administrator to configure academic and teacher assignments.</p>}
+      {mode==='personal'&&<section className="lesson-pack-picker" aria-label="Ready-to-use lesson packs"><TeacherPackPicker packs={options.contentPacks||[]} classes={options.classes} subjects={options.subjects} value={newForm.contentPackId} onChange={choosePack}/>{selectedPack&&<><h3>{selectedPack.title}</h3><p>{selectedPack.notice}</p><p><a href={selectedPack.sourceUrl} target="_blank" rel="noreferrer">Curriculum reference ↗</a> · {selectedPack.reviewStatus}</p><details><summary>Preview the scheme and a sample lesson before purchase</summary><ol>{selectedPack.topics.map((topic,index)=><li key={index}>Week {index+1}: {topic}</li>)}</ol><h4>{selectedPack.sample.topic}</h4><p>{selectedPack.sample.performanceIndicator}</p><p>{selectedPack.sample.mainActivity}</p><p><strong>Assessment and teacher checks:</strong> {selectedPack.sample.assessment}</p></details><p>Free to create and edit. GH₵{selectedPack.exportPrice} unlocks this booklet’s formatted cover, scheme, weekly notes and PDF/JSON export. Later edits and downloads stay included.</p></>}</section>}
       <div className="form-grid">
         {mode === 'personal' && <label>Academic year<input required minLength={2} maxLength={40} value={newForm.academicYearName} onChange={event => setNewForm({ ...newForm, academicYearName: event.target.value })} placeholder="2026/2027" /></label>}
         <label className="form-wide">Booklet title<input required minLength={3} maxLength={150} value={newForm.title} onChange={event => setNewForm({ ...newForm, title: event.target.value })} placeholder="Class and subject lesson notes" /></label>
-        <label>Academic term / semester<select required value={newForm.academicPeriodId} onChange={event => setNewForm({ ...newForm, academicPeriodId: event.target.value, classId: '', subjectId: '', ...(mode==='personal'&&{weekCount:event.target.value.startsWith('semester-')?16:12}) })}><option value="">Select term</option>{options?.academicPeriods.map(item => <option key={item.id} value={item.id}>{item.academicYear.name} · {item.name}</option>)}</select></label>
-        <label>Class<select required value={newForm.classId} onChange={event => setNewForm({ ...newForm, classId: event.target.value, subjectId: '' })}><option value="">Select teaching level</option>{classes.map(item => <option key={item.id} value={item.id}>{item.name} {item.section || ''}</option>)}</select></label>
-        <label>Subject<select required value={newForm.subjectId} onChange={event => setNewForm({ ...newForm, subjectId: event.target.value })}><option value="">Select subject</option>{subjects.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
-        <label>Teaching weeks<input type="number" min="1" max="16" required value={newForm.weekCount} onChange={event => setNewForm({ ...newForm, weekCount: Number(event.target.value) })} /></label>
+        <label>Academic term / semester<select required value={newForm.academicPeriodId} onChange={event => setNewForm({ ...newForm, academicPeriodId: event.target.value, classId: newForm.contentPackId?newForm.classId:'', subjectId: newForm.contentPackId?newForm.subjectId:'', ...(mode==='personal'&&{weekCount:event.target.value.startsWith('semester-')?16:12}) })}><option value="">Select term</option>{options?.academicPeriods.map(item => <option key={item.id} value={item.id}>{item.academicYear.name} · {item.name}</option>)}</select></label>
+        <label>Class<select disabled={Boolean(selectedPack)} required value={newForm.classId} onChange={event => setNewForm({ ...newForm, classId: event.target.value, subjectId: '' })}><option value="">Select teaching level</option>{classes.map(item => <option key={item.id} value={item.id}>{item.name} {item.section || ''}</option>)}</select></label>
+        <label>Subject<select disabled={Boolean(selectedPack)} required value={newForm.subjectId} onChange={event => setNewForm({ ...newForm, subjectId: event.target.value })}><option value="">Select subject</option>{subjects.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
+        <label>Teaching weeks<input disabled={Boolean(selectedPack)} type="number" min="1" max="16" required value={newForm.weekCount} onChange={event => setNewForm({ ...newForm, weekCount: Number(event.target.value) })} /></label>
         <label>Default lesson duration (minutes)<input type="number" min="20" max="180" required value={newForm.durationMinutes} onChange={event => setNewForm({ ...newForm, durationMinutes: Number(event.target.value) })} /></label>
-        <label className="form-wide">Weekly topics · one line per week<textarea rows="6" maxLength={5000} value={newForm.topicText} onChange={event => setNewForm({ ...newForm, topicText: event.target.value })} placeholder="Enter your weekly topics here, or add them later in the editor." /><small>Up to {newForm.weekCount} lines. Empty weeks remain editable drafts.</small></label>
+        {!selectedPack&&<label className="form-wide">Weekly topics · one line per week<textarea rows="6" maxLength={5000} value={newForm.topicText} onChange={event => setNewForm({ ...newForm, topicText: event.target.value })} placeholder="Enter your weekly topics here, or add them later in the editor." /><small>Up to {newForm.weekCount} lines. Empty weeks remain editable drafts.</small></label>}
       </div>
       <footer><button className="primary-button" disabled={busy || !newForm.subjectId}><Icon>auto_stories</Icon>{busy ? 'Creating…' : 'Build editable booklet'}</button></footer>
     </form>}
@@ -194,11 +206,12 @@ export function LessonPlansPage({ mode = 'school', teacherUser = null }) {
         {canEdit && <><button className="secondary-button" disabled={busy} onClick={() => save('DRAFT')}>Save draft</button><button className="primary-button" disabled={busy} onClick={() => save('READY')}>{busy ? 'Saving…' : 'Mark ready'}</button></>}
       </div></header>
       {!canEdit && <p className="lesson-service-note">School library view · Only the author can edit this booklet.</p>}
+      {plan.contentPack&&<aside className="lesson-pack-picker"><strong>{plan.contentPack.title} · Customize your copy</strong><p>{plan.contentPack.notice}</p><a href={plan.contentPack.sourceUrl} target="_blank" rel="noreferrer">Check the curriculum reference ↗</a></aside>}
       <label className="lesson-title-field">Booklet title<input maxLength={150} disabled={!canEdit || busy} value={plan.title} onChange={event => { setPlan({ ...plan, title: event.target.value }); setDirty(true); }} /></label>
       <div className="lesson-edit-layout"><nav className="lesson-week-nav" aria-label="Teaching weeks">{plan.weeks.map((week, index) => <button key={week.week} className={index === weekIndex ? 'active' : ''} aria-current={index === weekIndex ? 'step' : undefined} onClick={() => setWeekIndex(index)}><strong>Week {week.week}</strong><span>{week.topic || 'Add a topic'}</span></button>)}</nav>
-        <fieldset className="lesson-week-fields" disabled={!canEdit || busy}><legend>Week {currentWeek.week}</legend><div className="form-grid">
+        <fieldset className="lesson-week-fields" disabled={!canEdit || busy}><legend>Week {currentWeek.week}</legend>{canEdit&&<div className="lesson-actions"><button type="button" className="secondary-button" disabled={busy||weekIndex===0} onClick={()=>moveWeek(-1)}>Move earlier</button><button type="button" className="secondary-button" disabled={busy||weekIndex===plan.weeks.length-1} onClick={()=>moveWeek(1)}>Move later</button></div>}<div className="form-grid">
           <label>Duration (minutes)<input type="number" min="20" max="180" value={currentWeek.durationMinutes} onChange={event => changeWeek('durationMinutes', Number(event.target.value))} /></label>
-          {weekFields.map(([key, label, placeholder]) => <label key={key} className={multiline.has(key) ? 'form-wide' : ''}>{label}{multiline.has(key) ? <textarea rows={key === 'mainActivity' ? 5 : 3} maxLength={2000} value={currentWeek[key]} placeholder={placeholder} onChange={event => changeWeek(key, event.target.value)} /> : <input maxLength={300} value={currentWeek[key]} placeholder={placeholder} onChange={event => changeWeek(key, event.target.value)} />}</label>)}
+          {weekFields.map(([key, label, placeholder]) => <label key={key} className={multiline.has(key) ? 'form-wide' : ''}>{label}{multiline.has(key) ? <textarea dir="auto" rows={key === 'mainActivity' ? 5 : 3} maxLength={2000} value={currentWeek[key]} placeholder={placeholder} onChange={event => changeWeek(key, event.target.value)} /> : <input dir="auto" maxLength={300} value={currentWeek[key]} placeholder={placeholder} onChange={event => changeWeek(key, event.target.value)} />}</label>)}
         </div></fieldset>
       </div>
       <footer className="lesson-editor-footer"><span>Save drafts at any stage. Ready booklets require complete outcomes, resources and lesson phases.</span>{canEdit && <button className="secondary-button" disabled={busy} onClick={() => { if (window.confirm('Archive this booklet? It will remain available in the archived library.')) save('ARCHIVED'); }}>Archive booklet</button>}</footer>
