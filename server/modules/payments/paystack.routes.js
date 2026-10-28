@@ -1,0 +1,26 @@
+import {Router} from 'express';
+import {z} from 'zod';
+import {env} from '../../config/env.js';
+import {prisma} from '../../config/prisma.js';
+import {AppError} from '../../errors/app-error.js';
+import {authenticate} from '../../middleware/authenticate.js';
+import {resolveBillingTenant} from '../../middleware/resolve-billing-tenant.js';
+import {requirePermission} from '../../middleware/require-permission.js';
+import {validate} from '../../middleware/validate.js';
+import {asyncHandler} from '../../utils/async-handler.js';
+import {validPaystackSignature} from './paystack-client.js';
+import {paymentReferencePattern,schoolCheckoutQuote} from './paystack.service.js';
+import {paystackClient,paystackService} from './paystack.runtime.js';
+export const checkoutBody=z.object({idempotencyKey:z.string().uuid()}).strict();
+export const referenceBody=z.object({reference:z.string().regex(paymentReferencePattern)}).strict();
+const envelope=body=>z.object({body,params:z.any(),query:z.any()});
+export const lessonCheckoutSchema=envelope(checkoutBody.extend({planId:z.string().min(1).max(191)}));
+export const paymentVerifySchema=envelope(referenceBody);
+export async function paystackWebhook(req,res){if(!paystackClient.mode)throw new AppError('Paystack is not configured.',503,'PAYSTACK_NOT_CONFIGURED');if(!validPaystackSignature(req.body,req.get('x-paystack-signature'),env.PAYSTACK_SECRET_KEY))throw new AppError('Invalid webhook signature.',401,'INVALID_WEBHOOK_SIGNATURE');let event;try{event=JSON.parse(req.body.toString('utf8'));}catch{throw new AppError('Invalid webhook JSON.',400,'INVALID_WEBHOOK_BODY');}if(event.event==='charge.success'&&typeof event.data?.reference==='string')await paystackService.webhook(event.data.reference);res.sendStatus(200);}
+export const paymentRouter=Router();
+paymentRouter.get('/callback',asyncHandler(async(req,res)=>{const reference=String(req.query.reference||req.query.trxref||'');if(!paymentReferencePattern.test(reference))throw new AppError('Invalid payment reference.',422,'INVALID_PAYMENT_REFERENCE');const p=await prisma.paystackPayment.findUnique({where:{reference},select:{purpose:true}});const target=new URL(env.CLIENT_URL);target.hash='/payment-return';target.searchParams.set('paystack_reference',reference);if(p)target.searchParams.set('payment_kind',p.purpose==='LESSON_EXPORT'?'lesson':'school');res.redirect(303,target.toString());}));
+paymentRouter.get('/config',(_req,res)=>res.json({success:true,data:{enabled:Boolean(paystackClient.mode),mode:paystackClient.mode}}));
+paymentRouter.use('/school',authenticate,resolveBillingTenant,requirePermission('settings.update'));
+paymentRouter.get('/school/quote',(req,res)=>res.json({success:true,data:{...schoolCheckoutQuote(req.tenant),enabled:Boolean(paystackClient.mode),mode:paystackClient.mode}}));
+paymentRouter.post('/school/initialize',validate(envelope(checkoutBody)),asyncHandler(async(req,res)=>res.json({success:true,data:await paystackService.initializeSchool(req.auth,req.validated.body)})));
+paymentRouter.post('/school/verify',validate(paymentVerifySchema),asyncHandler(async(req,res)=>res.json({success:true,data:await paystackService.verifySchool(req.auth,req.validated.body.reference)})));

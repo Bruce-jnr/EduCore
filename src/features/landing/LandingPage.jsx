@@ -185,7 +185,8 @@ export function LandingPage() {
           </span>
         </a>
         <div className="marketing-links">
-          <a className="marketing-lesson-link" href="#/lesson-plans">Lesson Plans</a>
+          <a className="marketing-lesson-link" href="#/lesson-library">Lesson Plans</a>
+          <a href="#/pricing">Pricing</a>
           <a href="#features">Features</a>
           <a href="#roles">Who it’s for</a>
           <a href="#why">Why EduPalGh</a>
@@ -209,8 +210,8 @@ export function LandingPage() {
             actually work.
           </p>
           <div className="hero-actions">
-            <a className="marketing-primary" href="#/login">
-              Open your school portal <Icon>arrow_forward</Icon>
+            <a className="marketing-primary" href="#/signup">
+              Create your school <Icon>arrow_forward</Icon>
             </a>
             <a className="marketing-secondary" href="#features">
               Explore features <Icon>south</Icon>
@@ -404,6 +405,7 @@ export function LandingPage() {
           </span>
         </a>
         <p>Secure school operations from kindergarten through JHS.</p>
+        <a href="#/pricing">Pricing</a>
         <a href="#/login">School sign in</a>
         <span>© {new Date().getFullYear()} EduPalGh</span>
       </footer>

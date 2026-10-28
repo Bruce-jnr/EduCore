@@ -1,0 +1,13 @@
+import {useEffect,useState} from 'react';
+import {openCheckout} from '../payments/checkout.js';
+import {teacherApi} from './teacher-api.js';
+import './teacher-billing.css';
+import {money} from '../../../shared/pricing.js';
+export function LessonExportPayment({planId,onAccess}) {
+ const [quote,setQuote]=useState(null),[error,setError]=useState(''),[busy,setBusy]=useState(false),[refresh,setRefresh]=useState(0);
+ const [key]=useState(()=>crypto.randomUUID());
+ useEffect(()=>{const abort=new AbortController();let active=true;teacherApi(`/billing/quote?planId=${encodeURIComponent(planId)}`,{signal:abort.signal}).then(value=>{if(!active)return;setQuote(value);onAccess(value.paid);}).catch(problem=>{if(active&&problem.name!=='AbortError'){setError(problem.message);onAccess(false);}});return()=>{active=false;abort.abort();};},[planId,onAccess,refresh]);
+ async function pay(){setBusy(true);setError('');try{openCheckout(await teacherApi('/billing/paystack/initialize',{method:'POST',body:JSON.stringify({planId,idempotencyKey:key})}));}catch(problem){setError(problem.message);}finally{setBusy(false);}}
+ async function request(){setBusy(true);setError('');try{await teacherApi('/billing/purchases',{method:'POST',body:JSON.stringify({planId,idempotencyKey:key})});setRefresh(value=>value+1);}catch(problem){setError(problem.message);}finally{setBusy(false);}}
+ return <aside className="lesson-export-payment" aria-label="Booklet export payment">{error&&<p role="alert">{error}</p>}{quote&&<><div><strong>{quote.paid?'Booklet export unlocked':`${money(quote.amount)} · One-time export payment`}</strong><p>{quote.paid?'This booklet stays unlocked for later edits and downloads.':quote.status==='PENDING'?`Payment review request ${quote.purchaseId} is pending. Contact your platform administrator with this reference to arrange payment and receipt verification.`:'Writing and editing are free. This payment unlocks the printable booklet and JSON export for this booklet only.'}</p></div><div>{!quote.paid&&quote.paystack?.enabled&&<button className="primary-button" disabled={busy} onClick={pay}>{busy?'Preparing checkout…':`Pay with Paystack${quote.paystack.mode==='TEST'?' (test mode)':''}`}</button>}{!quote.paid&&quote.status!=='PENDING'&&<button className="primary-button" disabled={busy} onClick={request}>{busy?'Requesting…':'Request payment review'}</button>}<button className="secondary-button" disabled={busy} onClick={()=>setRefresh(value=>value+1)}>Refresh payment status</button><a href="#/lesson-pricing">Lesson pricing</a>{quote.contact?.supportEmail&&<a href={`mailto:${quote.contact.supportEmail}`}>Contact payment support</a>}{quote.contact?.supportPhone&&<span>{quote.contact.supportPhone}</span>}</div></>}</aside>;
+}

@@ -1,0 +1,14 @@
+import { Router } from 'express';
+import { z } from 'zod';
+import { prisma } from '../../config/prisma.js';
+import { authenticate } from '../../middleware/authenticate.js';
+import { resolveTenant } from '../../middleware/resolve-tenant.js';
+import { requirePermission } from '../../middleware/require-permission.js';
+import { validate } from '../../middleware/validate.js';
+import { asyncHandler } from '../../utils/async-handler.js';
+import { createSubscriptionService } from './subscription.service.js';
+const service=createSubscriptionService(prisma);
+const schema=z.object({body:z.object({plan:z.enum(['FREEMIUM','STARTER','PROFESSIONAL','ENTERPRISE']),billingCycle:z.enum(['MONTHLY','ANNUAL'])}).strict(),query:z.any(),params:z.any()});
+export const subscriptionRouter=Router();
+subscriptionRouter.use(authenticate,resolveTenant,requirePermission('settings.update'));
+subscriptionRouter.post('/request',validate(schema),asyncHandler(async(req,res)=>res.json({success:true,data:await service.request(req.auth,req.validated.body),message:'Plan request saved for platform review.'})));

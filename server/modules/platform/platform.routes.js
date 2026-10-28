@@ -13,8 +13,66 @@ import {
   platformSettingsSchema,
   schoolStatusSchema,
   subscriptionSchema,
+  subscriptionPaymentSchema,
 } from './platform.validation.js';
+import { createLessonBilling } from '../teachers/lesson-billing.service.js';
+import {
+  lessonVerifySchema,
+  lessonPaymentsListSchema,
+} from '../teachers/lesson-billing.validation.js';
+import { prisma } from '../../config/prisma.js';
+const lessonBilling = createLessonBilling(prisma);
+import { paystackService } from '../payments/paystack.runtime.js';
+import { paymentVerifySchema } from '../payments/paystack.routes.js';
 export const platformRouter = Router();
+platformRouter.get(
+  '/paystack-payments',
+  authenticate,
+  requirePlatformPermission('platform.schools.view'),
+  asyncHandler(async (_req, res) =>
+    res.json({ success: true, data: await paystackService.list() }),
+  ),
+);
+platformRouter.post(
+  '/paystack-payments/reconcile',
+  authenticate,
+  requirePlatformPermission('platform.schools.update'),
+  validate(paymentVerifySchema),
+  asyncHandler(async (req, res) =>
+    res.json({
+      success: true,
+      data: await paystackService.reconcile(req.validated.body.reference),
+    }),
+  ),
+);
+platformRouter.get(
+  '/teacher-lesson-payments',
+  authenticate,
+  requirePlatformPermission('platform.schools.view'),
+  validate(lessonPaymentsListSchema),
+  asyncHandler(async (req, res) =>
+    res.json({
+      success: true,
+      data: await lessonBilling.list(req.validated.query.status),
+    }),
+  ),
+);
+platformRouter.post(
+  '/teacher-lesson-payments/:id/verify',
+  authenticate,
+  requirePlatformPermission('platform.schools.update'),
+  validate(lessonVerifySchema),
+  asyncHandler(async (req, res) =>
+    res.json({
+      success: true,
+      data: await lessonBilling.verify(
+        req.auth,
+        req.validated.params.id,
+        req.validated.body,
+      ),
+    }),
+  ),
+);
 platformRouter.post(
   '/auth/login',
   validate(platformLoginSchema),
@@ -51,13 +109,11 @@ platformRouter.post(
   requirePlatformPermission('platform.schools.create'),
   validate(createSchoolSchema),
   asyncHandler(async (req, res) =>
-    res
-      .status(201)
-      .json({
-        success: true,
-        data: await platformService.createSchool(req.auth, req.validated.body),
-        message: 'School tenant created',
-      }),
+    res.status(201).json({
+      success: true,
+      data: await platformService.createSchool(req.auth, req.validated.body),
+      message: 'School tenant created',
+    }),
   ),
 );
 platformRouter.patch(
@@ -85,8 +141,39 @@ platformRouter.patch(
   asyncHandler(async (req, res) =>
     res.json({
       success: true,
-      data: await platformService.updateSubscription(req.auth, req.validated.params.id, req.validated.body),
+      data: await platformService.updateSubscription(
+        req.auth,
+        req.validated.params.id,
+        req.validated.body,
+      ),
       message: 'School subscription updated',
+    }),
+  ),
+);
+platformRouter.post(
+  '/schools/:id/subscription/payments',
+  authenticate,
+  requirePlatformPermission('platform.schools.update'),
+  validate(subscriptionPaymentSchema),
+  asyncHandler(async (req, res) =>
+    res.json({
+      success: true,
+      data: await platformService.recordSubscriptionPayment(
+        req.auth,
+        req.validated.params.id,
+        req.validated.body,
+      ),
+    }),
+  ),
+);
+platformRouter.get(
+  '/schools/:id/subscription/payments',
+  authenticate,
+  requirePlatformPermission('platform.schools.view'),
+  asyncHandler(async (req, res) =>
+    res.json({
+      success: true,
+      data: await platformService.subscriptionPayments(req.params.id),
     }),
   ),
 );

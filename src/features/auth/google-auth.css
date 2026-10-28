@@ -1,0 +1,12 @@
+.google-auth { display: grid; gap: .5rem; width: 100%; min-width: 0; }
+.google-auth > div { min-height: 1px; }
+.google-auth p, .signup-note, .signup-card label small { font-size: .8125rem; line-height: 1.5; color: var(--muted, #64748b); margin: 0; }
+.google-auth p:empty { display: none; }
+.google-retry { justify-self: start; border: 0; background: transparent; color: #0f172b; padding: .25rem 0; text-decoration: underline; cursor: pointer; font-size: .8125rem; }
+.auth-divider { display: flex; align-items: center; gap: .75rem; color: #64748b; font-size: .75rem; }
+.auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: #e2e8f0; }
+.signup-card { max-width: 480px; }
+.signup-card label small { font-weight: 400; }
+.signup-back, .login-help a { color: #0f172b; text-underline-offset: 3px; }
+.signup-back { font-size: .8125rem; }
+.signup-page .login-form-wrap { padding-block: 2rem; }

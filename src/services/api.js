@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
 export function assetUrl(value) {
   if (!value || value.startsWith('http://') || value.startsWith('https://') || value.startsWith('data:') || value.startsWith('blob:')) return value;
   const serverUrl = API_URL.replace(/\/api\/?$/, '').replace(/\/$/, '');

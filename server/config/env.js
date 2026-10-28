@@ -6,6 +6,11 @@ const schema = z.object({
   PORT: z.coerce.number().int().positive().default(4000),
   CLIENT_URL: z.string().url().default('http://localhost:5173'),
   JWT_SECRET: z.string().min(32),
+  PAYSTACK_SECRET_KEY: z.string().trim().default(''),
+  PAYSTACK_LIVE_SECRET_KEY: z.string().trim().default(''),
+  PAYSTACK_TEST_SECRET_KEY: z.string().trim().default(''),
+  PUBLIC_API_URL: z.union([z.url(),z.literal('')]).default(''),
+  GOOGLE_CLIENT_ID: z.string().trim().default(''),
   JWT_EXPIRES_IN: z.string().default('15m'),
   DATABASE_URL: z.string().min(1),
   UPLOAD_DIR: z.string().default('./uploads'),
@@ -17,4 +22,4 @@ if (!parsed.success) {
   throw new Error(`Invalid environment configuration: ${z.prettifyError(parsed.error)}`);
 }
 
-export const env = Object.freeze(parsed.data);
+export const env = Object.freeze({ ...parsed.data, PAYSTACK_SECRET_KEY: parsed.data.PAYSTACK_SECRET_KEY || parsed.data.PAYSTACK_LIVE_SECRET_KEY || parsed.data.PAYSTACK_TEST_SECRET_KEY });

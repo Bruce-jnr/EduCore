@@ -1,7 +1,5 @@
 import { z } from 'zod';
 const env = (body) => z.object({ body, query: z.any(), params: z.any() });
-const startDate = z.iso.date().transform((value) => new Date(`${value}T00:00:00.000Z`));
-const endDate = z.iso.date().transform((value) => new Date(`${value}T23:59:59.999Z`));
 export const platformLoginSchema = env(
   z.object({
     email: z.email().transform((x) => x.toLowerCase()),
@@ -41,18 +39,12 @@ export const schoolStatusSchema = z.object({
   params: z.object({ id: z.string().min(1) }),
 });
 export const subscriptionSchema = z.object({
-  body: z.object({
-    subscriptionPlan: z.enum(['TRIAL', 'STARTER', 'PROFESSIONAL', 'ENTERPRISE']),
-    subscriptionStatus: z.enum(['TRIAL', 'ACTIVE', 'PAST_DUE', 'EXPIRED', 'CANCELLED']),
-    subscriptionStartedAt: z.union([startDate, z.null()]),
-    subscriptionEndsAt: endDate,
-  }).superRefine((value, context) => {
-    if (value.subscriptionStatus === 'ACTIVE' && value.subscriptionPlan === 'TRIAL') context.addIssue({ code: 'custom', path: ['subscriptionPlan'], message: 'Choose a paid plan for an active subscription' });
-    if (value.subscriptionStatus === 'ACTIVE' && !value.subscriptionStartedAt) context.addIssue({ code: 'custom', path: ['subscriptionStartedAt'], message: 'Set the paid subscription start date' });
-    if (value.subscriptionStartedAt && value.subscriptionEndsAt <= value.subscriptionStartedAt) context.addIssue({ code: 'custom', path: ['subscriptionEndsAt'], message: 'End date must be after the start date' });
-  }),
-  query: z.any(),
-  params: z.object({ id: z.string().min(1) }),
+ body: z.object({ subscriptionPlan:z.enum(['FREEMIUM','TRIAL','STARTER','PROFESSIONAL','ENTERPRISE']), subscriptionStatus:z.enum(['TRIAL','ACTIVE','PAST_DUE','EXPIRED','CANCELLED']), billingCycle:z.enum(['MONTHLY','ANNUAL']).default('MONTHLY'),quoteOnly:z.boolean().optional(), enterpriseStudentLimit:z.number().int().positive().max(2147483647).optional(), enterpriseStaffLimit:z.number().int().positive().max(2147483647).optional(), enterprisePrice:z.number().positive().max(9999999999).refine(value=>Math.abs(value*100-Math.round(value*100))<0.00001,'Use at most two decimal places').optional() }).strict(),
+ params:z.object({id:z.string().min(1)}),query:z.any(),
+});
+export const subscriptionPaymentSchema = z.object({
+ body:z.object({ plan:z.enum(['STARTER','PROFESSIONAL','ENTERPRISE']),billingCycle:z.enum(['MONTHLY','ANNUAL']),amount:z.number().positive().max(9999999999).refine(value=>Math.abs(value*100-Math.round(value*100))<0.00001,'Use at most two decimal places'),paymentMethod:z.enum(['CASH','MOBILE_MONEY','BANK_TRANSFER','CHEQUE','CARD','OTHER']),paymentReference:z.string().trim().min(3).max(120),idempotencyKey:z.string().uuid(),verified:z.literal(true) }).strict(),
+ params:z.object({id:z.string().min(1)}),query:z.any(),
 });
 export const platformSettingsSchema = env(
   z.object({
@@ -67,7 +59,7 @@ export const platformSettingsSchema = env(
       .length(3)
       .transform((x) => x.toUpperCase()),
     defaultTimezone: z.string().trim().min(3).max(80),
-    defaultTrialDays: z.coerce.number().int().min(0).max(365),
+    defaultTrialDays: z.coerce.number().int().min(14).max(14),
     registrationEnabled: z.boolean(),
     maintenanceMode: z.boolean(),
     primaryColor: z.string().regex(/^#[0-9a-fA-F]{6}$/),

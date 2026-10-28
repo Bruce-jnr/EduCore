@@ -1,0 +1,14 @@
+import { z } from 'zod';
+import { createLessonBody, updateLessonBody } from '../lesson-plans/lesson-plan.validation.js';
+const envelope = body => z.object({ body, params: z.any(), query: z.any() });
+const email = z.email().max(191).transform(value => value.toLowerCase());
+const password = z.string().min(12).max(72).refine(value => Buffer.byteLength(value, 'utf8') <= 72, 'Password must be at most 72 UTF-8 bytes');
+export const teacherSignupBody = z.object({ firstName: z.string().trim().min(1).max(80), lastName: z.string().trim().min(1).max(80), email, password }).strict();
+export const teacherLoginBody = z.object({ email, password: z.string().min(1).max(72).refine(value => Buffer.byteLength(value, 'utf8') <= 72, 'Password is too long') }).strict();
+export const teacherSignupSchema = envelope(teacherSignupBody);
+export const teacherLoginSchema = envelope(teacherLoginBody);
+export const teacherGoogleSchema = envelope(z.object({ credential: z.string().min(1).max(10000), challenge: z.string().min(1).max(1000) }).strict());
+export const teacherChallengeSchema = envelope(z.object({ intent: z.enum(['signin','signup']) }).strict());
+export const personalCreateBody = createLessonBody.safeExtend({ academicYearName: z.string().trim().min(2).max(40) });
+export const personalCreateSchema = envelope(personalCreateBody);
+export const personalUpdateSchema = z.object({ body: updateLessonBody, query: z.any(), params: z.object({ id: z.string().min(1).max(191) }) });

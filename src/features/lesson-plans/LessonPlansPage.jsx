@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react';
 import { PageHeader } from '../../components/PageHeader.jsx';
 import { Icon } from '../../components/Icon.jsx';
+import { LessonExportPayment } from '../teachers/LessonExportPayment.jsx';
+import { teacherApi } from '../teachers/teacher-api.js';
 import { api } from '../../services/api.js';
 import { useAuth } from '../auth/useAuth.js';
 import './lesson-plans.css';
+import { LESSON_LIBRARY_KEY, readLibrarySelection, prefillLibraryBooklet } from './ghana-curriculum.js';
 
 const weekFields = [
   ['topic', 'Topic', 'Weekly topic from your scheme of learning'],
@@ -50,10 +53,13 @@ function Booklet({ document, onClose, onDownload }) {
   </section>;
 }
 
-export function LessonPlansPage() {
-  const { user } = useAuth();
+export function LessonPlansPage({ mode = 'school', teacherUser = null }) {
+  const { user: schoolUser } = useAuth();
+  const user = mode === 'personal' ? teacherUser : schoolUser;
+  const request = mode === 'personal' ? teacherApi : api;
   const canManage = user.permissions?.includes('lesson-plans.manage');
   const canReview = user.permissions?.includes('lesson-plans.review');
+  const [libraryChoice, setLibraryChoice] = useState(() => readLibrarySelection(sessionStorage));
   const [options, setOptions] = useState(null);
   const [library, setLibrary] = useState(emptyLibrary);
   const [filters, setFilters] = useState({ search: '', scope: 'mine', status: '', page: 1 });
@@ -65,25 +71,26 @@ export function LessonPlansPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
+  const [exportUnlocked,setExportUnlocked]=useState(false);
   const [booklet, setBooklet] = useState(null);
 
   useEffect(() => {
     const controller = new AbortController();
-    api('/lesson-plans/options', { signal: controller.signal }).then(setOptions).catch(requestError => {
+    request('/lesson-plans/options', { signal: controller.signal }).then(setOptions).catch(requestError => {
       if (requestError.name !== 'AbortError') setError(requestError.message);
     });
     return () => controller.abort();
-  }, []);
+  }, [request]);
   useEffect(() => {
     const controller = new AbortController();
     const timer = setTimeout(() => {
       const query = new URLSearchParams({ search: filters.search, scope: filters.scope, page: String(filters.page), limit: '20', ...(filters.status && { status: filters.status }) });
-      api(`/lesson-plans?${query}`, { signal: controller.signal }).then(setLibrary).catch(requestError => {
+      request(`/lesson-plans?${query}`, { signal: controller.signal }).then(setLibrary).catch(requestError => {
         if (requestError.name !== 'AbortError') setError(requestError.message);
       });
     }, 200);
     return () => { clearTimeout(timer); controller.abort(); };
-  }, [filters, refresh]);
+  }, [filters, refresh, request]);
   useEffect(() => {
     if (!dirty) return undefined;
     const preventLoss = event => { event.preventDefault(); event.returnValue = ''; };
@@ -95,13 +102,15 @@ export function LessonPlansPage() {
   function canLeave() { return !dirty || window.confirm('Discard unsaved changes to this booklet?'); }
   function begin() {
     if (!canLeave() || !options) return;
+    setExportUnlocked(false);
     const period = options.academicPeriods.find(item => item.isCurrent) || options.academicPeriods[0];
-    setNewForm({ title: '', academicPeriodId: period?.id || '', classId: '', subjectId: '', weekCount: 12, durationMinutes: 60, topicText: '' });
+    setNewForm({ ...(mode === 'personal' && { academicYearName: `${new Date().getFullYear()}/${new Date().getFullYear()+1}` }), title: '', academicPeriodId: period?.id || '', classId: '', subjectId: '', weekCount: 12, durationMinutes: 60, topicText: '' });
+    if (libraryChoice) setNewForm(current => ({ ...current, ...prefillLibraryBooklet(options, mode==='personal'&&libraryChoice.level.slug.startsWith('shs-')?{...libraryChoice,period:libraryChoice.period.replace('term-','semester-')}:libraryChoice, canReview), ...(mode==='personal'&&libraryChoice.level.slug.startsWith('shs-')&&{weekCount:16}) }));
     setPlan(null); setDirty(false); setNotice(''); setError('');
   }
   async function open(id) {
     if (!canLeave()) return;
-    try { setBusy(true); setError(''); const data = await api(`/lesson-plans/${id}`); setPlan(data); setNewForm(null); setWeekIndex(0); setDirty(false); setNotice(''); }
+    try { setBusy(true); setError(''); const data = await request(`/lesson-plans/${id}`); setExportUnlocked(false); setPlan(data); setNewForm(null); setWeekIndex(0); setDirty(false); setNotice(''); }
     catch (requestError) { setError(requestError.message); } finally { setBusy(false); }
   }
   async function create(event) {
@@ -110,9 +119,20 @@ export function LessonPlansPage() {
       setBusy(true); setError('');
       const { topicText, ...input } = newForm;
       const topics = topicText.trim() ? topicText.replace(/\r/g, '').split('\n') : [];
-      const data = await api('/lesson-plans', { method: 'POST', body: JSON.stringify({ ...input, topics }) });
-      setPlan(data); setNewForm(null); setWeekIndex(0); setDirty(false); setRefresh(value => value + 1);
-      setNotice('Booklet created. Add your curriculum references, learning outcomes and lesson activities.');
+      const data = await request('/lesson-plans', { method: 'POST', body: JSON.stringify({ ...input, topics }) });
+      setExportUnlocked(false); setPlan(data); setNewForm(null); setWeekIndex(0); setDirty(false); setRefresh(value => value + 1);
+      const choice = libraryChoice;
+      const selectedClass = options.classes.find(item => item.id === input.classId);
+      const selectedSubject = options.subjects.find(item => item.id === input.subjectId);
+      const normalize = value => value.toLowerCase().replace(/[^a-z0-9]/g, '');
+      const correctStarterClass = choice?.level.slug === 'basic-1' && ['basic1','primary1'].includes(normalize(selectedClass?.name || ''));
+      if (choice?.starter && choice.week <= data.weekCount && correctStarterClass && normalize(selectedSubject?.name || '') === normalize(choice.subject.name)) {
+        setPlan({ ...data, weeks: data.weeks.map(week => week.week === choice.week ? { ...week, ...choice.starter.fields } : week) });
+        setDirty(true); setWeekIndex(choice.week - 1);
+        setNotice('Booklet created. Original starter added as unsaved edits. Verify curriculum codes and activities, then save your draft.');
+      } else setNotice('Booklet created. Add your curriculum references, learning outcomes and lesson activities.');
+      setLibraryChoice(null);
+      try { sessionStorage.removeItem(LESSON_LIBRARY_KEY); } catch { /* Private browsing can disable storage. */ }
     } catch (requestError) { setError(requestError.message); } finally { setBusy(false); }
   }
   function changeWeek(field, value) {
@@ -122,13 +142,13 @@ export function LessonPlansPage() {
   async function save(status = plan.status) {
     try {
       setBusy(true); setError('');
-      const data = await api(`/lesson-plans/${plan.id}`, { method: 'PUT', body: JSON.stringify({ title: plan.title, revision: plan.revision, status, weeks: plan.weeks }) });
+      const data = await request(`/lesson-plans/${plan.id}`, { method: 'PUT', body: JSON.stringify({ title: plan.title, revision: plan.revision, status, weeks: plan.weeks }) });
       setPlan(data); setDirty(false); setNotice(status === 'READY' ? 'Booklet marked ready.' : 'Booklet saved.'); setRefresh(value => value + 1);
     } catch (requestError) { setError(requestError.message); } finally { setBusy(false); }
   }
   async function preview() {
     if (dirty) { setError('Save your changes before opening the printable booklet.'); return; }
-    try { setBusy(true); setError(''); setBooklet(await api(`/lesson-plans/${plan.id}/booklet`)); }
+    try { setBusy(true); setError(''); setBooklet(await request(`/lesson-plans/${plan.id}/booklet`)); }
     catch (requestError) { setError(requestError.message); } finally { setBusy(false); }
   }
   function download() {
@@ -148,16 +168,18 @@ export function LessonPlansPage() {
     <PageHeader eyebrow="Teacher workspace" title="Lesson plans" description="Build a term scheme, personalize weekly lesson notes, and prepare a printable booklet." actions={canManage && <button className="primary-button" onClick={begin} disabled={busy || !options}><Icon>add</Icon>New booklet</button>} />
     {error && <div className="form-error" role="alert"><Icon>error</Icon>{error}</div>}
     {notice && <div className="lesson-notice" role="status"><Icon>check_circle</Icon>{notice}</div>}
-    <p className="lesson-service-note">Your topics. Your teaching. Templates provide structure; curriculum codes and lesson content are supplied and reviewed by your school.</p>
+    <p className="lesson-service-note"><a href="#/lesson-library">Browse the Ghana curriculum library ↗</a>{libraryChoice && <span> · Selected: {libraryChoice.level.name}, {libraryChoice.subject.name}. Choose New booklet to use this selection; confirm the class and term.</span>}</p>
+    <p className="lesson-service-note">Your topics. Your teaching. Verify curriculum codes and review lesson content before classroom use.</p>
 
     {newForm && <form className="panel lesson-create" onSubmit={create}>
-      <header><h2>Set up your term booklet</h2><button type="button" className="secondary-button" onClick={() => setNewForm(null)}>Cancel</button></header>
-      {!options?.academicPeriods.length && <p role="status">No assigned classes or active terms are available. Ask your administrator to configure your academic and teacher assignments.</p>}
+      <header><h2>Set up your lesson booklet</h2><button type="button" className="secondary-button" onClick={() => setNewForm(null)}>Cancel</button></header>
+      {!options?.academicPeriods.length && <p role="status">No classes or active terms are available. School users should ask their administrator to configure academic and teacher assignments.</p>}
       <div className="form-grid">
+        {mode === 'personal' && <label>Academic year<input required minLength={2} maxLength={40} value={newForm.academicYearName} onChange={event => setNewForm({ ...newForm, academicYearName: event.target.value })} placeholder="2026/2027" /></label>}
         <label className="form-wide">Booklet title<input required minLength={3} maxLength={150} value={newForm.title} onChange={event => setNewForm({ ...newForm, title: event.target.value })} placeholder="Class and subject lesson notes" /></label>
-        <label>Academic term<select required value={newForm.academicPeriodId} onChange={event => setNewForm({ ...newForm, academicPeriodId: event.target.value, classId: '', subjectId: '' })}><option value="">Select term</option>{options?.academicPeriods.map(item => <option key={item.id} value={item.id}>{item.academicYear.name} · {item.name}</option>)}</select></label>
-        <label>Class<select required value={newForm.classId} onChange={event => setNewForm({ ...newForm, classId: event.target.value, subjectId: '' })}><option value="">Select assigned class</option>{classes.map(item => <option key={item.id} value={item.id}>{item.name} {item.section || ''}</option>)}</select></label>
-        <label>Subject<select required value={newForm.subjectId} onChange={event => setNewForm({ ...newForm, subjectId: event.target.value })}><option value="">Select class subject</option>{subjects.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
+        <label>Academic term / semester<select required value={newForm.academicPeriodId} onChange={event => setNewForm({ ...newForm, academicPeriodId: event.target.value, classId: '', subjectId: '', ...(mode==='personal'&&{weekCount:event.target.value.startsWith('semester-')?16:12}) })}><option value="">Select term</option>{options?.academicPeriods.map(item => <option key={item.id} value={item.id}>{item.academicYear.name} · {item.name}</option>)}</select></label>
+        <label>Class<select required value={newForm.classId} onChange={event => setNewForm({ ...newForm, classId: event.target.value, subjectId: '' })}><option value="">Select teaching level</option>{classes.map(item => <option key={item.id} value={item.id}>{item.name} {item.section || ''}</option>)}</select></label>
+        <label>Subject<select required value={newForm.subjectId} onChange={event => setNewForm({ ...newForm, subjectId: event.target.value })}><option value="">Select subject</option>{subjects.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
         <label>Teaching weeks<input type="number" min="1" max="16" required value={newForm.weekCount} onChange={event => setNewForm({ ...newForm, weekCount: Number(event.target.value) })} /></label>
         <label>Default lesson duration (minutes)<input type="number" min="20" max="180" required value={newForm.durationMinutes} onChange={event => setNewForm({ ...newForm, durationMinutes: Number(event.target.value) })} /></label>
         <label className="form-wide">Weekly topics · one line per week<textarea rows="6" maxLength={5000} value={newForm.topicText} onChange={event => setNewForm({ ...newForm, topicText: event.target.value })} placeholder="Enter your weekly topics here, or add them later in the editor." /><small>Up to {newForm.weekCount} lines. Empty weeks remain editable drafts.</small></label>
@@ -166,8 +188,9 @@ export function LessonPlansPage() {
     </form>}
 
     {plan && <section className="panel lesson-editor">
+      {mode==='personal'&&<LessonExportPayment key={plan.id} planId={plan.id} onAccess={setExportUnlocked}/>}
       <header className="lesson-editor-header"><div><span className="eyebrow">{plan.status} · Revision {plan.revision} {dirty ? '· Unsaved changes' : '· Saved'}</span><h2>{plan.subject.name} · {plan.class.name}</h2><p>{plan.academicPeriod.academicYear.name} · {plan.academicPeriod.name} · {plan.author.firstName} {plan.author.lastName}</p></div><div className="lesson-actions">
-        <button className="secondary-button" onClick={preview} disabled={busy || dirty}><Icon>description</Icon>Preview booklet</button>
+        <button className="secondary-button" onClick={preview} disabled={busy || dirty || (mode==='personal' && !exportUnlocked)}><Icon>description</Icon>Preview booklet</button>
         {canEdit && <><button className="secondary-button" disabled={busy} onClick={() => save('DRAFT')}>Save draft</button><button className="primary-button" disabled={busy} onClick={() => save('READY')}>{busy ? 'Saving…' : 'Mark ready'}</button></>}
       </div></header>
       {!canEdit && <p className="lesson-service-note">School library view · Only the author can edit this booklet.</p>}

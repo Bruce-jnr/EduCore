@@ -1,3 +1,4 @@
+import { planFor } from '../../shared/pricing.js';
 import { useState } from 'react';
 import logo from '../assets/edupalgh_logo.png';
 import { Icon } from './Icon.jsx';
@@ -7,7 +8,7 @@ import { NotificationMenu } from '../features/notifications/NotificationMenu.jsx
 const groups = [
   {
     label: 'Main',
-    items: [{ label: 'Dashboard', icon: 'dashboard', href: '#/dashboard', permission: 'dashboard.view' }],
+    items: [{ label: 'Dashboard', icon: 'dashboard', href: '#/dashboard', permission: 'dashboard.view' }, {label:'Plans & pricing',icon:'workspace_premium',href:'#/pricing'}],
   },
   {
     label: 'Students',
@@ -102,7 +103,7 @@ export function AppShell({ route, children, user, onLogout }) {
           </span>
         </a>
         <nav className="main-nav" aria-label="Main navigation">
-          {groups.map((group) => ({ ...group, items: group.items.filter((item) => (!item.permission || user.permissions?.includes(item.permission)) && (!item.teacherOnly || !isAdministrator)).map((item) => item.href === '#/results/workflow' && isAdministrator ? { ...item, label: 'Review Scores' } : item) })).filter((group) => group.items.length).map((group) => (
+          {groups.map((group) => ({ ...group, items: group.items.filter((item) => (!item.permission || user.permissions?.includes(item.permission)) && (!item.href.startsWith('#/finance') || (planFor(user.tenant||{})?.rank??0)>=1) && (item.href!=='#/lesson-plans' || (planFor(user.tenant||{})?.rank??0)>=2) && (!item.teacherOnly || !isAdministrator)).map((item) => item.href === '#/results/workflow' && isAdministrator ? { ...item, label: 'Review Scores' } : item) })).filter((group) => group.items.length).map((group) => (
             <section key={group.label}>
               <p>{group.label}</p>
               {group.items.map((item) => {

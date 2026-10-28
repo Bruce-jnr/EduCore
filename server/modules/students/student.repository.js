@@ -1,3 +1,4 @@
+import { assertSchoolCapacity } from '../subscriptions/plan-policy.js';
 import { prisma } from '../../config/prisma.js';
 
 export const studentRepository = {
@@ -17,6 +18,7 @@ export const studentRepository = {
   create(tenantId, data) {
     const { classId, academicYearId, ...student } = data;
     return prisma.$transaction(async (tx) => {
+      await assertSchoolCapacity(tx, tenantId, 'student');
       const targetClass = classId ? await tx.class.findFirst({ where: { id: classId, tenantId, ...(academicYearId && { academicYearId }) } }) : null;
       if (classId && !targetClass) return null;
       return tx.student.create({

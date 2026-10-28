@@ -1,0 +1,48 @@
+.curriculum-page { min-height: 100vh; color: var(--text,#020618); background: var(--surface,#fff); font-family: ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; }
+.curriculum-page a { text-decoration: none; color: inherit; }
+.curriculum-topbar { display: flex; justify-content: center; gap: 24px; min-height: 36px; align-items: center; padding: 8px 16px; background: var(--soft,#f8fafc); border-bottom: 1px solid var(--line,#e2e8f0); font-size: .75rem; color: var(--muted,#62748e); flex-wrap: wrap; }
+.curriculum-nav { max-width: 896px; min-height: 56px; margin: 0 auto; padding: 8px 32px; border: 1px solid var(--line,#e2e8f0); border-radius: 999px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 6px 12px #02061812; background: var(--surface,#fff); }
+.curriculum-brand { font-size: 1.125rem; font-weight: 750; letter-spacing: -.02em; }
+.curriculum-nav nav { display: flex; align-items: center; gap: 24px; font-size: .875rem; font-weight: 500; }
+.curriculum-nav .curriculum-current { color: var(--muted,#62748e); }
+.curriculum-main { max-width: 1088px; margin: 0 auto; padding: 56px 32px 40px; }
+.curriculum-breadcrumb { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 32px; color: var(--muted,#62748e); font-size: .875rem; }
+.curriculum-breadcrumb > span { display: inline-flex; align-items: center; gap: 12px; }
+.curriculum-breadcrumb [aria-current] { color: var(--text,#020618); font-weight: 500; }
+.curriculum-main h1 { font-size: 2.25rem; font-weight: 700; line-height: 1.2; letter-spacing: 0; margin: 0 0 30px; }
+.curriculum-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; }
+.curriculum-card { border: 1px solid var(--line,#e2e8f0); padding: 20px; min-height: 66px; transition: background .15s,border-color .15s; }
+.curriculum-card > span { display: flex; align-items: center; gap: 12px; font-size: .875rem; font-weight: 600; line-height: 1.7; }
+.curriculum-card svg { flex-shrink: 0; }
+.curriculum-card small { display: block; margin-top: 10px; font-size: .8125rem; line-height: 1.6; color: var(--muted,#62748e); }
+.curriculum-card:hover { background: var(--soft,#f8fafc); border-color: var(--muted,#62748e); }
+.curriculum-cta { border: 1px solid color-mix(in srgb,var(--muted,#62748e) 40%,transparent); border-radius: 18px; padding: 20px; background: color-mix(in srgb,var(--soft,#f1f5f9) 75%,var(--surface,#fff)); margin-top: 32px; }
+.curriculum-main h2 { font-size: 1.125rem; line-height: 1.5; margin: 0; font-weight: 600; }
+.curriculum-cta p { color: var(--muted,#62748e); font-size: .875rem; line-height: 1.6; margin: 6px 0 16px; }
+.curriculum-cta > div { display: flex; gap: 12px; flex-wrap: wrap; }
+.curriculum-primary,.curriculum-outline { display: inline-flex; justify-content: center; align-items: center; min-height: 38px; border-radius: 999px; padding: 8px 16px; font-family: inherit; line-height: 1.5; font-size: .8125rem; font-weight: 600; cursor: pointer; }
+.curriculum-page .curriculum-primary { background: var(--text,#0f172b); color: var(--surface,#fff); border: 1px solid var(--text,#0f172b); }
+.curriculum-page .curriculum-outline { color: var(--text,#0f172b); background: var(--surface,#fff); border: 1px solid var(--line,#e2e8f0); }
+.curriculum-page :focus-visible { outline: 3px solid #3b82f6; outline-offset: 4px; }
+.curriculum-sources { margin-top: 28px; padding-top: 24px; border-top: 1px solid var(--line,#e2e8f0); }
+.curriculum-sources h2 { font-size: .875rem; }
+.curriculum-sources p,.curriculum-context { font-size: .8125rem; line-height: 1.7; color: var(--muted,#62748e); margin: 8px 0 18px; }
+.curriculum-sources > div { display: flex; gap: 10px 24px; flex-wrap: wrap; }
+.curriculum-sources a { font-size: .8125rem; text-decoration: underline; text-underline-offset: 3px; }
+.curriculum-footer { text-align: center; padding: 24px; color: var(--muted,#62748e); font-size: .75rem; border-top: 1px solid var(--line,#e2e8f0); }
+.curriculum-scheme > p { font-size: .875rem; line-height: 1.7; color: var(--muted,#62748e); }
+.curriculum-lesson { border: 1px solid var(--line,#e2e8f0); padding: 24px; }
+.curriculum-lesson-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.curriculum-lesson-heading span { display: block; font-size: .75rem; color: var(--muted,#62748e); margin-bottom: 6px; }
+.curriculum-meta { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 16px; padding: 16px 0; margin: 0; border-block: 1px solid var(--line,#e2e8f0); }
+.curriculum-meta dt,.curriculum-fields dt { font-size: .8125rem; font-weight: 650; margin-bottom: 6px; }
+.curriculum-meta dd,.curriculum-fields dd { font-size: .875rem; line-height: 1.7; margin: 0; overflow-wrap: anywhere; }
+.curriculum-fields { display: grid; grid-template-columns: 1fr 1fr; margin: 24px 0 0; border-top: 1px solid var(--line,#e2e8f0); border-left: 1px solid var(--line,#e2e8f0); }
+.curriculum-fields > div { padding: 16px; border-right: 1px solid var(--line,#e2e8f0); border-bottom: 1px solid var(--line,#e2e8f0); }
+.curriculum-fields > .curriculum-wide { grid-column: 1/-1; }
+.curriculum-week-links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 24px; }
+.curriculum-week-links a { font-size: .8125rem; padding: 6px 10px; border: 1px solid var(--line,#e2e8f0); }
+.curriculum-week-links [aria-current] { background: var(--soft,#f1f5f9); font-weight: 700; }
+@media(max-width:767px) { .curriculum-main { padding: 40px 20px; } .curriculum-main h1 { font-size: 1.875rem; } .curriculum-grid { grid-template-columns: repeat(2,minmax(0,1fr)); } .curriculum-nav { margin-inline: 16px; padding: 8px 20px; } .curriculum-nav nav { gap: 12px; } .curriculum-meta { grid-template-columns: 1fr 1fr; } }
+@media(max-width:480px) { .curriculum-grid,.curriculum-fields { grid-template-columns: 1fr; } .curriculum-nav .curriculum-current { display:none; } .curriculum-topbar { gap:16px; font-size:.6875rem; } .curriculum-lesson { padding:16px; } }
+@media print { .curriculum-topbar,.curriculum-nav,.curriculum-breadcrumb,.curriculum-cta,.curriculum-footer,.curriculum-week-links,.curriculum-lesson-heading button { display:none!important; } .curriculum-page,.curriculum-lesson { background:white!important; color:black!important; } .curriculum-main { max-width:none; padding:0; } .curriculum-main h1 { font-size:20pt; } .curriculum-fields > div { break-inside:avoid; } }

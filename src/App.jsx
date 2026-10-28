@@ -1,9 +1,11 @@
+import {PaymentReturnPage,SchoolBillingPage} from './features/payments/PaymentPages.jsx';
 import { useEffect, useState } from 'react';
 import { AppShell } from './components/AppShell.jsx';
 import { DashboardPage } from './features/dashboard/DashboardPage.jsx';
 import { StudentProfilePage } from './features/students/StudentProfilePage.jsx';
 import { StudentsPage } from './features/students/StudentsPage.jsx';
 import { AddStudentPage } from './features/students/AddStudentPage.jsx';
+import { SignupPage } from './features/auth/SignupPage.jsx';
 import { LoginPage } from './features/auth/LoginPage.jsx';
 import { LandingPage } from './features/landing/LandingPage.jsx';
 import { useAuth } from './features/auth/useAuth.js';
@@ -25,6 +27,11 @@ import { ResultsWorkflowPage } from './features/results/ResultsWorkflowPage.jsx'
 import { ReportCardsPage } from './features/results/ReportCardsPage.jsx';
 import { ProgressionPage } from './features/academics/ProgressionPage.jsx';
 import { StudentLedgerPage } from './features/finance/StudentLedgerPage.jsx';
+import { PricingPage } from './features/pricing/PricingPage.jsx';
+import { LessonPricingPage } from './features/teachers/LessonPricingPage.jsx';
+import { TeacherPaymentsPage } from './features/platform/TeacherPaymentsPage.jsx';
+import { TeacherPortal } from './features/teachers/TeacherPortal.jsx';
+import { LessonLibraryPage } from './features/lesson-plans/LessonLibraryPage.jsx';
 import { LessonPlansPage } from './features/lesson-plans/LessonPlansPage.jsx';
 import './styles.css';
 import './features/platform/platform-nav-fix.css';
@@ -64,13 +71,22 @@ function App() {
   if (route === '/results/workflow') page = <ResultsWorkflowPage />;
   if (route === '/results/report-cards') page = isSchoolAdministrator ? <ResultsWorkflowPage /> : <ReportCardsPage />;
 
+  if (route === '/payment-return') return <PaymentReturnPage/>;
+  if (route === '/lesson-pricing') return <LessonPricingPage />;
+  if (route === '/pricing') return <PricingPage />;
+  if (route === '/teacher' || route.startsWith('/teacher/') || (!user && route === '/lesson-plans')) return <TeacherPortal route={route} />;
   if (loading) return <div className="app-loading"><span/><p>Loading EduPalGh…</p></div>;
+  if (route === '/lesson-library' || route.startsWith('/lesson-library/') || (!user && route === '/lesson-plans/library')) return <LessonLibraryPage route={route === '/lesson-plans/library' ? '/lesson-library' : route} />;
   if (!user) {
     if (route.startsWith('/platform')) return <PlatformLoginPage />;
+    if (route === '/signup') return <SignupPage />;
     if (route === '/login' || route === '/lesson-plans') return <LoginPage />;
     return <LandingPage />;
   }
-  if (user.isPlatformUser) { if(route==='/platform/settings')return <PlatformSettingsPage/>;if(route==='/platform/analytics')return <PlatformAnalyticsPage/>;if(route==='/platform/audit-logs')return <PlatformAuditPage/>;return <PlatformPage/>; }
+  if (user.isPlatformUser) { if(route==='/platform/teacher-payments')return <TeacherPaymentsPage/>; if(route==='/platform/settings')return <PlatformSettingsPage/>;if(route==='/platform/analytics')return <PlatformAnalyticsPage/>;if(route==='/platform/audit-logs')return <PlatformAuditPage/>;return <PlatformPage/>; }
+  if (route === '/school-billing') return <SchoolBillingPage/>;
+  const tenant=user.tenant;
+  if(tenant&&(['EXPIRED','PAST_DUE','CANCELLED'].includes(tenant.subscriptionStatus)||(tenant.subscriptionEndsAt&&new Date(tenant.subscriptionEndsAt)<=new Date())))return <SchoolBillingPage/>;
   return <AppShell route={route} user={user} onLogout={logout}>{page}</AppShell>;
 }
 

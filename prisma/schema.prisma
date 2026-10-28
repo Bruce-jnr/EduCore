@@ -114,6 +114,7 @@ enum FinancialAdjustmentStatus {
 }
 
 enum SubscriptionPlan {
+  FREEMIUM
   TRIAL
   STARTER
   PROFESSIONAL
@@ -145,10 +146,17 @@ model Tenant {
   primaryColor           String?
   secondaryColor         String?
   isActive               Boolean                 @default(true)
-  subscriptionPlan       SubscriptionPlan        @default(TRIAL)
-  subscriptionStatus     SubscriptionStatus      @default(TRIAL)
+  subscriptionPlan       SubscriptionPlan        @default(FREEMIUM)
+  subscriptionStatus     SubscriptionStatus      @default(ACTIVE)
   trialStartedAt         DateTime                @default(now())
   trialEndsAt            DateTime?
+  requestedSubscriptionPlan SubscriptionPlan?
+  billingCycle BillingCycle @default(MONTHLY)
+  paidTrialUsed Boolean @default(false)
+  enterpriseStudentLimit Int?
+  enterpriseStaffLimit Int?
+  enterprisePrice Decimal? @db.Decimal(12,2)
+  subscriptionPayments SubscriptionPayment[]
   subscriptionStartedAt  DateTime?
   subscriptionEndsAt     DateTime?
   createdAt              DateTime                @default(now())
@@ -195,7 +203,7 @@ model PlatformSettings {
   defaultCountry      String   @default("Ghana")
   defaultCurrency     String   @default("GHS")
   defaultTimezone     String   @default("Africa/Accra")
-  defaultTrialDays    Int      @default(30)
+  defaultTrialDays    Int      @default(14)
   registrationEnabled Boolean  @default(false)
   maintenanceMode     Boolean  @default(false)
   primaryColor        String   @default("#4f46c8")
@@ -223,6 +231,7 @@ model User {
   lastName                     String
   email                        String
   phone                        String?
+  googleSubject                String? @unique @db.VarChar(255)
   passwordHash                 String
   status                       UserStatus            @default(INVITED)
   isPlatformUser               Boolean               @default(false)
@@ -986,4 +995,146 @@ model LessonPlan {
   @@index([tenantId, authorId, updatedAt])
   @@index([tenantId, classId, academicPeriodId])
   @@index([tenantId, status])
+}
+
+// Independent teacher identities never belong to a school tenant or inherit school roles.
+model TeacherAccount {
+  id String @id @default(cuid())
+  email String @unique @db.VarChar(191)
+  firstName String @db.VarChar(80)
+  lastName String @db.VarChar(80)
+  passwordHash String?
+  googleSubject String? @unique @db.VarChar(255)
+  isActive Boolean @default(true)
+  emailVerifiedAt DateTime?
+  lastLoginAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  purchases TeacherLessonPurchase[]
+  plans PersonalLessonPlan[]
+  activity TeacherActivity[]
+}
+
+model PersonalLessonPlan {
+  id String @id @default(cuid())
+  teacherId String
+  title String @db.VarChar(150)
+  classKey String @db.VarChar(80)
+  className String @db.VarChar(80)
+  subjectKey String @db.VarChar(100)
+  subjectName String @db.VarChar(100)
+  termKey String @db.VarChar(20)
+  termName String @db.VarChar(40)
+  academicYearName String @db.VarChar(40)
+  status LessonPlanStatus @default(DRAFT)
+  weekCount Int @default(12)
+  weeks Json
+  templateVersion String @default("teacher-template-v1")
+  revision Int @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  teacher TeacherAccount @relation(fields: [teacherId], references: [id], onDelete: Restrict)
+  purchase TeacherLessonPurchase?
+  @@index([teacherId, updatedAt])
+  @@index([teacherId, status])
+}
+
+model TeacherActivity {
+  id String @id @default(cuid())
+  teacherId String
+  action String @db.VarChar(40)
+  planId String?
+  createdAt DateTime @default(now())
+  teacher TeacherAccount @relation(fields: [teacherId], references: [id], onDelete: Restrict)
+  @@index([teacherId, createdAt])
+}
+
+enum BillingCycle {
+ MONTHLY
+ ANNUAL
+}
+model SubscriptionPayment {
+ id String @id @default(cuid())
+ tenantId String
+ plan SubscriptionPlan
+ billingCycle BillingCycle
+ amount Decimal @db.Decimal(12,2)
+ currency String @default("GHS") @db.VarChar(3)
+ paymentMethod PaymentMethod
+ paymentReference String @db.VarChar(120)
+ idempotencyKey String @unique @db.VarChar(80)
+ periodStart DateTime
+ periodEnd DateTime
+ verifiedById String
+ createdAt DateTime @default(now())
+ tenant Tenant @relation(fields:[tenantId],references:[id])
+ @@unique([paymentMethod,paymentReference])
+ @@index([tenantId,createdAt])
+}
+
+enum LessonPurchaseStatus {
+ PENDING
+ PAID
+}
+model TeacherLessonPurchase {
+ id String @id @default(cuid())
+ teacherId String
+ planId String @unique
+ product String @db.VarChar(30)
+ amount Decimal @db.Decimal(10,2)
+ currency String @default("GHS") @db.VarChar(3)
+ status LessonPurchaseStatus @default(PENDING)
+ idempotencyKey String @unique @db.VarChar(80)
+ paymentMethod PaymentMethod?
+ paymentReference String? @db.VarChar(120)
+ verifiedById String?
+ verifiedAt DateTime?
+ createdAt DateTime @default(now())
+ updatedAt DateTime @updatedAt
+ teacher TeacherAccount @relation(fields:[teacherId],references:[id],onDelete:Restrict)
+ plan PersonalLessonPlan @relation(fields:[planId],references:[id],onDelete:Restrict)
+ @@unique([paymentMethod,paymentReference])
+ @@index([teacherId,createdAt])
+ @@index([status,createdAt])
+}
+
+enum PaystackPurpose {
+ LESSON_EXPORT
+ SCHOOL_SUBSCRIPTION
+}
+enum PaystackPaymentStatus {
+ INITIALIZING
+ PENDING
+ FULFILLED
+ FAILED
+ REVIEW
+}
+model PaystackPayment {
+ id String @id @default(cuid())
+ reference String @unique @db.VarChar(80)
+ idempotencyKey String @unique @db.VarChar(80)
+ activeKey String? @unique @db.VarChar(191)
+ purpose PaystackPurpose
+ status PaystackPaymentStatus @default(INITIALIZING)
+ amountMinor BigInt
+ currency String @default("GHS") @db.VarChar(3)
+ mode String @db.VarChar(10)
+ payerEmail String @db.VarChar(191)
+ userId String?
+ teacherId String?
+ tenantId String?
+ lessonPurchaseId String?
+ lessonPlanId String?
+ plan SubscriptionPlan?
+ billingCycle BillingCycle?
+ authorizationUrl String? @db.VarChar(1000)
+ providerStatus String? @db.VarChar(30)
+ lastErrorCode String? @db.VarChar(80)
+ verifiedAt DateTime?
+ fulfilledAt DateTime?
+ createdAt DateTime @default(now())
+ updatedAt DateTime @updatedAt
+ @@index([tenantId,createdAt])
+ @@index([teacherId,createdAt])
+ @@index([status,createdAt])
 }

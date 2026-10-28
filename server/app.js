@@ -19,11 +19,17 @@ import { resultRouter } from './modules/results/result.routes.js';
 import { notificationRouter } from './modules/notifications/notification.routes.js';
 import { lessonPlanRouter } from './modules/lesson-plans/lesson-plan.routes.js';
 
+import {paymentRouter,paystackWebhook} from './modules/payments/paystack.routes.js';
+import {asyncHandler} from './utils/async-handler.js';
+import { subscriptionRouter } from './modules/subscriptions/subscription.routes.js';
+import { teacherRouter } from './modules/teachers/teacher.routes.js';
+
 export const app = express();
 
 app.disable('x-powered-by');
 app.use(helmet());
 app.use(cors({ origin: env.CLIENT_URL, credentials: true }));
+app.post('/api/payments/paystack/webhook',express.raw({type:'application/json',limit:'256kb'}),asyncHandler(paystackWebhook));
 app.use(express.json({ limit: '3mb' }));
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
@@ -37,7 +43,10 @@ app.get('/api/health', (_req, res) => {
   res.json({ success: true, data: { service: 'edupalgh-api', status: 'healthy' }, message: null });
 });
 
+app.use('/api/payments/paystack',paymentRouter);
 app.use('/api/auth', authRouter);
+app.use('/api/teacher', teacherRouter);
+app.use('/api/subscriptions', subscriptionRouter);
 app.use('/api/dashboard', dashboardRouter);
 app.use('/api/students', studentRouter);
 app.use('/api/academics', academicRouter);

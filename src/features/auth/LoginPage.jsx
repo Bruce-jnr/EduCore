@@ -3,8 +3,10 @@ import logo from '../../assets/edupalgh_logo.png';
 import { Icon } from '../../components/Icon.jsx';
 import { useAuth } from './useAuth.js';
 import './auth.css';
+import './google-auth.css';
+import { GoogleAuthButton } from './GoogleAuthButton.jsx';
 export function LoginPage() {
-  const { login } = useAuth();
+  const { login, googleAuthenticate } = useAuth();
   const [form, setForm] = useState({
     schoolSlug: 'st-andrews',
     email: '',
@@ -18,7 +20,13 @@ export function LoginPage() {
     setSubmitting(true);
     try {
       await login(form);
-      window.location.hash = window.location.hash === '#/lesson-plans' ? '/lesson-plans' : '/dashboard';
+      window.location.hash =
+        new URLSearchParams(window.location.search).get('payment_kind') ===
+        'school'
+          ? '/payment-return'
+          : window.location.hash === '#/lesson-plans'
+            ? '/lesson-plans'
+            : '/dashboard';
     } catch (requestError) {
       setError(requestError.message);
     } finally {
@@ -55,6 +63,21 @@ export function LoginPage() {
               {error}
             </div>
           )}
+          <GoogleAuthButton
+            intent="signin"
+            onCredential={async (credentials) => {
+              await googleAuthenticate('signin', credentials);
+              window.location.hash =
+                new URLSearchParams(window.location.search).get(
+                  'payment_kind',
+                ) === 'school'
+                  ? '/payment-return'
+                  : window.location.hash === '#/lesson-plans'
+                    ? '/lesson-plans'
+                    : '/dashboard';
+            }}
+          />
+          <div className="auth-divider">or use your school password</div>
           <label>
             School code
             <input
@@ -90,7 +113,10 @@ export function LoginPage() {
             <Icon>arrow_forward</Icon>
           </button>
           <p className="login-help">
-            Need access? Contact your school administrator.
+            Starting a new school?{' '}
+            <a href="#/signup">Create a school with Google</a>. Existing school
+            users should contact their administrator. For personal lesson plans,{' '}
+            <a href="#/teacher/login">use teacher sign in</a>.
           </p>
         </form>
       </section>

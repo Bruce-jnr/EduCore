@@ -12,5 +12,6 @@ export function AuthProvider({ children }) {
   }, []);
   async function login(credentials) { const data = await api('/auth/login', { method: 'POST', body: JSON.stringify(credentials) }); localStorage.setItem('edupalgh_token', data.token); localStorage.setItem('edupalgh_user', JSON.stringify(data.user)); setUser(data.user); }
   async function platformLogin(credentials) { const data=await api('/platform/auth/login',{method:'POST',body:JSON.stringify(credentials)});localStorage.setItem('edupalgh_token',data.token);localStorage.setItem('edupalgh_user',JSON.stringify(data.user));setUser(data.user); }
-  return <AuthContext.Provider value={{ user, loading, login, platformLogin, logout }}>{children}</AuthContext.Provider>;
+  async function googleAuthenticate(intent, body) { const data = await api(`/auth/google/${intent}`, { method: 'POST', body: JSON.stringify(body) }); localStorage.setItem('edupalgh_token', data.token); localStorage.setItem('edupalgh_user', JSON.stringify(data.user)); setUser(data.user); }
+  return <AuthContext.Provider value={{ user, loading, login, platformLogin, googleAuthenticate, logout }}>{children}</AuthContext.Provider>;
 }

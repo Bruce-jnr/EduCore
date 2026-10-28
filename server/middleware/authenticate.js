@@ -11,6 +11,7 @@ export async function authenticate(req, _res, next) {
     if (!token) throw new AppError('Authentication required', 401, 'AUTH_REQUIRED');
 
     const payload = jwt.verify(token, env.JWT_SECRET);
+    if (typeof payload.sub !== 'string' || !payload.sub) throw new AppError('Invalid session subject', 401, 'INVALID_TOKEN');
     const user = await prisma.user.findFirst({
       where: { id: payload.sub, deletedAt: null, status: 'ACTIVE' },
       include: {
@@ -22,6 +23,7 @@ export async function authenticate(req, _res, next) {
 
     req.auth = {
       userId: user.id,
+      email: user.email,
       firstName: user.firstName,
       lastName: user.lastName,
       tenantId: user.tenantId,
