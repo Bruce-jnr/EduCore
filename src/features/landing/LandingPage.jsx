@@ -185,12 +185,13 @@ export function LandingPage() {
           </span>
         </a>
         <div className="marketing-links">
+          <a className="marketing-lesson-link" href="#/lesson-plans">Lesson Plans</a>
           <a href="#features">Features</a>
           <a href="#roles">Who it’s for</a>
           <a href="#why">Why EduPalGh</a>
         </div>
-        <a className="marketing-signin" href="#/login">
-          School sign in <Icon>arrow_forward</Icon>
+        <a className="marketing-signin" href="#/login" aria-label="School sign in">
+          <span>School sign in</span> <Icon>arrow_forward</Icon>
         </a>
       </nav>
 

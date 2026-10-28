@@ -341,3 +341,10 @@ Use Prisma migrations for schema changes. Do not manually modify deployed databa
 - Add rate limiting, refresh-token rotation, password-reset delivery, monitoring, and structured logs.
 - Replace local uploads with S3-compatible storage.
 - Add a background-job system for bulk email, SMS, reports, and long-running finance operations.
+
+
+## Teacher lesson-plan service
+
+The Lesson Plans workspace provides teacher-authored 12-week editable templates, a term scheme, a school review library, revision conflict protection and a printable booklet. It uses existing classes/subjects/terms and has no paid AI dependency. Curriculum content is supplied by teachers.
+
+See [lesson-plan service documentation](docs/lesson-plan-service.md) for the API, permissions, migration activation, reference observations and limitations. Run `npm run test:lesson-plans` for the database-free unit suite. Apply the additive migration and refresh sign-in before using the module.

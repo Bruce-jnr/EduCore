@@ -25,6 +25,7 @@ import { ResultsWorkflowPage } from './features/results/ResultsWorkflowPage.jsx'
 import { ReportCardsPage } from './features/results/ReportCardsPage.jsx';
 import { ProgressionPage } from './features/academics/ProgressionPage.jsx';
 import { StudentLedgerPage } from './features/finance/StudentLedgerPage.jsx';
+import { LessonPlansPage } from './features/lesson-plans/LessonPlansPage.jsx';
 import './styles.css';
 import './features/platform/platform-nav-fix.css';
 import './features/theme/theme.css';
@@ -54,6 +55,7 @@ function App() {
   if (route === '/settings') page = <SettingsPage />;
   if (route === '/settings/report-card') page = <ReportCardSettingsPage />;
   if (route === '/attendance') page = <AttendancePage />;
+  if (route === '/lesson-plans') page = <LessonPlansPage />;
   if (route.startsWith('/finance')) page = <FinancePage key={route} />;
   if (route === '/finance/bulk-bills') page = <BulkBillingPage />;
   if (route.startsWith('/finance/ledger/')) page = <StudentLedgerPage />;
@@ -65,7 +67,7 @@ function App() {
   if (loading) return <div className="app-loading"><span/><p>Loading EduPalGh…</p></div>;
   if (!user) {
     if (route.startsWith('/platform')) return <PlatformLoginPage />;
-    if (route === '/login') return <LoginPage />;
+    if (route === '/login' || route === '/lesson-plans') return <LoginPage />;
     return <LandingPage />;
   }
   if (user.isPlatformUser) { if(route==='/platform/settings')return <PlatformSettingsPage/>;if(route==='/platform/analytics')return <PlatformAnalyticsPage/>;if(route==='/platform/audit-logs')return <PlatformAuditPage/>;return <PlatformPage/>; }

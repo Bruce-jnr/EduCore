@@ -43,6 +43,7 @@ const groups = [
         permission: 'academics.view',
       },
       { label: 'Terms', icon: 'date_range', href: '#/academics/periods', permission: 'academics.view' },
+      { label: 'Lesson Plans', icon: 'auto_stories', href: '#/lesson-plans', permission: 'lesson-plans.view' },
       { label: 'Enter Scores', icon: 'grading', href: '#/results', permission: 'results.enter', teacherOnly: true },
       { label: 'Submit & Review', icon: 'task_alt', href: '#/results/workflow', permission: 'results.view' },
       { label: 'Report Cards', icon: 'description', href: '#/results/report-cards', permission: 'results.view', teacherOnly: true },

@@ -18,7 +18,7 @@ export function LoginPage() {
     setSubmitting(true);
     try {
       await login(form);
-      window.location.hash = '/dashboard';
+      window.location.hash = window.location.hash === '#/lesson-plans' ? '/lesson-plans' : '/dashboard';
     } catch (requestError) {
       setError(requestError.message);
     } finally {

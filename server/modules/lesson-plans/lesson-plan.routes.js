@@ -1,0 +1,20 @@
+import { Router } from 'express';
+import { prisma } from '../../config/prisma.js';
+import { authenticate } from '../../middleware/authenticate.js';
+import { resolveTenant } from '../../middleware/resolve-tenant.js';
+import { requirePermission } from '../../middleware/require-permission.js';
+import { validate } from '../../middleware/validate.js';
+import { asyncHandler } from '../../utils/async-handler.js';
+import { createLessonPlanService } from './lesson-plan.service.js';
+import { createLessonSchema, updateLessonSchema, getLessonSchema, listLessonSchema } from './lesson-plan.validation.js';
+
+export const lessonPlanRouter = Router();
+const service = createLessonPlanService(prisma);
+lessonPlanRouter.use(authenticate, resolveTenant, requirePermission('lesson-plans.view'));
+const respond = (operation, status = 200, message = null) => asyncHandler(async (req, res) => res.status(status).json({ success: true, data: await operation(req), message }));
+lessonPlanRouter.get('/options', respond(req => service.options(req.auth)));
+lessonPlanRouter.get('/', validate(listLessonSchema), respond(req => service.list(req.auth, req.validated.query)));
+lessonPlanRouter.post('/', requirePermission('lesson-plans.manage'), validate(createLessonSchema), respond(req => service.create(req.auth, req.validated.body), 201, 'Editable lesson booklet created'));
+lessonPlanRouter.get('/:id/booklet', validate(getLessonSchema), respond(req => service.booklet(req.auth, req.validated.params.id)));
+lessonPlanRouter.get('/:id', validate(getLessonSchema), respond(req => service.get(req.auth, req.validated.params.id)));
+lessonPlanRouter.put('/:id', requirePermission('lesson-plans.manage'), validate(updateLessonSchema), respond(req => service.update(req.auth, req.validated.params.id, req.validated.body), 200, 'Lesson booklet saved'));

@@ -761,3 +761,20 @@
     width: 100%;
   }
 }
+
+
+/* Keep the lesson service discoverable in the landing navbar at every width. */
+@media screen and (max-width: 900px) {
+  :root .marketing-links { display: flex; gap: 0; }
+  :root .marketing-links a:not(.marketing-lesson-link) { display: none; }
+  :root .marketing-lesson-link { white-space: nowrap; font-size: .875rem; }
+}
+@media screen and (max-width: 560px) {
+  :root .marketing-nav { gap: 10px; padding-inline: 12px; }
+  :root .marketing-brand { gap: 7px; }
+  :root .marketing-brand img { width: 30px; height: 30px; }
+  :root .marketing-brand strong { font-size: 1rem; }
+  :root .marketing-lesson-link { font-size: .8125rem; }
+  :root .marketing-signin { padding: 10px; min-width: 38px; min-height: 38px; }
+  :root .marketing-signin span { display: none; }
+}

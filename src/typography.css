@@ -1,0 +1,1303 @@
+/* Shared Sirbus-inspired typography. Screen only; source document and print layouts retain their typography. */
+@media screen {
+  :root {
+    --type-caption: .75rem;
+    --type-small: .875rem;
+    --type-body: 1rem;
+    --type-title-sm: 1.125rem;
+    --type-title: 1.25rem;
+    --type-heading: 1.5rem;
+    --type-page: 1.875rem;
+  }
+  :root body { font-size: var(--type-body); line-height: 1.5; }
+  :root .notification-menu>.icon-button b {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .notification-popover>header strong {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .notification-popover>header span {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .notification-popover>header button {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .notification-list>button strong {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .notification-list>button small {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .notification-list>button time {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .notification-empty strong {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .notification-empty span {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .guardian-checks label {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .guardian-record .guardian-profile em {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .filter-button>span {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .student-advanced-filters label {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .login-brand h1 {
+    font-size: 3rem;
+    line-height: 1.25;
+  }
+  :root .login-brand p {
+    font-size: var(--type-body);
+    line-height: 1.5;
+  }
+  :root .login-brand small {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .login-logo {
+    font-size: var(--type-body);
+    line-height: 1.5;
+  }
+  :root .login-card h2 {
+    font-size: 1.875rem;
+    line-height: 1.25;
+  }
+  :root .login-card > div > p {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .login-card label {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .login-help {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .marketing-brand strong {
+    font-size: var(--type-body);
+    line-height: 1.5;
+  }
+  :root .marketing-brand small {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .marketing-links a {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .marketing-signin {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .marketing-primary {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .marketing-secondary {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .hero-copy h1 {
+    font-size: 3rem;
+    line-height: 1.25;
+  }
+  :root .hero-copy > p {
+    font-size: var(--type-body);
+    line-height: 1.5;
+  }
+  :root .hero-pill {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .hero-trust span {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .section-kicker {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .marketing-section h2 {
+    font-size: 2.25rem;
+    line-height: 1.25;
+  }
+  :root .feature-band h2 {
+    font-size: 2.25rem;
+    line-height: 1.25;
+  }
+  :root .marketing-cta h2 {
+    font-size: 2.25rem;
+    line-height: 1.25;
+  }
+  :root .marketing-section > header > p {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .feature-band p {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .change-grid article > span {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .change-grid p {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .role-grid small {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .role-grid h3 {
+    font-size: 1.125rem;
+    line-height: 1.25;
+  }
+  :root .benefit-grid h3 {
+    font-size: 1.125rem;
+    line-height: 1.25;
+  }
+  :root .role-grid article > p {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .benefit-grid p {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .role-grid li {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .feature-band a {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .workflow-demo b {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .workflow-demo small {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .benefit-grid h3 {
+    font-size: 1.125rem;
+    line-height: 1.25;
+  }
+  :root .testimonial-grid blockquote > p {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .testimonial-grid blockquote footer > span {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .testimonial-grid footer strong {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .testimonial-grid footer small {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .marketing-cta > div > span {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .marketing-cta p {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .marketing-cta > a {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .marketing-footer p {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .marketing-footer > a:not(.marketing-brand) {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .marketing-footer > span {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  @media (max-width: 620px) {
+    :root .hero-copy h1 {
+      font-size: 2.25rem;
+      line-height: 1.25;
+    }
+  }
+  @media (max-width: 620px) {
+    :root .hero-copy > p {
+      font-size: var(--type-small);
+      line-height: 1.5;
+    }
+  }
+  @media (max-width: 620px) {
+    :root .marketing-section h2 {
+      font-size: 1.875rem;
+      line-height: 1.25;
+    }
+  }
+  @media (max-width: 620px) {
+    :root .feature-band h2 {
+      font-size: 1.875rem;
+      line-height: 1.25;
+    }
+  }
+  @media (max-width: 620px) {
+    :root .marketing-cta h2 {
+      font-size: 1.875rem;
+      line-height: 1.25;
+    }
+  }
+  :root .tab-count {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .table-tools>div>strong {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .assignment-form label {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .assignment-list article strong {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .assignment-list article p {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .assignment-list article small {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .academic-summary span {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .academic-list article strong {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .academic-list article p {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .access-summary span {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .permission-groups h3 {
+    font-size: 1.125rem;
+    line-height: 1.25;
+  }
+  :root .permission-groups label strong {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .permission-groups label small {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .role-chips span {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .role-permissions span {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .system-label {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .role-card h2 {
+    font-size: 1.25rem;
+    line-height: 1.25;
+  }
+  :root .role-card>p {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .role-meta {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .success-banner {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .settings-nav button {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .settings-heading h2 {
+    font-size: 1.25rem;
+    line-height: 1.25;
+  }
+  :root .settings-heading p {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .settings-form label>small {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .brand-preview strong {
+    font-size: var(--type-body);
+    line-height: 1.5;
+  }
+  :root .brand-preview small {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .feature-list strong {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .feature-list small {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .branding-logo strong {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .branding-logo p {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .branding-note strong {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .branding-note small {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .logo-upload strong {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .logo-upload p {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .inherited-branding strong {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .inherited-branding p {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .attendance-filters label {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .attendance-stats span {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .roster-heading h2 {
+    font-size: 1.25rem;
+    line-height: 1.25;
+  }
+  :root .roster-heading p {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .roster-heading span {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .roster-heading button {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .status-options button {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .remark-input {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .rate-badge {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .finance-summary span {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .finance-summary strong {
+    font-size: var(--type-body);
+    line-height: 1.5;
+  }
+  :root .finance-list article strong {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .finance-list article p {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .finance-list article>b {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .scope-cards button strong {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .scope-cards button span {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .bulk-preview strong {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .bulk-preview span {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .login-switch {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .platform-brand small {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .platform-sidebar nav:before {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .platform-sidebar nav a {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .platform-sidebar > button {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .platform-sidebar em {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .platform-topbar span {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .platform-topbar strong {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .platform-stats span {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .trial-notice strong {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .trial-notice span {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .subscription-actions span {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .subscription-actions button {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .provision-group h3 {
+    font-size: 1.125rem;
+    line-height: 1.25;
+  }
+  :root .subscription-badge {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .subscription-summary span {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .subscription-summary strong {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .school-card h2 {
+    font-size: 1.25rem;
+    line-height: 1.25;
+  }
+  :root .school-card > p {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .school-card dt {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .school-card dd {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .school-card > code {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .manage-subscription {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .school-card code {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .danger-button {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .platform-toggle strong {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .platform-toggle small {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .analytics-stats span {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .analytics-stats strong {
+    font-size: var(--type-body);
+    line-height: 1.5;
+  }
+  :root .analytics-stats small {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .bar-chart span {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .chart-legend {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .breakdown-row {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .breakdown-row strong small {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .analytics-activity strong {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .analytics-activity small {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .analytics-activity code {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .audit-filters select {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .audit-filters>input {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .audit-table time {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .audit-action {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .audit-detail h2 {
+    font-size: 1.25rem;
+    line-height: 1.25;
+  }
+  :root .audit-detail h3 {
+    font-size: 1.125rem;
+    line-height: 1.25;
+  }
+  :root .audit-detail pre {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .result-filters label {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .setup-form label {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .result-sheet h2 {
+    font-size: 1.25rem;
+    line-height: 1.25;
+  }
+  :root .setup-form h2 {
+    font-size: 1.25rem;
+    line-height: 1.25;
+  }
+  :root .scheme-list h2 {
+    font-size: 1.25rem;
+    line-height: 1.25;
+  }
+  :root .result-sheet p {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .result-sheet header>span {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .setup-row.heading {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .grade-row.heading {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .scheme-list article strong {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .scheme-list article p {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .scheme-list em {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .result-assignment-notice strong {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .result-assignment-notice p {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .workflow-column>header {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .workflow-title strong {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .workflow-title span {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .workflow-column article>p {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .workflow-column footer button {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .rejection-note {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .report-filters label {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .report-student span {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .report-student strong {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .report-empty {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .score-review summary {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .score-review th {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .score-review td {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .progression-action>label {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .progression-actions strong {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .progression-actions span {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .progression-roster h2 {
+    font-size: 1.25rem;
+    line-height: 1.25;
+  }
+  :root .progression-roster header p {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .progression-roster header label {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .progression-warning strong {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .progression-warning small {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .progression-history summary {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .progression-history summary strong {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .progression-kind {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .progression-history details p {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .ledger-summary span {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .ledger-summary small {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .ledger-type-note {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .ledger-table>.panel-heading>span {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .ledger-description strong {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .ledger-description small {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .ledger-description em {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .ledger-type {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .brand small {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .main-nav section > p {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .main-nav a {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .main-nav a em {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .sidebar-help strong {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .sidebar-help span {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .global-search input {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .profile-menu > span {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .profile-menu strong {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .profile-menu small {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .eyebrow {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .page-header h1 {
+    font-size: 1.875rem;
+    line-height: 1.25;
+  }
+  :root .profile-title h1 {
+    font-size: 1.875rem;
+    line-height: 1.25;
+  }
+  :root .page-header p {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .primary-button {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .secondary-button {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .filter-button {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .stat-copy > span {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .stat-copy small {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .panel-heading h2 {
+    font-size: 1.25rem;
+    line-height: 1.25;
+  }
+  :root .panel-heading p {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .panel-heading select {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .table-tools select {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .chart-y {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .chart-x {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .donut span {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .fee-summary > div {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .fee-summary strong {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .text-button {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .quick-actions h2 {
+    font-size: 1.25rem;
+    line-height: 1.25;
+  }
+  :root .quick-actions p {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .quick-grid a {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .quick-grid button {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .activity-item strong {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .event-list strong {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .activity-item p {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .activity-item time {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .event-list time strong {
+    font-size: var(--type-body);
+    line-height: 1.5;
+  }
+  :root .event-list time span {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .event-list p span {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .student-summary span {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .table-search input {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root th {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root td {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .student-cell > span {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .guardian-profile > span {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .student-cell strong {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .guardian-cell strong {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .guardian-cell small {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root td code {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .profile-title code {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .status-badge {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .pagination p {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .pagination button {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .pagination span {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .back-link {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .profile-title h1 {
+    font-size: 1.5rem;
+    line-height: 1.25;
+  }
+  :root .profile-title p {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .profile-tabs button {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root dt {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root dd {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root dd small {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .guardian-profile strong {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .guardian-profile p {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .guardian-flags span {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .timeline span {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .timeline strong {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .timeline small {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .attendance-score span {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .attendance-breakdown p {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .activity-side p strong {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .activity-side p small {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  @media (max-width: 560px) {
+    :root .page-header h1 {
+      font-size: 1.875rem;
+      line-height: 1.25;
+    }
+  }
+  @media (max-width: 560px) {
+    :root .profile-title h1 {
+      font-size: 1.25rem;
+      line-height: 1.25;
+    }
+  }
+  @media (max-width: 560px) {
+    :root .profile-hero .page-actions button {
+      font-size: var(--type-small);
+      line-height: 1.5;
+    }
+  }
+  :root .form-error {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .app-loading p {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .data-state p {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .data-state strong {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .form-section-heading h2 {
+    font-size: 1.25rem;
+    line-height: 1.25;
+  }
+  :root .form-section-heading p {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .form-grid label {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .empty-inline strong {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .empty-inline p {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .overview-bars span {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .overview-bars strong {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .setup-panel li {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .next-step-list > div > span {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .next-step-list strong {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .next-step-list small {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .tenant-card h2 {
+    font-size: 1.25rem;
+    line-height: 1.25;
+  }
+  :root .tenant-card p {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .security-note {
+    font-size: var(--type-caption);
+    line-height: 1.5;
+  }
+  :root .platform-shortcuts a {
+    font-size: var(--type-small);
+    line-height: 1.5;
+  }
+  :root .letterhead-preview>span {
+    font-size: 8px;
+  }
+  :root .letterhead-preview header h2 {
+    font-size: 18px;
+  }
+  :root .letterhead-preview header strong {
+    font-size: 9px;
+  }
+  :root .letterhead-preview header p {
+    font-size: 8px;
+  }
+  :root .letterhead-preview header small {
+    font-size: 8px;
+  }
+  :root .letterhead-preview footer {
+    font-size: 8px;
+  }
+  :root .report-card header span {
+    font-size: 9px;
+  }
+  :root .report-card>footer div {
+    font-size: 9px;
+  }
+  :root .report-letterhead strong {
+    font-size: 9px;
+  }
+  :root .report-letterhead small {
+    font-size: 8px;
+  }
+  :root .report-header-note {
+    font-size: 8px;
+  }
+  :root .report-title strong {
+    font-size: 12px;
+  }
+  :root .report-title span {
+    font-size: 9px;
+  }
+  :root .report-footer-text {
+    font-size: 8px;
+  }
+  :root .hero-copy h1 { font-size: clamp(2rem, calc(1.25rem + 4vw), 3.75rem); line-height: 1.12; }
+  :root :is(.app-shell, .platform-shell) .page-header h1 { font-size: clamp(1.5rem, calc(1.25rem + 1vw), 1.875rem); line-height: 1.25; }
+  :root .login-card h2 { font-size: var(--type-heading); line-height: 1.25; }
+  :root :is(.form-grid, .assignment-form, .login-card) label { font-size: var(--type-small); line-height: 1.5; }
+  :root .login-help { font-size: var(--type-small); line-height: 1.5; }
+  :root :is(.primary-button, .secondary-button, .filter-button) { min-height: 44px; }
+  :root .main-nav a, :root .platform-sidebar nav a { min-height: 44px; height: auto; padding-block: 10px; }
+  :root .notification-menu > .icon-button b { font-size: var(--type-caption); min-height: 20px; height: auto; min-width: 20px; line-height: 1.2; padding: 2px 4px; }
+  :root .notification-list > button { grid-template-columns: 35px minmax(0, 1fr); }
+  :root .notification-list > button > span { overflow-wrap: anywhere; }
+  :root .filter-button > span { min-height: 20px; height: auto; line-height: 1.2; }
+  :root .table-tools { flex-wrap: wrap; }
+  :root .student-advanced-filters label { min-width: min(190px, 100%); }
+  @media (max-width: 640px) {
+    :root :is(.app-shell, .platform-shell, .login-page) :is(input, select, textarea):not([type='checkbox']):not([type='radio']) {
+      font-size: var(--type-body); line-height: 1.5;
+    }
+    :root :is(.primary-button, .secondary-button, .filter-button) { height: auto; white-space: normal; padding-block: 10px; }
+    :root .page-header { flex-wrap: wrap; }
+  }
+}

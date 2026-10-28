@@ -183,6 +183,7 @@ model Tenant {
   financialAdjustments   FinancialAdjustment[]
 
   @@index([subscriptionStatus, subscriptionEndsAt])
+  lessonPlans LessonPlan[]
 }
 
 model PlatformSettings {
@@ -245,6 +246,7 @@ model User {
 
   @@unique([tenantId, email])
   @@index([tenantId, status])
+  lessonPlans LessonPlan[]
 }
 
 model Notification {
@@ -397,6 +399,7 @@ model AcademicPeriod {
 
   @@unique([tenantId, academicYearId, name])
   @@index([tenantId, isCurrent])
+  lessonPlans LessonPlan[]
 }
 
 model Class {
@@ -421,6 +424,7 @@ model Class {
 
   @@unique([tenantId, academicYearId, name, section])
   @@index([tenantId, status])
+  lessonPlans LessonPlan[]
 }
 
 model Subject {
@@ -437,6 +441,7 @@ model Subject {
   resultEntries      ResultEntry[]
 
   @@unique([tenantId, code])
+  lessonPlans LessonPlan[]
 }
 
 model ClassSubject {
@@ -948,4 +953,37 @@ model AuditLog {
   user       User?    @relation(fields: [userId], references: [id])
 
   @@index([tenantId, createdAt])
+}
+
+
+enum LessonPlanStatus {
+  DRAFT
+  READY
+  ARCHIVED
+}
+
+model LessonPlan {
+  id               String           @id @default(cuid())
+  tenantId         String
+  authorId         String
+  classId          String
+  subjectId        String
+  academicPeriodId String
+  title            String           @db.VarChar(150)
+  status           LessonPlanStatus @default(DRAFT)
+  weekCount        Int              @default(12)
+  weeks            Json
+  templateVersion  String           @default("teacher-template-v1")
+  revision         Int              @default(1)
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  tenant           Tenant           @relation(fields: [tenantId], references: [id])
+  author           User             @relation(fields: [authorId], references: [id])
+  class            Class            @relation(fields: [classId], references: [id])
+  subject          Subject          @relation(fields: [subjectId], references: [id])
+  academicPeriod   AcademicPeriod   @relation(fields: [academicPeriodId], references: [id])
+
+  @@index([tenantId, authorId, updatedAt])
+  @@index([tenantId, classId, academicPeriodId])
+  @@index([tenantId, status])
 }

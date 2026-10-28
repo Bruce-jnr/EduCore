@@ -15,7 +15,8 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
     "prisma:seed": "node prisma/seed.js",
-    "security:tenant": "node scripts/check-tenant-security.js"
+    "security:tenant": "node scripts/check-tenant-security.js",
+    "test:lesson-plans": "node --test tests/lesson-plans.test.js"
   },
   "dependencies": {
     "@prisma/client": "^6.16.3",

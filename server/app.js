@@ -17,6 +17,7 @@ import { financeRouter } from './modules/finance/finance.routes.js';
 import { platformRouter } from './modules/platform/platform.routes.js';
 import { resultRouter } from './modules/results/result.routes.js';
 import { notificationRouter } from './modules/notifications/notification.routes.js';
+import { lessonPlanRouter } from './modules/lesson-plans/lesson-plan.routes.js';
 
 export const app = express();
 
@@ -48,6 +49,7 @@ app.use('/api/finance', financeRouter);
 app.use('/api/platform', platformRouter);
 app.use('/api/results', resultRouter);
 app.use('/api/notifications', notificationRouter);
+app.use('/api/lesson-plans', lessonPlanRouter);
 
 app.use(notFound);
 app.use(errorHandler);

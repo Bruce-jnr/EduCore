@@ -4,6 +4,8 @@ import { createRoot } from 'react-dom/client';
 import App from './App.jsx';
 import { AuthProvider } from './features/auth/AuthContext.jsx';
 import { ThemeProvider } from './features/theme/ThemeProvider.jsx';
+import './sirbus-style.css';
+import './typography.css';
 
 const previousBrandPrefix = ['edu', 'core'].join('');
 for (const key of ['token', 'user', 'theme']) {
